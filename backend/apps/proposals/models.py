@@ -1,0 +1,79 @@
+import uuid
+
+from django.conf import settings
+from django.db import models
+
+from apps.core.models import TimeStampedModel
+
+
+class ProposalTemplate(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="proposal_templates",
+    )
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    body_template = models.TextField(
+        help_text="Supports placeholders: {{client_name}}, {{company}}, {{title}}, "
+        "{{description}}, {{amount}}, {{currency}}, {{freelancer_name}}."
+    )
+    is_default = models.BooleanField(default=False)
+
+    class Meta(TimeStampedModel.Meta):
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.name
+
+
+class Proposal(TimeStampedModel):
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Draft"
+        GENERATING = "GENERATING", "Generating"
+        READY = "READY", "Ready"
+        SENT = "SENT", "Sent"
+        ACCEPTED = "ACCEPTED", "Accepted"
+        REJECTED = "REJECTED", "Rejected"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="proposals",
+    )
+    lead = models.ForeignKey(
+        "leads.Lead",
+        on_delete=models.PROTECT,
+        related_name="proposals",
+        null=True,
+        blank=True,
+    )
+    # Soft link until Phase 5 projects app owns the FK.
+    project_id = models.UUIDField(null=True, blank=True, db_index=True)
+    template = models.ForeignKey(
+        ProposalTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="proposals",
+    )
+    title = models.CharField(max_length=255)
+    summary = models.TextField(blank=True, default="")
+    body = models.TextField(blank=True, default="")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    currency = models.CharField(max_length=3, default="USD")
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        db_index=True,
+    )
+    generation_task_id = models.CharField(max_length=255, blank=True, default="")
+
+    class Meta(TimeStampedModel.Meta):
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title

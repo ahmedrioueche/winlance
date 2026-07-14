@@ -1,4 +1,4 @@
-import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -11,6 +11,15 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-dev-key")
 DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@winlance.local")
+
+SOCIAL_AUTH_GOOGLE_CLIENT_ID = env("SOCIAL_AUTH_GOOGLE_CLIENT_ID", default="")
+SOCIAL_AUTH_GOOGLE_CLIENT_SECRET = env("SOCIAL_AUTH_GOOGLE_CLIENT_SECRET", default="")
+SOCIAL_AUTH_GITHUB_CLIENT_ID = env("SOCIAL_AUTH_GITHUB_CLIENT_ID", default="")
+SOCIAL_AUTH_GITHUB_CLIENT_SECRET = env("SOCIAL_AUTH_GITHUB_CLIENT_SECRET", default="")
+SOCIAL_AUTH_ENABLED_PROVIDERS = env.list("SOCIAL_AUTH_ENABLED_PROVIDERS", default=[])
+DEMO_ACCOUNTS_ENABLED = env.bool("DEMO_ACCOUNTS_ENABLED", default=False)
+AI_COACH_PROVIDER = env("AI_COACH_PROVIDER", default="mock")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -20,6 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "django_celery_beat",
     "apps.core",
     "apps.accounts",
@@ -68,8 +79,10 @@ DATABASES = {
         "NAME": env("POSTGRES_DB", default="winlance"),
         "USER": env("POSTGRES_USER", default="winlance"),
         "PASSWORD": env("POSTGRES_PASSWORD", default="winlance"),
-        "HOST": env("POSTGRES_HOST", default="db"),
+        "HOST": env("POSTGRES_HOST", default="localhost"),
         "PORT": env("POSTGRES_PORT", default="5432"),
+        # Use require for Supabase; disable/prefer for local Docker Postgres.
+        "OPTIONS": {"sslmode": env("POSTGRES_SSLMODE", default="prefer")},
     }
 }
 
@@ -107,6 +120,66 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "EXCEPTION_HANDLER": "apps.core.exceptions.custom_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "60/min",
+        "user": "300/min",
+        "auth": "20/min",
+        "portal": "120/min",
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "winlance-default",
+    }
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": env("LOG_LEVEL", default="INFO"),
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="amqp://guest:guest@rabbitmq:5672//")
