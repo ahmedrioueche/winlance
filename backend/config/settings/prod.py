@@ -28,13 +28,22 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
 
-# Prefer Redis cache in prod when available.
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": env("REDIS_CACHE_URL", default="redis://redis:6379/2"),
+# Prefer Redis cache in prod when REDIS_CACHE_URL is set; otherwise locmem.
+_redis_cache_url = env("REDIS_CACHE_URL", default="")
+if _redis_cache_url:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _redis_cache_url,
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "winlance-prod",
+        }
+    }
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
