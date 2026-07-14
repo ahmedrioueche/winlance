@@ -1,0 +1,104 @@
+{
+  "list": {
+    "title": "Leads",
+    "subtitle": "Track opportunities through your pipeline.",
+    "create": "New lead",
+    "pipeline": "Pipeline board",
+    "emptyTitle": "No leads yet",
+    "emptyDescription": "Create your first lead to start the sales pipeline.",
+    "score": "Score {score}"
+  },
+  "create": {
+    "title": "Create lead",
+    "titleLabel": "Title",
+    "submit": "Create"
+  },
+  "delete": {
+    "title": "Delete lead",
+    "message": "This cannot be undone. Delete this lead?",
+    "confirm": "Delete lead"
+  },
+  "detail": {
+    "back": "Back to leads",
+    "noDescription": "No description yet.",
+    "value": "Value {value}",
+    "probability": "Probability {value}%",
+    "status": "Status",
+    "rescore": "Rescore"
+  },
+  "pipeline": {
+    "title": "Pipeline",
+    "backToList": "List view",
+    "emptyColumn": "No leads"
+  },
+  "filters": {
+    "search": "Search",
+    "status": "Status",
+    "allStatuses": "All statuses"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "empty": "No contacts yet",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "noEmail": "No email",
+    "add": "Add contact"
+  },
+  "notes": {
+    "title": "Notes",
+    "empty": "No notes yet",
+    "content": "Note",
+    "add": "Add note"
+  },
+  "followUps": {
+    "title": "Follow-ups",
+    "empty": "No follow-ups yet",
+    "when": "When",
+    "notes": "Notes",
+    "add": "Schedule follow-up",
+    "complete": "Mark done",
+    "done": "Done",
+    "pageTitle": "Follow-ups",
+    "pageSubtitle": "Overdue and upcoming reminders across your pipeline.",
+    "filter": "Filter",
+    "filterOverdue": "Overdue",
+    "filterUpcoming": "Upcoming",
+    "filterCompleted": "Completed",
+    "emptyFilter": "Nothing in this filter",
+    "noNotes": "No notes",
+    "openLead": "Open lead"
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Organizations linked to your leads.",
+    "empty": "No companies yet",
+    "createTitle": "Add company",
+    "name": "Name",
+    "website": "Website",
+    "industry": "Industry",
+    "noIndustry": "No industry",
+    "create": "Create company",
+    "created": "Company created."
+  },
+  "messages": {
+    "created": "Lead created.",
+    "deleted": "Lead deleted.",
+    "transitioned": "Lead status updated.",
+    "rescored": "Lead rescored.",
+    "contactAdded": "Contact added.",
+    "noteAdded": "Note added.",
+    "followUpAdded": "Follow-up scheduled.",
+    "followUpCompleted": "Follow-up completed."
+  },
+  "status": {
+    "NEW": "New",
+    "CONTACTED": "Contacted",
+    "INTERESTED": "Interested",
+    "DISCOVERY_CALL": "Discovery call",
+    "PROPOSAL_SENT": "Proposal sent",
+    "NEGOTIATION": "Negotiation",
+    "WON": "Won",
+    "LOST": "Lost"
+  }
+}

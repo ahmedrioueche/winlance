@@ -1,5 +1,23 @@
 {
   "appName": "Winlance",
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "closeOverlay": "Close navigation overlay"
+  },
+  "shell": {
+    "sidebarLabel": "Sidebar",
+    "primaryNav": "Primary",
+    "toggleSidebar": "Open navigation",
+    "projectTitle": "Project",
+    "projectSubtitle": "Engagement workspace",
+    "projectOverview": "Overview",
+    "projectShare": "Share link",
+    "projectRequirements": "Requirements",
+    "projectMilestones": "Milestones",
+    "projectFiles": "Files",
+    "projectReports": "Reports",
+    "allProjects": "All projects"
+  },
   "nav": {
     "home": "Home",
     "login": "Log in",
@@ -7,13 +25,27 @@
     "logout": "Log out",
     "toggleTheme": "Toggle color theme",
     "themeLight": "Light",
-    "themeDark": "Dark"
+    "themeDark": "Dark",
+    "followUps": "Follow-ups",
+    "companies": "Companies",
+    "leads": "Leads",
+    "proposals": "Proposals",
+    "contracts": "Contracts",
+    "projects": "Projects",
+    "outreach": "Outreach",
+    "aiCoach": "AI Coach",
+    "analytics": "Analytics",
+    "profile": "Profile"
   },
   "actions": {
     "reload": "Reload",
     "retry": "Try again",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
+    "copy": "Copy link"
   },
   "loading": {
     "page": "Loading…",

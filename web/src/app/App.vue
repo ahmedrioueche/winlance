@@ -8,25 +8,29 @@ import AuthLayout from '@/app/layouts/AuthLayout.vue'
 import BlankLayout from '@/app/layouts/BlankLayout.vue'
 import LoadingPage from '@/app/pages/LoadingPage.vue'
 import { Toaster } from '@/shared/components/composite'
+import type { ShellVariant } from '@/shared/components/navigation/useSidebarNav'
 
 const route = useRoute()
 
-const layout = computed(() => {
-  switch (route.meta.layout) {
-    case 'app':
-      return AppLayout
-    case 'auth':
-      return AuthLayout
-    default:
-      return BlankLayout
-  }
-})
+const layoutKind = computed(() => route.meta.layout ?? 'blank')
+const shellVariant = computed<ShellVariant>(() => route.meta.shellVariant ?? 'workspace')
 </script>
 
 <template>
   <Toaster />
   <ErrorBoundary>
-    <component :is="layout">
+    <AppLayout v-if="layoutKind === 'app'" :variant="shellVariant">
+      <RouterView v-slot="{ Component }">
+        <Suspense>
+          <component :is="Component" />
+          <template #fallback>
+            <LoadingPage embedded />
+          </template>
+        </Suspense>
+      </RouterView>
+    </AppLayout>
+
+    <AuthLayout v-else-if="layoutKind === 'auth'">
       <RouterView v-slot="{ Component }">
         <Suspense>
           <component :is="Component" />
@@ -35,6 +39,17 @@ const layout = computed(() => {
           </template>
         </Suspense>
       </RouterView>
-    </component>
+    </AuthLayout>
+
+    <BlankLayout v-else>
+      <RouterView v-slot="{ Component }">
+        <Suspense>
+          <component :is="Component" />
+          <template #fallback>
+            <LoadingPage />
+          </template>
+        </Suspense>
+      </RouterView>
+    </BlankLayout>
   </ErrorBoundary>
 </template>

@@ -12,7 +12,11 @@ export const useAuthStore = defineStore('auth', () => {
   const status = ref<AuthStatus>('idle')
   const tokens = ref<AuthTokens | null>(null)
 
-  const isAuthenticated = computed(() => status.value === 'authenticated')
+  const isAuthenticated = computed(() => status.value === 'authenticated' && !!tokens.value?.access)
+
+  function setTokens(next: AuthTokens) {
+    tokens.value = next
+  }
 
   function setSession(nextUser: AuthUser, nextTokens: AuthTokens) {
     user.value = nextUser
@@ -26,13 +30,19 @@ export const useAuthStore = defineStore('auth', () => {
     status.value = 'unauthenticated'
   }
 
+  async function hydrateUser() {
+    const nextUser = await authApi.fetchCurrentUser()
+    user.value = nextUser
+    status.value = 'authenticated'
+    return nextUser
+  }
+
   async function login(email: string, password: string) {
     status.value = 'authenticating'
     try {
-      const response = await authApi.loginRequest({ email, password })
-      const nextTokens = { access: response.access, refresh: response.refresh }
-      tokens.value = nextTokens
-      const nextUser = response.user ?? (await authApi.fetchCurrentUser())
+      const nextTokens = await authApi.loginRequest({ email, password })
+      setTokens(nextTokens)
+      const nextUser = await authApi.fetchCurrentUser()
       setSession(nextUser, nextTokens)
     } catch (error) {
       clearSession()
@@ -40,10 +50,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function register(username: string, email: string, password: string) {
+    return authApi.registerRequest({ username, email, password })
+  }
+
   async function logout() {
     try {
-      if (tokens.value) {
-        await authApi.logoutRequest()
+      if (tokens.value?.refresh) {
+        await authApi.logoutRequest(tokens.value.refresh)
       }
     } catch (error) {
       logger.warn('Logout request failed', error)
@@ -52,9 +66,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function refreshAccessToken() {
+    const refresh = tokens.value?.refresh
+    if (!refresh) return null
+    try {
+      const next = await authApi.refreshRequest(refresh)
+      setTokens(next)
+      return next.access
+    } catch {
+      clearSession()
+      return null
+    }
+  }
+
   function bootstrap() {
     bindAuthInterceptors({
       getAccessToken: () => tokens.value?.access ?? null,
+      refreshAccessToken,
       onUnauthorized: () => clearSession(),
     })
     if (!tokens.value) {
@@ -68,8 +96,13 @@ export const useAuthStore = defineStore('auth', () => {
     tokens,
     isAuthenticated,
     login,
+    register,
     logout,
+    hydrateUser,
+    refreshAccessToken,
     bootstrap,
     clearSession,
+    setSession,
+    setTokens,
   }
 })

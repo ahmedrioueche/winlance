@@ -1,0 +1,2 @@
+import type { RouteRecordRaw } from 'vue-router'
+export const contractsRoutes: RouteRecordRaw[] = [{ path: '/app/contracts', name: 'contracts', component: () => import('./components/ContractsListPage.vue'), meta: { layout: 'app', requiresAuth: true } }, { path: '/app/contracts/:id', name: 'contract-detail', component: () => import('./components/ContractDetailPage.vue'), meta: { layout: 'app', requiresAuth: true } }]

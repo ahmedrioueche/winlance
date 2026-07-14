@@ -5,7 +5,12 @@ const isDev = import.meta.env.DEV
 function write(level: LogLevel, message: string, meta?: unknown) {
   if (!isDev && level === 'debug') return
   const payload = meta === undefined ? [message] : [message, meta]
-  // eslint-disable-next-line no-console
+  if (level === 'debug' || level === 'info') {
+    // Dev diagnostics only — production strips debug above.
+    // eslint-disable-next-line no-console -- logger abstraction
+    console[level](...payload)
+    return
+  }
   console[level](...payload)
 }
 

@@ -1,0 +1,1 @@
+export { aiCoachRoutes } from './routes'

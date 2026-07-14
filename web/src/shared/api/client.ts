@@ -5,16 +5,23 @@ import type { ApiError } from '@/shared/types/api'
 import { logger } from '@/shared/utils/logger'
 
 type TokenGetter = () => string | null
+type RefreshHandler = () => Promise<string | null>
 type UnauthorizedHandler = () => void
 
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
+
 let getAccessToken: TokenGetter = () => null
+let refreshAccessToken: RefreshHandler = async () => null
 let onUnauthorized: UnauthorizedHandler = () => undefined
+let refreshPromise: Promise<string | null> | null = null
 
 export function bindAuthInterceptors(options: {
   getAccessToken: TokenGetter
+  refreshAccessToken: RefreshHandler
   onUnauthorized: UnauthorizedHandler
 }) {
   getAccessToken = options.getAccessToken
+  refreshAccessToken = options.refreshAccessToken
   onUnauthorized = options.onUnauthorized
 }
 
@@ -37,12 +44,38 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     const normalized = normalizeApiError(error)
-    logger.error('API request failed', normalized)
-    if (normalized.status === 401) {
+    const original = error.config as RetriableConfig | undefined
+    const url = original?.url ?? ''
+    const isAuthEndpoint =
+      url.includes('/auth/login/') ||
+      url.includes('/auth/register/') ||
+      url.includes('/auth/token/refresh/') ||
+      url.includes('/auth/social/')
+
+    if (normalized.status === 401 && original && !original._retry && !isAuthEndpoint) {
+      original._retry = true
+      try {
+        if (!refreshPromise) {
+          refreshPromise = refreshAccessToken().finally(() => {
+            refreshPromise = null
+          })
+        }
+        const access = await refreshPromise
+        if (access) {
+          original.headers.Authorization = `Bearer ${access}`
+          return apiClient(original)
+        }
+      } catch (refreshError) {
+        logger.error('Token refresh failed', refreshError)
+      }
+      onUnauthorized()
+    } else if (normalized.status === 401 && !isAuthEndpoint) {
       onUnauthorized()
     }
+
+    logger.error('API request failed', normalized)
     return Promise.reject(normalized)
   },
 )
@@ -50,14 +83,13 @@ apiClient.interceptors.response.use(
 function normalizeApiError(error: AxiosError): ApiError {
   const status = error.response?.status ?? 0
   const data = error.response?.data as
-    | { error?: { code?: string; message?: string }; detail?: string }
+    | { error?: { code?: string; message?: string; status_code?: number }; detail?: string }
     | undefined
 
   return {
     code: data?.error?.code || (status ? `http_${status}` : 'network_error'),
-    // Technical / backend text is for logs only — UI must use translated generics.
     message: data?.error?.message || data?.detail || error.message || 'request_failed',
-    status,
+    status: data?.error?.status_code || status,
     details: data,
   }
 }

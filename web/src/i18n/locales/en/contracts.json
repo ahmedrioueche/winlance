@@ -1,0 +1,41 @@
+{
+  "title": "Contracts",
+  "subtitle": "Create and manage contracts",
+  "create": "New contract",
+  "proposal": "Proposal",
+  "proposalId": "Proposal ID",
+  "empty": "No contracts yet",
+  "generate": "Generate",
+  "export": "Export",
+  "send": "Send",
+  "sign": "Sign",
+  "status": {
+    "DRAFT": "Draft",
+    "GENERATING": "Generating…",
+    "READY": "Ready",
+    "SENT": "Sent",
+    "SIGNED": "Signed",
+    "VOID": "Void"
+  },
+  "editor": {
+    "back": "Back to contracts",
+    "title": "Title",
+    "body": "Body",
+    "template": "Template",
+    "defaultTemplate": "Default template",
+    "templateDefault": "{name} (default)",
+    "project": "Linked project",
+    "noProject": "No project linked",
+    "generating": "Generation in progress. This page will refresh when ready.",
+    "export": "Exported document",
+    "signedAt": "Signed {date}"
+  },
+  "messages": {
+    "created": "Contract created",
+    "saved": "Contract saved.",
+    "generated": "Contract generated",
+    "exportd": "Contract exported",
+    "sendd": "Contract sent",
+    "signd": "Contract signed"
+  }
+}

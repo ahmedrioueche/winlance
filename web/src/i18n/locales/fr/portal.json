@@ -1,0 +1,25 @@
+{
+  "badge": "Portail client",
+  "requirements": "Exigences",
+  "emptyRequirements": "Aucune exigence pour le moment",
+  "requirementTitle": "Titre de l’exigence",
+  "requirementDescription": "Description",
+  "addRequirement": "Ajouter une exigence",
+  "offer": "Offre",
+  "contract": "Contrat",
+  "progress": "Avancement",
+  "progressPercent": "{percent} % terminé",
+  "emptyMilestones": "Aucun jalon pour le moment",
+  "reports": "Rapports",
+  "emptyReports": "Aucun rapport pour le moment",
+  "files": "Fichiers",
+  "emptyFiles": "Aucun fichier partagé",
+  "acceptOffer": "Accepter l’offre",
+  "acceptContract": "Accepter le contrat",
+  "expiredTitle": "Lien indisponible",
+  "expiredMessage": "Ce lien de partage est invalide ou a expiré. Demandez un nouveau lien au freelance.",
+  "messages": {
+    "requirementAdded": "Exigence ajoutée",
+    "accepted": "Accepté"
+  }
+}

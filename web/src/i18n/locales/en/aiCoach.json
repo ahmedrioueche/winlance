@@ -1,0 +1,29 @@
+{
+  "title": "AI Coach",
+  "subtitle": "Pricing, negotiation, and follow-up guidance.",
+  "create": "New session",
+  "empty": "No coaching sessions yet",
+  "back": "Back to sessions",
+  "sessionTitle": "Guidance",
+  "guidanceType": "Guidance type",
+  "prompt": "What do you need help with?",
+  "promptLabel": "Your prompt",
+  "responseLabel": "Coach response",
+  "regenerate": "Regenerate",
+  "toProposal": "Insert into proposal",
+  "toOutreach": "Save as outreach template",
+  "insertTitle": "AI Coach · {type}",
+  "insertEmpty": "Nothing to insert yet.",
+  "insertReady": "Ready to insert into a proposal.",
+  "outreachReady": "Opening outreach template draft.",
+  "types": {
+    "PRICING": "Pricing",
+    "NEGOTIATION": "Negotiation",
+    "FOLLOW_UP": "Follow-up",
+    "GENERAL": "General"
+  },
+  "messages": {
+    "created": "Session created",
+    "regenerated": "Guidance regenerated"
+  }
+}

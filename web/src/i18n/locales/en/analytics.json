@@ -1,0 +1,28 @@
+{
+  "title": "Analytics",
+  "subtitle": "Pipeline health, wins, and delivery signal.",
+  "funnel": "Lead funnel",
+  "funnelHint": "Counts by pipeline stage",
+  "funnelChartLabel": "Funnel stages",
+  "summary": "Snapshot",
+  "summaryHint": "Delivery and conversion overview",
+  "empty": "No analytics yet",
+  "stageSpark": "Stage count trend",
+  "conversionSpark": "Stage conversion sparkline",
+  "kpis": {
+    "openLeads": "Open leads",
+    "winRate": "Win rate",
+    "winRateValue": "{value}%",
+    "pipeline": "Pipeline value",
+    "wonValue": "Won value",
+    "proposalsSent": "Proposals sent",
+    "contractsSigned": "Contracts signed",
+    "activeProjects": "Active projects"
+  },
+  "totals": {
+    "leads": "Total leads",
+    "won": "Won leads",
+    "proposals": "Proposals",
+    "contracts": "Contracts"
+  }
+}

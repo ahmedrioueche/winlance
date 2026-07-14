@@ -17,6 +17,12 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 if not ALLOWED_HOSTS:
     raise ImproperlyConfigured("ALLOWED_HOSTS must be set in production.")
 
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+if not CORS_ALLOWED_ORIGINS:
+    raise ImproperlyConfigured(
+        "CORS_ALLOWED_ORIGINS must be set in production to the SPA origin(s)."
+    )
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
 # Keep liveness/readiness on HTTP so Render port / health probes succeed.

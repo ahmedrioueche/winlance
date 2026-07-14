@@ -1,76 +1,97 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/features/auth'
-import { BaseButton, BaseCheckbox } from '@/shared/components/base'
+import { useFeatureFlag } from '@/shared/composables/useFeatureFlag'
+import { BaseButton, BaseCheckbox, BaseInput } from '@/shared/components/base'
 import { useToast } from '@/shared/toast/useToast'
 
 const { t } = useI18n()
+const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const toast = useToast()
+const demoEnabled = useFeatureFlag('enableDemoAuth')
 
 const email = ref('')
 const password = ref('')
 const remember = ref(false)
 const submitting = ref(false)
 
+const redirectTarget = computed(() => {
+  const raw = route.query.redirect
+  const value = Array.isArray(raw) ? raw[0] : raw
+  if (typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')) {
+    return value
+  }
+  return null
+})
+
 async function onSubmit() {
   submitting.value = true
   try {
     await auth.login(email.value, password.value)
-    toast.success('common.success.generic')
-    await router.push({ name: 'dashboard' })
+    toast.success('auth.login.success')
+    await router.push(redirectTarget.value ?? { name: 'dashboard' })
   } catch (error) {
     toast.errorFromUnknown(error)
   } finally {
     submitting.value = false
   }
 }
+
+function fillDemo() {
+  email.value = 'demo@winlance.local'
+  password.value = 'demo-password-change-me'
+}
 </script>
 
 <template>
   <section class="mx-auto w-full max-w-md rounded-xl border border-border bg-canvas-elevated p-8 shadow-lift">
-    <h1 class="font-display text-3xl text-ink">
-      {{ t('auth.login.title') }}
-    </h1>
-    <p class="mt-2 text-sm text-muted">
-      {{ t('auth.login.subtitle') }}
-    </p>
+    <h1 class="font-display text-3xl text-ink">{{ t('auth.login.title') }}</h1>
+    <p class="mt-2 text-sm text-muted">{{ t('auth.login.subtitle') }}</p>
+
+    <div
+      v-if="demoEnabled"
+      class="mt-4 rounded-md border border-border bg-accent-soft px-3 py-3 text-sm text-ink"
+    >
+      <p>{{ t('auth.login.demoHint') }}</p>
+      <BaseButton class="mt-2" size="sm" variant="secondary" @click="fillDemo">
+        {{ t('auth.login.demoFill') }}
+      </BaseButton>
+    </div>
 
     <form class="mt-8 space-y-4" @submit.prevent="onSubmit">
-      <div class="space-y-1.5">
-        <label class="block text-sm font-medium text-ink" for="email">
-          {{ t('auth.login.emailLabel') }}
-        </label>
-        <input
-          id="email"
-          v-model="email"
-          type="email"
-          autocomplete="email"
-          required
-          class="w-full rounded-md border border-border bg-canvas px-3 py-2 text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-ring/30"
-        />
-      </div>
-      <div class="space-y-1.5">
-        <label class="block text-sm font-medium text-ink" for="password">
-          {{ t('auth.login.passwordLabel') }}
-        </label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          autocomplete="current-password"
-          required
-          class="w-full rounded-md border border-border bg-canvas px-3 py-2 text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-ring/30"
-        />
-      </div>
+      <BaseInput
+        v-model="email"
+        :label="t('auth.login.emailLabel')"
+        type="email"
+        autocomplete="email"
+        required
+      />
+      <BaseInput
+        v-model="password"
+        :label="t('auth.login.passwordLabel')"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
       <BaseCheckbox v-model="remember" :label="t('auth.login.rememberLabel')" />
       <BaseButton type="submit" class="w-full" :loading="submitting">
         {{ t('auth.login.submitButton') }}
       </BaseButton>
     </form>
+
+    <p class="mt-6 text-sm text-muted">
+      <RouterLink class="text-ink underline-offset-2 hover:underline" to="/register">
+        {{ t('auth.login.toRegister') }}
+      </RouterLink>
+      ·
+      <RouterLink class="text-ink underline-offset-2 hover:underline" to="/password-reset">
+        {{ t('auth.login.toReset') }}
+      </RouterLink>
+    </p>
   </section>
 </template>

@@ -1,0 +1,32 @@
+{
+  "title": "Projects",
+  "subtitle": "Deliver client work",
+  "create": "New project",
+  "proposalId": "Proposal ID",
+  "empty": "No projects yet",
+  "share": "Create and copy portal link",
+  "shareLinks": "Share links",
+  "requirements": "Requirements",
+  "milestones": "Milestones",
+  "emptyShare": "No share links yet",
+  "emptyShareHint": "Create a portal link so your client can open the shared dashboard.",
+  "emptyRequirements": "No requirements yet",
+  "emptyMilestones": "No milestones yet",
+  "files": "Files",
+  "emptyFiles": "No files yet",
+  "fileName": "File name",
+  "fileUrl": "File URL",
+  "addFile": "Add file",
+  "reports": "Reports",
+  "emptyReports": "No reports yet",
+  "reportTitle": "Report title",
+  "reportBody": "Report body",
+  "reportVisible": "Visible to client",
+  "addReport": "Add report",
+  "messages": {
+    "created": "Project created",
+    "copied": "Portal link copied",
+    "fileAdded": "File added.",
+    "reportAdded": "Report added."
+  }
+}

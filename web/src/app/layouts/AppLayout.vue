@@ -1,39 +1,78 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed, provide } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
-import { useAuthStore } from '@/features/auth'
-import { BaseButton, ThemeToggle } from '@/shared/components/base'
+import AppShellSidebar from '@/shared/components/navigation/AppShellSidebar.vue'
+import Navbar from '@/shared/components/navigation/Navbar.vue'
+import {
+  sidebarNavKey,
+  useSidebarLinks,
+  useSidebarNav,
+  type ShellVariant,
+} from '@/shared/components/navigation/useSidebarNav'
+
+interface Props {
+  variant?: ShellVariant
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'workspace',
+})
 
 const { t } = useI18n()
-const auth = useAuthStore()
+const route = useRoute()
+const sidebarNav = useSidebarNav()
+provide(sidebarNavKey, sidebarNav)
+
+const projectId = computed(() => String(route.params.id ?? ''))
+const links = useSidebarLinks(
+  computed(() => props.variant),
+  projectId,
+)
+
+const showMobileOverlay = computed(
+  () => sidebarNav.isMobile.value && sidebarNav.sidebarOpen.value,
+)
 </script>
 
 <template>
-  <div class="min-h-dvh">
-    <header class="border-b border-border bg-canvas-elevated/90 backdrop-blur-md">
-      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-page py-4">
-        <RouterLink class="font-display text-xl text-ink" to="/">
-          Winlance
-        </RouterLink>
-        <nav class="flex items-center gap-2" aria-label="Primary">
-          <ThemeToggle />
-          <BaseButton
-            v-if="auth.isAuthenticated"
-            variant="secondary"
-            size="sm"
-            @click="auth.logout()"
-          >
-            {{ t('common.nav.logout') }}
-          </BaseButton>
-          <RouterLink v-else to="/login">
-            <BaseButton size="sm">{{ t('common.nav.login') }}</BaseButton>
-          </RouterLink>
-        </nav>
-      </div>
-    </header>
-    <main class="mx-auto max-w-6xl px-page py-8">
-      <slot />
-    </main>
+  <div class="relative flex h-screen w-full overflow-hidden bg-canvas">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-canvas-elevated focus:px-3 focus:py-2 focus:text-sm focus:text-ink focus:shadow-lift"
+    >
+      {{ t('common.a11y.skipToContent') }}
+    </a>
+
+    <div class="blueprint-grid pointer-events-none fixed inset-0 opacity-40" aria-hidden="true" />
+    <div
+      class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,var(--color-glow),transparent_70%)]"
+      aria-hidden="true"
+    />
+
+    <AppShellSidebar :links="links" />
+
+    <button
+      v-if="showMobileOverlay"
+      type="button"
+      class="fixed inset-0 z-30 bg-overlay backdrop-blur-sm md:hidden"
+      :aria-label="t('common.a11y.closeOverlay')"
+      @click="sidebarNav.closeMobileSidebar()"
+    />
+
+    <div class="relative z-10 flex min-w-0 flex-1 flex-col">
+      <Navbar :variant="variant" />
+
+      <main
+        id="main-content"
+        tabindex="-1"
+        class="flex min-h-0 flex-1 flex-col overflow-hidden outline-none"
+      >
+        <div class="flex h-full w-full flex-col overflow-auto p-6 md:p-8">
+          <slot />
+        </div>
+      </main>
+    </div>
   </div>
 </template>

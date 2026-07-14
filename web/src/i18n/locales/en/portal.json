@@ -1,0 +1,25 @@
+{
+  "badge": "Client portal",
+  "requirements": "Requirements",
+  "emptyRequirements": "No requirements yet",
+  "requirementTitle": "Requirement title",
+  "requirementDescription": "Description",
+  "addRequirement": "Add requirement",
+  "offer": "Offer",
+  "contract": "Contract",
+  "progress": "Progress",
+  "progressPercent": "{percent}% complete",
+  "emptyMilestones": "No milestones yet",
+  "reports": "Reports",
+  "emptyReports": "No reports yet",
+  "files": "Files",
+  "emptyFiles": "No shared files yet",
+  "acceptOffer": "Accept offer",
+  "acceptContract": "Accept contract",
+  "expiredTitle": "Link unavailable",
+  "expiredMessage": "This share link is invalid or has expired. Ask the freelancer for a new link.",
+  "messages": {
+    "requirementAdded": "Requirement added",
+    "accepted": "Accepted"
+  }
+}

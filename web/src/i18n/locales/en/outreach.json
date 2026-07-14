@@ -1,0 +1,90 @@
+{
+  "title": "Outreach",
+  "subtitle": "Templates, sequences, checklists, and tags for client marketing.",
+  "tabs": {
+    "label": "Outreach sections",
+    "templates": "Templates",
+    "sequences": "Sequences",
+    "checklists": "Checklists",
+    "tags": "Tags"
+  },
+  "playbook": {
+    "templates": "{count} templates",
+    "sequences": "{count} sequences",
+    "checklists": "{count} checklists"
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Organize templates, sequences, and checklists.",
+    "name": "Tag name",
+    "create": "Create tag",
+    "rename": "Rename",
+    "yours": "Your tags",
+    "system": "System tags",
+    "empty": "No tags yet",
+    "created": "Tag created.",
+    "updated": "Tag updated.",
+    "deleted": "Tag deleted.",
+    "deleteTitle": "Delete tag",
+    "deleteMessage": "Delete this tag? It will be removed from future associations."
+  },
+  "templates": {
+    "title": "Templates",
+    "subtitle": "Reusable outreach copy with placeholders.",
+    "create": "New template",
+    "empty": "No templates yet",
+    "name": "Title",
+    "type": "Type",
+    "content": "Content",
+    "tags": "Tags",
+    "tagsHint": "Comma-separated names",
+    "created": "Template created.",
+    "render": "Render / insert",
+    "renderTitle": "Render template",
+    "runRender": "Preview render",
+    "clientName": "Client name",
+    "company": "Company",
+    "roleTitle": "Role / title",
+    "insertRaw": "Insert original",
+    "insertRendered": "Insert rendered",
+    "insertReady": "Ready to insert into a proposal.",
+    "insertEmpty": "Nothing to insert yet.",
+    "types": {
+      "EMAIL": "Email",
+      "LINKEDIN": "LinkedIn",
+      "SCRIPT": "Script",
+      "OTHER": "Other"
+    }
+  },
+  "sequences": {
+    "title": "Sequences",
+    "subtitle": "Multi-step outreach cadences.",
+    "empty": "No sequences yet",
+    "step": "Step {n} · wait {days}d",
+    "templateFallback": "Template"
+  },
+  "checklists": {
+    "title": "Checklists",
+    "subtitle": "Playbook checklists and editable items.",
+    "create": "Create checklist",
+    "empty": "No checklists yet",
+    "name": "Title",
+    "description": "Description",
+    "created": "Checklist created.",
+    "itemCount": "{count} items",
+    "emptyItems": "No items yet",
+    "itemContent": "Item text",
+    "addItem": "Add item",
+    "edit": "Edit",
+    "editItem": "Edit checklist item",
+    "order": "Order {order}",
+    "orderLabel": "Order",
+    "doneDefault": "Default done",
+    "doneDefaultLabel": "Marked done by default",
+    "itemAdded": "Item added.",
+    "itemUpdated": "Item updated.",
+    "itemDeleted": "Item deleted.",
+    "deleteItemTitle": "Delete item",
+    "deleteItemMessage": "Remove this checklist item?"
+  }
+}

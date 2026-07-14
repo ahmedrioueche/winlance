@@ -1,7 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { authRoutes } from '@/features/auth'
+import { aiCoachRoutes } from '@/features/ai-coach'
+import { analyticsRoutes } from '@/features/analytics'
+import { contractsRoutes } from '@/features/contracts'
 import { homeRoutes } from '@/features/home'
+import { leadsRoutes } from '@/features/leads'
+import { outreachRoutes } from '@/features/outreach'
+import { portalRoutes } from '@/features/portal'
+import { projectsRoutes } from '@/features/projects'
+import { proposalsRoutes } from '@/features/proposals'
 import { logger } from '@/shared/utils/logger'
 
 import { registerAuthGuard } from './guards'
@@ -11,6 +19,14 @@ const router = createRouter({
   routes: [
     ...homeRoutes,
     ...authRoutes,
+    ...leadsRoutes,
+    ...proposalsRoutes,
+    ...contractsRoutes,
+    ...projectsRoutes,
+    ...portalRoutes,
+    ...outreachRoutes,
+    ...aiCoachRoutes,
+    ...analyticsRoutes,
     {
       path: '/error',
       name: 'app-error',

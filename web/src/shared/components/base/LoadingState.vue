@@ -1,5 +1,5 @@
 /**
- * Loading placeholder for data views.
+ * Full-width loading placeholder for page content areas.
  */
 <script setup lang="ts">
 interface Props {
@@ -13,13 +13,18 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div class="space-y-3" role="status" aria-live="polite">
+  <div class="w-full space-y-5" role="status" aria-live="polite">
     <p v-if="label" class="text-sm text-muted">{{ label }}</p>
-    <div
-      v-for="n in rows"
-      :key="n"
-      class="h-10 animate-pulse rounded-md bg-canvas-muted"
-      aria-hidden="true"
-    />
+    <div class="w-full space-y-3" aria-hidden="true">
+      <div class="h-9 w-2/5 max-w-sm animate-pulse rounded-md bg-canvas-muted" />
+      <div class="h-4 w-1/3 max-w-xs animate-pulse rounded-md bg-canvas-muted" />
+    </div>
+    <div class="w-full space-y-3" aria-hidden="true">
+      <div
+        v-for="n in rows"
+        :key="n"
+        class="h-20 w-full animate-pulse rounded-lg bg-canvas-muted"
+      />
+    </div>
   </div>
 </template>

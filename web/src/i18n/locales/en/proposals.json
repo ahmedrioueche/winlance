@@ -1,0 +1,50 @@
+{
+  "title": "Proposals",
+  "subtitle": "Create and send proposals",
+  "create": "New proposal",
+  "lead": "Lead",
+  "leadId": "Lead ID",
+  "empty": "No proposals yet",
+  "generate": "Generate",
+  "send": "Send",
+  "status": {
+    "DRAFT": "Draft",
+    "GENERATING": "Generating…",
+    "READY": "Ready",
+    "SENT": "Sent",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected"
+  },
+  "editor": {
+    "back": "Back to proposals",
+    "title": "Title",
+    "summary": "Summary",
+    "body": "Body",
+    "template": "Template",
+    "defaultTemplate": "Default template",
+    "templateDefault": "{name} (default)",
+    "project": "Linked project",
+    "noProject": "No project linked",
+    "generating": "Generation in progress. This page will refresh when ready."
+  },
+  "messages": {
+    "created": "Proposal created",
+    "saved": "Proposal saved.",
+    "generated": "Proposal generated",
+    "generating": "Generation started.",
+    "sendd": "Proposal sent"
+  },
+  "insert": {
+    "title": "Insert outreach content",
+    "from": "From template: {title}",
+    "target": "Proposal",
+    "mode": "How to insert",
+    "append": "Append to body",
+    "replace": "Replace body",
+    "apply": "Insert into proposal",
+    "applied": "Outreach content inserted.",
+    "missingTarget": "Choose a proposal first.",
+    "noProposals": "No proposals yet",
+    "noProposalsHint": "Create a proposal from a lead, then return here to insert outreach copy."
+  }
+}
