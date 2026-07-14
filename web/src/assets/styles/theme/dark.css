@@ -1,0 +1,30 @@
+/* Deep teal-ink night with luminous green — same brand, higher contrast surfaces. */
+[data-theme='dark'] {
+  --wl-canvas: #07131b;
+  --wl-canvas-elevated: #0d2230;
+  --wl-canvas-muted: #123041;
+  --wl-ink: #e8f1f6;
+  --wl-ink-soft: #a9becb;
+  --wl-muted: #7f97a7;
+  --wl-border: #1c394a;
+  --wl-border-strong: #2f5568;
+  --wl-accent: #3dd68c;
+  --wl-accent-foreground: #042015;
+  --wl-accent-soft: color-mix(in oklab, #3dd68c 16%, #0d2230);
+  --wl-success: #3dd68c;
+  --wl-success-soft: color-mix(in oklab, #3dd68c 14%, #0d2230);
+  --wl-warning: #e0a23a;
+  --wl-warning-soft: color-mix(in oklab, #e0a23a 14%, #0d2230);
+  --wl-error: #f07167;
+  --wl-error-soft: color-mix(in oklab, #f07167 14%, #0d2230);
+  --wl-info: #5dade2;
+  --wl-info-soft: color-mix(in oklab, #5dade2 14%, #0d2230);
+  --wl-ring: #3dd68c;
+  --wl-overlay: color-mix(in oklab, #02080c 65%, transparent);
+  --wl-glow: color-mix(in oklab, #3dd68c 18%, transparent);
+  --wl-glow-secondary: color-mix(in oklab, #5dade2 14%, transparent);
+
+  --wl-shadow-soft: 0 1px 2px color-mix(in oklab, #000 40%, transparent),
+    0 10px 28px color-mix(in oklab, #000 35%, transparent);
+  --wl-shadow-lift: 0 16px 48px color-mix(in oklab, #000 50%, transparent);
+}

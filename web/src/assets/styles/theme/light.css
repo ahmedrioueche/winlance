@@ -1,0 +1,40 @@
+/* Cool slate paper + verdant “win” accent — freelance OS, not SaaS purple. */
+:root,
+[data-theme='light'] {
+  --wl-canvas: #e7eef4;
+  --wl-canvas-elevated: #f8fbfd;
+  --wl-canvas-muted: #d9e3ec;
+  --wl-ink: #0f2438;
+  --wl-ink-soft: #345068;
+  --wl-muted: #5c7388;
+  --wl-border: #c2d0dd;
+  --wl-border-strong: #9aafc1;
+  --wl-accent: #0d9f6e;
+  --wl-accent-foreground: #032015;
+  --wl-accent-soft: color-mix(in oklab, #0d9f6e 14%, #f8fbfd);
+  --wl-success: #14855a;
+  --wl-success-soft: color-mix(in oklab, #14855a 12%, #f8fbfd);
+  --wl-warning: #b7791f;
+  --wl-warning-soft: color-mix(in oklab, #b7791f 12%, #f8fbfd);
+  --wl-error: #c23a2d;
+  --wl-error-soft: color-mix(in oklab, #c23a2d 10%, #f8fbfd);
+  --wl-info: #2a7198;
+  --wl-info-soft: color-mix(in oklab, #2a7198 12%, #f8fbfd);
+  --wl-ring: #0d9f6e;
+  --wl-overlay: color-mix(in oklab, #0f2438 45%, transparent);
+  --wl-glow: color-mix(in oklab, #0d9f6e 22%, transparent);
+  --wl-glow-secondary: color-mix(in oklab, #2a7198 16%, transparent);
+
+  --wl-font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --wl-font-display: 'Syne', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --wl-radius-sm: 0.375rem;
+  --wl-radius-md: 0.625rem;
+  --wl-radius-lg: 1rem;
+  --wl-radius-xl: 1.5rem;
+
+  --wl-space-page: 1.5rem;
+  --wl-shadow-soft: 0 1px 2px color-mix(in oklab, #0f2438 6%, transparent),
+    0 8px 24px color-mix(in oklab, #0f2438 6%, transparent);
+  --wl-shadow-lift: 0 12px 40px color-mix(in oklab, #0f2438 12%, transparent);
+}

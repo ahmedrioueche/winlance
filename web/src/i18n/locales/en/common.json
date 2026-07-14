@@ -1,0 +1,53 @@
+{
+  "appName": "Winlance",
+  "nav": {
+    "home": "Home",
+    "login": "Log in",
+    "dashboard": "Dashboard",
+    "logout": "Log out",
+    "toggleTheme": "Toggle color theme",
+    "themeLight": "Light",
+    "themeDark": "Dark"
+  },
+  "actions": {
+    "reload": "Reload",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "loading": {
+    "page": "Loading…",
+    "content": "Loading content…"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "summary": "Page {page} of {totalPages} ({total} total)"
+  },
+  "toast": {
+    "error": "Error",
+    "success": "Success",
+    "info": "Info",
+    "dismiss": "Dismiss notification"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "We couldn’t reach the server. Check your connection and try again.",
+    "unauthorized": "Please sign in to continue.",
+    "forbidden": "You don’t have permission to do that.",
+    "notFound": "We couldn’t find what you were looking for.",
+    "rateLimited": "Too many requests. Please wait a moment and try again.",
+    "server": "The server had a problem. Please try again later.",
+    "validation": "Please check your input and try again.",
+    "boundaryTitle": "Something went wrong",
+    "boundaryMessage": "An unexpected error occurred. Try reloading the page.",
+    "pageTitle": "Something went wrong",
+    "pageMessage": "We hit an unexpected problem. You can reload or go back home.",
+    "notFoundTitle": "Page not found",
+    "notFoundMessage": "That route does not exist."
+  },
+  "success": {
+    "generic": "Done."
+  }
+}

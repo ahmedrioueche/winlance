@@ -1,0 +1,43 @@
+/*
+  Tailwind theme bridge.
+  Runtime values live on --wl-* (switched by [data-theme]).
+  @theme inline exposes them as Tailwind utilities: bg-canvas, text-ink, font-display, …
+*/
+
+@theme inline {
+  --color-canvas: var(--wl-canvas);
+  --color-canvas-elevated: var(--wl-canvas-elevated);
+  --color-canvas-muted: var(--wl-canvas-muted);
+  --color-ink: var(--wl-ink);
+  --color-ink-soft: var(--wl-ink-soft);
+  --color-muted: var(--wl-muted);
+  --color-border: var(--wl-border);
+  --color-border-strong: var(--wl-border-strong);
+  --color-accent: var(--wl-accent);
+  --color-accent-foreground: var(--wl-accent-foreground);
+  --color-accent-soft: var(--wl-accent-soft);
+  --color-success: var(--wl-success);
+  --color-success-soft: var(--wl-success-soft);
+  --color-warning: var(--wl-warning);
+  --color-warning-soft: var(--wl-warning-soft);
+  --color-error: var(--wl-error);
+  --color-error-soft: var(--wl-error-soft);
+  --color-info: var(--wl-info);
+  --color-info-soft: var(--wl-info-soft);
+  --color-ring: var(--wl-ring);
+  --color-overlay: var(--wl-overlay);
+  --color-glow: var(--wl-glow);
+  --color-glow-secondary: var(--wl-glow-secondary);
+
+  --font-sans: var(--wl-font-sans);
+  --font-display: var(--wl-font-display);
+
+  --radius-sm: var(--wl-radius-sm);
+  --radius-md: var(--wl-radius-md);
+  --radius-lg: var(--wl-radius-lg);
+  --radius-xl: var(--wl-radius-xl);
+
+  --spacing-page: var(--wl-space-page);
+  --shadow-soft: var(--wl-shadow-soft);
+  --shadow-lift: var(--wl-shadow-lift);
+}

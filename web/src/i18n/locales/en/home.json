@@ -1,0 +1,14 @@
+{
+  "hero": {
+    "title": "Win freelancing work with a calmer operating system.",
+    "subtitle": "Pipeline, proposals, contracts, and client portals — one workspace for the full engagement.",
+    "ctaLogin": "Sign in",
+    "ctaApp": "Open app"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Your workspace shell is ready. Feature modules land next.",
+    "emptyTitle": "No widgets yet",
+    "emptyDescription": "Leads, outreach, and project summaries will appear here."
+  }
+}

@@ -1,0 +1,8 @@
+<script setup lang="ts">
+</script>
+
+<template>
+  <div class="min-h-dvh">
+    <slot />
+  </div>
+</template>

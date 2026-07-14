@@ -1,0 +1,40 @@
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-canvas);
+    background-image:
+      radial-gradient(1100px 560px at 8% -12%, var(--color-glow), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, var(--color-glow-secondary), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
