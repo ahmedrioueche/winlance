@@ -139,9 +139,9 @@ async function insertIntoProposal(mode: 'raw' | 'rendered') {
       <BaseButton @click="createOpen = true">{{ t('outreach.templates.create') }}</BaseButton>
     </div>
 
-    <LoadingState v-if="query.isPending" />
+    <LoadingState v-if="query.isPending.value" />
     <ErrorState
-      v-else-if="query.isError"
+      v-else-if="query.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="query.refetch()"
@@ -192,7 +192,7 @@ async function insertIntoProposal(mode: 'raw' | 'rendered') {
         <BaseButton variant="secondary" @click="createOpen = false">
           {{ t('common.actions.cancel') }}
         </BaseButton>
-        <BaseButton :loading="Boolean(create.isPending)" @click="onCreate">
+        <BaseButton :loading="create.isPending.value" @click="onCreate">
           {{ t('common.actions.create') }}
         </BaseButton>
       </template>
@@ -210,7 +210,7 @@ async function insertIntoProposal(mode: 'raw' | 'rendered') {
           <BaseInput v-model="company" :label="t('outreach.templates.company')" />
           <BaseInput v-model="roleTitle" :label="t('outreach.templates.roleTitle')" />
         </div>
-        <BaseButton :loading="Boolean(render.isPending)" @click="onRender">
+        <BaseButton :loading="render.isPending.value" @click="onRender">
           {{ t('outreach.templates.runRender') }}
         </BaseButton>
         <div

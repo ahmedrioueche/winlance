@@ -82,14 +82,41 @@ apiClient.interceptors.response.use(
 
 function normalizeApiError(error: AxiosError): ApiError {
   const status = error.response?.status ?? 0
-  const data = error.response?.data as
-    | { error?: { code?: string; message?: string; status_code?: number }; detail?: string }
+  const raw = error.response?.data as
+    | {
+        error?: {
+          code?: string
+          message?: string
+          status_code?: number
+          details?: unknown
+        }
+        detail?: string
+        [key: string]: unknown
+      }
+    | string
     | undefined
 
+  if (typeof raw === 'string') {
+    return {
+      code: status ? `http_${status}` : 'network_error',
+      message: raw || error.message || 'request_failed',
+      status,
+    }
+  }
+
+  const payload = raw?.error
+  const message =
+    (typeof payload?.message === 'string' && payload.message) ||
+    (typeof raw?.detail === 'string' && raw.detail) ||
+    error.message ||
+    'request_failed'
+
+  const details = payload?.details ?? (raw && !payload ? raw : undefined)
+
   return {
-    code: data?.error?.code || (status ? `http_${status}` : 'network_error'),
-    message: data?.error?.message || data?.detail || error.message || 'request_failed',
-    status: data?.error?.status_code || status,
-    details: data,
+    code: payload?.code || (status ? `http_${status}` : 'network_error'),
+    message,
+    status: payload?.status_code || status,
+    details,
   }
 }

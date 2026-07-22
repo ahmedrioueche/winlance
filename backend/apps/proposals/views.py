@@ -12,6 +12,7 @@ from .serializers import (
     ProposalTemplateSerializer,
 )
 from .services import (
+    cancel_proposal_generation,
     ensure_default_template,
     mark_proposal_sent,
     queue_proposal_generation,
@@ -76,6 +77,12 @@ class ProposalViewSet(viewsets.ModelViewSet):
         proposal = self.get_object()
         queue_proposal_generation(proposal)
         proposal.refresh_from_db()
+        return Response(ProposalSerializer(proposal, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"], url_path="cancel-generation")
+    def cancel_generation(self, request, pk=None):
+        proposal = self.get_object()
+        cancel_proposal_generation(proposal)
         return Response(ProposalSerializer(proposal, context={"request": request}).data)
 
     @action(detail=True, methods=["post"], url_path="send")

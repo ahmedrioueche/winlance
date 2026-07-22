@@ -188,7 +188,7 @@ async function applyInsert() {
         />
       </div>
       <template #footer>
-        <BaseButton :loading="Boolean(create.isPending)" @click="submit">
+        <BaseButton :loading="create.isPending.value" @click="submit">
           {{ t('common.actions.create') }}
         </BaseButton>
       </template>
@@ -231,7 +231,7 @@ async function applyInsert() {
         </BaseButton>
         <BaseButton
           :disabled="!proposals.length || !selectedProposalId"
-          :loading="Boolean(update.isPending)"
+          :loading="update.isPending.value"
           @click="applyInsert"
         >
           {{ t('proposals.insert.apply') }}

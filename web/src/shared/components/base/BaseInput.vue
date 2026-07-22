@@ -2,7 +2,7 @@
  * Text input with associated label.
  */
 <script setup lang="ts">
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 interface Props {
   label: string
@@ -15,7 +15,7 @@ interface Props {
   hint?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   disabled: false,
   required: false,
@@ -23,6 +23,8 @@ withDefaults(defineProps<Props>(), {
 
 const model = defineModel<string>({ default: '' })
 const id = `input-${useId()}`
+
+const resolvedPlaceholder = computed(() => props.placeholder ?? props.label)
 </script>
 
 <template>
@@ -35,7 +37,7 @@ const id = `input-${useId()}`
       :id="id"
       v-model="model"
       :type="type"
-      :placeholder="placeholder"
+      :placeholder="resolvedPlaceholder"
       :disabled="disabled"
       :required="required"
       :autocomplete="autocomplete"

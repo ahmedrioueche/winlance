@@ -3,8 +3,10 @@ import type { Router } from 'vue-router'
 import { useAuthStore } from '@/features/auth'
 
 export function registerAuthGuard(router: Router) {
-  router.beforeEach((to) => {
+  router.beforeEach(async (to) => {
     const auth = useAuthStore()
+    await auth.whenReady()
+
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
       return {
         name: 'login',

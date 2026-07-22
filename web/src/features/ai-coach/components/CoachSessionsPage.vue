@@ -92,7 +92,7 @@ async function submit() {
         <BaseTextarea v-model="prompt" :label="t('aiCoach.prompt')" :rows="4" />
       </div>
       <template #footer>
-        <BaseButton :loading="Boolean(create.isPending)" @click="submit">
+        <BaseButton :loading="create.isPending.value" @click="submit">
           {{ t('common.actions.create') }}
         </BaseButton>
       </template>

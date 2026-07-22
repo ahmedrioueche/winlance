@@ -115,10 +115,23 @@ def queue_proposal_generation(proposal):
         return proposal
 
     def enqueue():
-        result = generate_proposal_draft.delay(str(proposal.id))
-        Proposal.objects.filter(id=proposal.id).update(generation_task_id=result.id or "")
+        try:
+            result = generate_proposal_draft.delay(str(proposal.id))
+            Proposal.objects.filter(id=proposal.id).update(generation_task_id=result.id or "")
+        except Exception:
+            # Broker/worker unavailable — finish synchronously so the UI is not locked forever.
+            generate_proposal_content(proposal)
 
     transaction.on_commit(enqueue)
+    return proposal
+
+
+def cancel_proposal_generation(proposal):
+    if proposal.status != Proposal.Status.GENERATING:
+        raise ValidationError({"status": "Proposal is not generating."})
+    proposal.status = Proposal.Status.DRAFT
+    proposal.generation_task_id = ""
+    proposal.save(update_fields=["status", "generation_task_id", "updated_at"])
     return proposal
 
 

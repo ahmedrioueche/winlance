@@ -2,7 +2,7 @@
  * Textarea with associated label.
  */
 <script setup lang="ts">
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 interface Props {
   label: string
@@ -13,7 +13,7 @@ interface Props {
   error?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   rows: 4,
   disabled: false,
   required: false,
@@ -21,6 +21,8 @@ withDefaults(defineProps<Props>(), {
 
 const model = defineModel<string>({ default: '' })
 const id = `textarea-${useId()}`
+
+const resolvedPlaceholder = computed(() => props.placeholder ?? props.label)
 </script>
 
 <template>
@@ -33,7 +35,7 @@ const id = `textarea-${useId()}`
       :id="id"
       v-model="model"
       :rows="rows"
-      :placeholder="placeholder"
+      :placeholder="resolvedPlaceholder"
       :disabled="disabled"
       :required="required"
       :aria-invalid="error ? true : undefined"

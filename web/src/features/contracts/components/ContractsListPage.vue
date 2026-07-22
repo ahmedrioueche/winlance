@@ -115,7 +115,7 @@ async function submit() {
         />
       </div>
       <template #footer>
-        <BaseButton :loading="Boolean(create.isPending)" @click="submit">
+        <BaseButton :loading="create.isPending.value" @click="submit">
           {{ t('common.actions.create') }}
         </BaseButton>
       </template>

@@ -6,9 +6,73 @@
     "ctaApp": "Open app"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "subtitle": "Your workspace shell is ready. Feature modules land next.",
-    "emptyTitle": "No widgets yet",
-    "emptyDescription": "Leads, outreach, and project summaries will appear here."
+    "greeting": "Welcome back",
+    "greetingNamed": "Welcome back, {name}",
+    "lede": "A quiet pulse of your pipeline — then take the next useful step.",
+    "ctaLeads": "Open leads",
+    "ctaFollowUps": "Follow-ups",
+    "pulseTitle": "At a glance",
+    "pulseSubtitle": "Live snapshot from your workspace",
+    "pulseLink": "Full analytics",
+    "pulseEmpty": "Metrics appear as you win work through the pipeline.",
+    "guideTitle": "How Winlance fits together",
+    "guideSubtitle": "Three moves that carry a deal from interest to delivery.",
+    "guideCta": "Open the guide",
+    "steps": {
+      "capture": {
+        "title": "Capture",
+        "body": "Log leads, companies, and follow-ups so nothing soft-closes into oblivion."
+      },
+      "propose": {
+        "title": "Propose",
+        "body": "Shape outreach and proposals, then close with contracts that stay attached to the job."
+      },
+      "deliver": {
+        "title": "Deliver",
+        "body": "Run the project and share a client portal without leaving the same thread."
+      }
+    }
+  },
+  "guide": {
+    "title": "Guide",
+    "subtitle": "A short map of Winlance — enough to move, not a manual.",
+    "back": "Back to dashboard",
+    "sections": {
+      "leads": {
+        "title": "Leads & companies",
+        "body": "Start every opportunity as a lead. Attach contacts, notes, and follow-ups. Use the pipeline board when you want stage-level motion, and Companies when the account itself matters.",
+        "cta": "Go to leads"
+      },
+      "outreach": {
+        "title": "Outreach",
+        "body": "Keep reusable templates, sequences, checklists, and tags here. Render copy with client context, then push it into a proposal when you are ready.",
+        "cta": "Go to outreach"
+      },
+      "proposals": {
+        "title": "Proposals",
+        "body": "Generate from a lead, refine the body, and send when the pitch is sharp. Status updates keep you honest about what is still waiting on a reply.",
+        "cta": "Go to proposals"
+      },
+      "contracts": {
+        "title": "Contracts",
+        "body": "Turn agreed work into a contract, generate the document, and keep the paper trail tied to the same engagement.",
+        "cta": "Go to contracts"
+      },
+      "projects": {
+        "title": "Projects & portal",
+        "body": "Delivery lives on the project: requirements, milestones, files, and reports. Share a portal link when the client needs a calm view without the whole workspace.",
+        "cta": "Go to projects"
+      },
+      "coach": {
+        "title": "AI Coach",
+        "body": "Ask for pricing, negotiation, or follow-up language when you are stuck — then insert the answer into a proposal or save it as outreach copy.",
+        "cta": "Open AI Coach"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "body": "Watch open leads, win rate, pipeline value, and the funnel. Use it as a compass, not a second job.",
+        "cta": "Open analytics"
+      }
+    }
   }
 }

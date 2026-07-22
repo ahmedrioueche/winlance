@@ -22,6 +22,7 @@
     "home": "Home",
     "login": "Log in",
     "dashboard": "Dashboard",
+    "guide": "Guide",
     "logout": "Log out",
     "toggleTheme": "Toggle color theme",
     "themeLight": "Light",
@@ -81,5 +82,8 @@
   },
   "success": {
     "generic": "Done."
+  },
+  "forms": {
+    "selectPlaceholder": "Select an option"
   }
 }

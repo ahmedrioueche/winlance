@@ -36,8 +36,8 @@ const params = computed(() => ({
 }))
 
 const { data, isPending, isError, refetch } = useLeadsQuery(params)
-const createMutation = useCreateLeadMutation()
-const deleteMutation = useDeleteLeadMutation()
+const { mutateAsync: createLeadMutate, isPending: createPending } = useCreateLeadMutation()
+const { mutateAsync: deleteLeadMutate, isPending: deletePending } = useDeleteLeadMutation()
 
 const createOpen = ref(false)
 const newTitle = ref('')
@@ -62,7 +62,7 @@ watch([q, status], () => {
 
 async function createLead() {
   try {
-    const lead = await createMutation.mutateAsync({ title: newTitle.value })
+    const lead = await createLeadMutate({ title: newTitle.value })
     createOpen.value = false
     newTitle.value = ''
     toast.success('leads.messages.created')
@@ -75,7 +75,7 @@ async function createLead() {
 async function confirmDelete() {
   if (confirmDeleteId.value == null) return
   try {
-    await deleteMutation.mutateAsync(confirmDeleteId.value)
+    await deleteLeadMutate(confirmDeleteId.value)
     confirmDeleteId.value = null
     toast.success('leads.messages.deleted')
   } catch (error) {
@@ -152,7 +152,7 @@ async function confirmDelete() {
       <BaseInput v-model="newTitle" :label="t('leads.create.titleLabel')" required />
       <template #footer>
         <BaseButton variant="secondary" @click="createOpen = false">{{ t('common.actions.cancel') }}</BaseButton>
-        <BaseButton :loading="Boolean(createMutation.isPending)" @click="createLead">
+        <BaseButton :loading="createPending" @click="createLead">
           {{ t('leads.create.submit') }}
         </BaseButton>
       </template>
@@ -166,7 +166,7 @@ async function confirmDelete() {
       <p>{{ t('leads.delete.message') }}</p>
       <template #footer>
         <BaseButton variant="secondary" @click="confirmDeleteId = null">{{ t('common.actions.cancel') }}</BaseButton>
-        <BaseButton :loading="Boolean(deleteMutation.isPending)" @click="confirmDelete">
+        <BaseButton :loading="deletePending" @click="confirmDelete">
           {{ t('leads.delete.confirm') }}
         </BaseButton>
       </template>

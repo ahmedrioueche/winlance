@@ -99,9 +99,9 @@ async function addReport() {
 
 <template>
   <section class="w-full space-y-8">
-    <LoadingState v-if="projectQuery.isPending" />
+    <LoadingState v-if="projectQuery.isPending.value" />
     <ErrorState
-      v-else-if="projectQuery.isError"
+      v-else-if="projectQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="projectQuery.refetch()"
@@ -112,7 +112,7 @@ async function addReport() {
           <h1 class="font-display text-3xl text-ink">{{ project.title }}</h1>
           <p class="mt-2 text-ink-soft">{{ project.summary }}</p>
         </div>
-        <BaseButton :loading="Boolean(createShareLink.isPending)" @click="share">
+        <BaseButton :loading="createShareLink.isPending.value" @click="share">
           {{ t('projects.share') }}
         </BaseButton>
       </div>
@@ -191,7 +191,7 @@ async function addReport() {
           <BaseInput v-model="fileName" :label="t('projects.fileName')" />
           <BaseInput v-model="fileUrl" :label="t('projects.fileUrl')" />
         </div>
-        <BaseButton :loading="Boolean(createFile.isPending)" @click="addFile">
+        <BaseButton :loading="createFile.isPending.value" @click="addFile">
           {{ t('projects.addFile') }}
         </BaseButton>
       </section>
@@ -212,7 +212,7 @@ async function addReport() {
         <BaseInput v-model="reportTitle" :label="t('projects.reportTitle')" />
         <BaseTextarea v-model="reportBody" :label="t('projects.reportBody')" :rows="4" />
         <BaseCheckbox v-model="reportVisible" :label="t('projects.reportVisible')" />
-        <BaseButton :loading="Boolean(createReport.isPending)" @click="addReport">
+        <BaseButton :loading="createReport.isPending.value" @click="addReport">
           {{ t('projects.addReport') }}
         </BaseButton>
       </section>

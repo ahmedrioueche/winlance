@@ -32,13 +32,20 @@ const toast = useToast()
 
 const id = computed(() => String(route.params.id))
 const leadIdNum = computed(() => Number(id.value))
-const leadQuery = useLeadQuery(id)
-const lead = computed(() => leadQuery.data.value)
-const transition = useTransitionLeadMutation()
-const createContact = useCreateContactMutation()
-const createNote = useCreateNoteMutation()
-const createFollowUp = useCreateFollowUpMutation()
-const completeFollowUp = useCompleteFollowUpMutation()
+const {
+  data: leadData,
+  isPending,
+  isError,
+  refetch,
+} = useLeadQuery(id)
+const lead = computed(() => leadData.value)
+const { mutateAsync: transitionLead } = useTransitionLeadMutation()
+const { mutateAsync: createContact, isPending: createContactPending } = useCreateContactMutation()
+const { mutateAsync: createNote, isPending: createNotePending } = useCreateNoteMutation()
+const { mutateAsync: createFollowUp, isPending: createFollowUpPending } =
+  useCreateFollowUpMutation()
+const { mutateAsync: completeFollowUp, isPending: completeFollowUpPending } =
+  useCompleteFollowUpMutation()
 
 const statusModel = ref<LeadStatus>('NEW')
 const contactFirst = ref('')
@@ -64,7 +71,7 @@ const statusOptions = LEAD_STATUSES.map((value) => ({
 async function onStatusChange() {
   if (!lead.value || statusModel.value === lead.value.status) return
   try {
-    await transition.mutateAsync({ id: id.value, status: statusModel.value })
+    await transitionLead({ id: id.value, status: statusModel.value })
     toast.success('leads.messages.transitioned')
   } catch (error) {
     statusModel.value = lead.value.status
@@ -75,7 +82,7 @@ async function onStatusChange() {
 async function onRescore() {
   try {
     await rescoreLead(id.value)
-    await leadQuery.refetch()
+    await refetch()
     toast.success('leads.messages.rescored')
   } catch (error) {
     toast.errorFromUnknown(error)
@@ -84,7 +91,7 @@ async function onRescore() {
 
 async function addContact() {
   try {
-    await createContact.mutateAsync({
+    await createContact({
       lead: leadIdNum.value,
       first_name: contactFirst.value,
       last_name: contactLast.value,
@@ -101,7 +108,7 @@ async function addContact() {
 
 async function addNote() {
   try {
-    await createNote.mutateAsync({ lead: leadIdNum.value, content: noteContent.value })
+    await createNote({ lead: leadIdNum.value, content: noteContent.value })
     noteContent.value = ''
     toast.success('leads.messages.noteAdded')
   } catch (error) {
@@ -111,7 +118,7 @@ async function addNote() {
 
 async function addFollowUp() {
   try {
-    await createFollowUp.mutateAsync({
+    await createFollowUp({
       lead: leadIdNum.value,
       scheduled_at: new Date(followUpAt.value).toISOString(),
       notes: followUpNotes.value,
@@ -126,7 +133,7 @@ async function addFollowUp() {
 
 async function markComplete(followUpId: number) {
   try {
-    await completeFollowUp.mutateAsync({ id: followUpId })
+    await completeFollowUp({ id: followUpId })
     toast.success('leads.messages.followUpCompleted')
   } catch (error) {
     toast.errorFromUnknown(error)
@@ -144,12 +151,12 @@ function formatWhen(iso: string) {
       ← {{ t('leads.detail.back') }}
     </BaseButton>
 
-    <LoadingState v-if="leadQuery.isPending" />
+    <LoadingState v-if="isPending" />
     <ErrorState
-      v-else-if="leadQuery.isError"
+      v-else-if="isError"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
-      @retry="leadQuery.refetch()"
+      @retry="refetch()"
     />
     <EmptyState v-else-if="!lead" :title="t('common.errors.notFound')" />
 
@@ -199,7 +206,7 @@ function formatWhen(iso: string) {
           <BaseInput v-model="contactLast" :label="t('leads.contacts.lastName')" />
           <BaseInput v-model="contactEmail" :label="t('leads.contacts.email')" type="email" />
         </div>
-        <BaseButton :loading="Boolean(createContact.isPending)" @click="addContact">
+        <BaseButton :loading="createContactPending" @click="addContact">
           {{ t('leads.contacts.add') }}
         </BaseButton>
       </section>
@@ -217,7 +224,7 @@ function formatWhen(iso: string) {
           </li>
         </ul>
         <BaseTextarea v-model="noteContent" :label="t('leads.notes.content')" :rows="3" />
-        <BaseButton :loading="Boolean(createNote.isPending)" @click="addNote">
+        <BaseButton :loading="createNotePending" @click="addNote">
           {{ t('leads.notes.add') }}
         </BaseButton>
       </section>
@@ -244,7 +251,7 @@ function formatWhen(iso: string) {
               v-if="!item.completed"
               size="sm"
               variant="secondary"
-              :loading="Boolean(completeFollowUp.isPending)"
+              :loading="completeFollowUpPending"
               @click="markComplete(item.id)"
             >
               {{ t('leads.followUps.complete') }}
@@ -259,7 +266,7 @@ function formatWhen(iso: string) {
           />
           <BaseInput v-model="followUpNotes" :label="t('leads.followUps.notes')" />
         </div>
-        <BaseButton :loading="Boolean(createFollowUp.isPending)" @click="addFollowUp">
+        <BaseButton :loading="createFollowUpPending" @click="addFollowUp">
           {{ t('leads.followUps.add') }}
         </BaseButton>
       </section>

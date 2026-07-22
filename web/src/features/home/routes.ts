@@ -17,6 +17,17 @@ export const homeRoutes: RouteRecordRaw[] = [
     meta: {
       layout: 'app',
       requiresAuth: true,
+      titleKey: 'common.nav.dashboard',
+    },
+  },
+  {
+    path: '/app/guide',
+    name: 'guide',
+    component: () => import('./components/GuidePage.vue'),
+    meta: {
+      layout: 'app',
+      requiresAuth: true,
+      titleKey: 'common.nav.guide',
     },
   },
 ]

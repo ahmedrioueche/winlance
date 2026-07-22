@@ -128,9 +128,9 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
       ← {{ t('contracts.editor.back') }}
     </BaseButton>
 
-    <LoadingState v-if="contractQuery.isPending" />
+    <LoadingState v-if="contractQuery.isPending.value" />
     <ErrorState
-      v-else-if="contractQuery.isError"
+      v-else-if="contractQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="contractQuery.refetch()"
@@ -149,7 +149,7 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
         <div class="flex flex-wrap gap-2">
           <BaseButton
             variant="secondary"
-            :loading="Boolean(update.isPending)"
+            :loading="update.isPending.value"
             :disabled="isGenerating"
             @click="save"
           >
@@ -158,7 +158,7 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
           <BaseButton
             v-for="kind in (['generate', 'export', 'send', 'sign'] as const)"
             :key="kind"
-            :loading="Boolean(action.isPending) || (kind === 'generate' && isGenerating)"
+            :loading="action.isPending.value || (kind === 'generate' && isGenerating)"
             :disabled="isGenerating && kind !== 'generate'"
             @click="act(kind)"
           >

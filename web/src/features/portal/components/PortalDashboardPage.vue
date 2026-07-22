@@ -70,14 +70,14 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
 
 <template>
   <main class="mx-auto min-h-dvh w-full max-w-4xl p-6 md:p-8">
-    <LoadingState v-if="portalQuery.isPending" />
+    <LoadingState v-if="portalQuery.isPending.value" />
     <EmptyState
       v-else-if="isExpired"
       :title="t('portal.expiredTitle')"
       :description="t('portal.expiredMessage')"
     />
     <ErrorState
-      v-else-if="portalQuery.isError"
+      v-else-if="portalQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="portalQuery.refetch()"
@@ -112,7 +112,7 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         <div class="space-y-3 rounded-lg border border-dashed border-border p-4 sm:p-5">
           <BaseInput v-model="title" :label="t('portal.requirementTitle')" />
           <BaseTextarea v-model="description" :label="t('portal.requirementDescription')" />
-          <BaseButton class="w-full sm:w-auto" :loading="Boolean(create.isPending)" @click="add">
+          <BaseButton class="w-full sm:w-auto" :loading="create.isPending.value" @click="add">
             {{ t('portal.addRequirement') }}
           </BaseButton>
         </div>
@@ -127,7 +127,7 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         </div>
         <BaseButton
           class="w-full sm:w-auto"
-          :loading="Boolean(action.isPending)"
+          :loading="action.isPending.value"
           @click="accept('accept-offer')"
         >
           {{ t('portal.acceptOffer') }}
@@ -143,7 +143,7 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         </div>
         <BaseButton
           class="w-full sm:w-auto"
-          :loading="Boolean(action.isPending)"
+          :loading="action.isPending.value"
           @click="accept('accept-contract')"
         >
           {{ t('portal.acceptContract') }}

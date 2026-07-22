@@ -12,6 +12,7 @@ from .serializers import (
     ContractTemplateSerializer,
 )
 from .services import (
+    cancel_contract_generation,
     ensure_default_contract_template,
     mark_contract_sent,
     mark_contract_signed,
@@ -81,6 +82,12 @@ class ContractViewSet(viewsets.ModelViewSet):
         contract = self.get_object()
         queue_contract_generation(contract)
         contract.refresh_from_db()
+        return Response(ContractSerializer(contract, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"], url_path="cancel-generation")
+    def cancel_generation(self, request, pk=None):
+        contract = self.get_object()
+        cancel_contract_generation(contract)
         return Response(ContractSerializer(contract, context={"request": request}).data)
 
     @action(detail=True, methods=["post"], url_path="export")

@@ -153,6 +153,7 @@ These rules define how Cursor's AI should generate, refactor, and reason about c
 
 - All HTTP calls go through a single API client abstraction (`src/shared/api/client.ts`, e.g. wrapping `axios`/`ky`/`fetch`) with interceptors for auth headers, error normalization (§13), and base URL (§2). No component calls `fetch`/`axios` directly.
 - Use **TanStack Query (Vue Query)** (or an equivalent caching layer) for server state: caching, deduplication, background refetching, stale-while-revalidate. Don't reinvent caching with manual `ref` + `onMounted` fetch calls for anything beyond trivial one-off fetches.
+- **Vue Query refs:** `isPending` / `isError` / `isFetching` on a query or mutation object are nested `Ref`s. In templates they do **not** auto-unwrap. Always destructure (`const { isPending, isError, data } = useXQuery()`) or read `.value` (`query.isPending.value`). Never wrap with `Boolean(query.isPending)` — that is always `true` and permanently disables buttons / sticks loading UIs.
 - Pagination pattern is consistent app-wide: prefer cursor-based pagination when the API supports it; otherwise page/limit. Encapsulate in a `usePagination()` composable shared across list views.
 - Search/filter state is synced to the URL query string for shareability/back-button support, not kept purely in local component state.
 - Background refetching (on window focus, interval, or mutation invalidation) is configured per query, not globally blanket-enabled without reason.

@@ -1,6 +1,6 @@
 import { useI18n } from 'vue-i18n'
 
-import { errorCodeToI18nKey, isApiErrorLike } from './errorMessages'
+import { errorCodeToI18nKey, resolveErrorToastMessage } from './errorMessages'
 import { clearToasts, dismissToast, pushToast, toasts } from './store'
 
 export function useToast() {
@@ -10,10 +10,9 @@ export function useToast() {
     pushToast('error', t(errorCodeToI18nKey(code)))
   }
 
-  /** Show a generic, translated error toast for an API (or unknown) failure. */
+  /** Prefer API validation messages; fall back to translated generic codes. */
   function errorFromUnknown(error: unknown) {
-    const code = isApiErrorLike(error) ? error.code : undefined
-    errorFromCode(code)
+    pushToast('error', resolveErrorToastMessage(error, t))
   }
 
   function success(messageKey: string, params?: Record<string, unknown>) {

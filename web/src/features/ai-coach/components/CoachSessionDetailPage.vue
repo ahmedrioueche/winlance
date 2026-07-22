@@ -74,9 +74,9 @@ async function openInOutreach() {
       ← {{ t('aiCoach.back') }}
     </BaseButton>
 
-    <LoadingState v-if="sessionQuery.isPending" />
+    <LoadingState v-if="sessionQuery.isPending.value" />
     <ErrorState
-      v-else-if="sessionQuery.isError"
+      v-else-if="sessionQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="sessionQuery.refetch()"
@@ -92,7 +92,7 @@ async function openInOutreach() {
         <div class="flex flex-wrap gap-2">
           <BaseButton
             variant="secondary"
-            :loading="Boolean(regenerate.isPending)"
+            :loading="regenerate.isPending.value"
             @click="onRegenerate"
           >
             {{ t('aiCoach.regenerate') }}

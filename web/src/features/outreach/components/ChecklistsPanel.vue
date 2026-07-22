@@ -126,9 +126,9 @@ async function confirmDeleteItem() {
       <p class="mt-1 text-sm text-muted">{{ t('outreach.checklists.subtitle') }}</p>
     </div>
 
-    <LoadingState v-if="query.isPending" />
+    <LoadingState v-if="query.isPending.value" />
     <ErrorState
-      v-else-if="query.isError"
+      v-else-if="query.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="query.refetch()"
@@ -138,7 +138,7 @@ async function confirmDeleteItem() {
         <BaseInput v-model="title" :label="t('outreach.checklists.name')" />
         <BaseInput v-model="description" :label="t('outreach.checklists.description')" />
       </div>
-      <BaseButton :loading="Boolean(create.isPending)" @click="onCreate">
+      <BaseButton :loading="create.isPending.value" @click="onCreate">
         {{ t('outreach.checklists.create') }}
       </BaseButton>
 
@@ -206,7 +206,7 @@ async function confirmDeleteItem() {
               class="min-w-[16rem] flex-1"
               :label="t('outreach.checklists.itemContent')"
             />
-            <BaseButton :loading="Boolean(addItem.isPending)" @click="onAddItem">
+            <BaseButton :loading="addItem.isPending.value" @click="onAddItem">
               {{ t('outreach.checklists.addItem') }}
             </BaseButton>
           </div>
@@ -228,7 +228,7 @@ async function confirmDeleteItem() {
         <BaseButton variant="secondary" @click="editing = null">
           {{ t('common.actions.cancel') }}
         </BaseButton>
-        <BaseButton :loading="Boolean(updateItem.isPending)" @click="saveEdit">
+        <BaseButton :loading="updateItem.isPending.value" @click="saveEdit">
           {{ t('common.actions.save') }}
         </BaseButton>
       </template>
@@ -244,7 +244,7 @@ async function confirmDeleteItem() {
         <BaseButton variant="secondary" @click="deleteItemId = null">
           {{ t('common.actions.cancel') }}
         </BaseButton>
-        <BaseButton :loading="Boolean(deleteItem.isPending)" @click="confirmDeleteItem">
+        <BaseButton :loading="deleteItem.isPending.value" @click="confirmDeleteItem">
           {{ t('common.actions.delete') }}
         </BaseButton>
       </template>

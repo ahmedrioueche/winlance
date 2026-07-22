@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/features/auth'
 import { BaseButton, ThemeToggle } from '@/shared/components/base'
@@ -27,11 +27,11 @@ const title = computed(() => {
   const name = typeof route.name === 'string' ? route.name : 'dashboard'
   const map: Record<string, string> = {
     dashboard: 'common.nav.dashboard',
+    guide: 'common.nav.guide',
     leads: 'common.nav.leads',
     'leads-pipeline': 'common.nav.leads',
     'lead-detail': 'common.nav.leads',
     'follow-ups': 'common.nav.followUps',
-    companies: 'common.nav.companies',
     proposals: 'common.nav.proposals',
     'proposal-detail': 'common.nav.proposals',
     contracts: 'common.nav.contracts',
@@ -40,6 +40,7 @@ const title = computed(() => {
     'project-detail': 'common.shell.projectTitle',
     outreach: 'common.nav.outreach',
     'ai-coach': 'common.nav.aiCoach',
+    companies: 'common.nav.companies',
     analytics: 'common.nav.analytics',
     profile: 'common.nav.profile',
   }
@@ -51,7 +52,7 @@ const userLabel = computed(() => auth.user?.username || auth.user?.email || '')
 
 <template>
   <header
-    class="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-canvas-elevated/90 px-6 backdrop-blur-md md:px-8"
+    class="border-border bg-canvas-elevated/90 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b px-6 backdrop-blur-md md:px-8"
   >
     <BaseButton
       variant="ghost"
@@ -65,16 +66,16 @@ const userLabel = computed(() => auth.user?.username || auth.user?.email || '')
     </BaseButton>
 
     <div class="min-w-0 flex-1">
-      <p class="truncate font-display text-base font-semibold text-ink md:text-lg">
+      <p class="font-display text-ink truncate text-base font-semibold md:text-lg">
         {{ title }}
       </p>
-      <p v-if="variant === 'project'" class="truncate text-xs text-muted">
+      <p v-if="variant === 'project'" class="text-muted truncate text-xs">
         {{ t('common.shell.projectSubtitle') }}
       </p>
     </div>
 
     <div class="flex items-center gap-2">
-      <p v-if="userLabel" class="hidden text-sm text-muted sm:block">{{ userLabel }}</p>
+      <p v-if="userLabel" class="text-muted hidden text-sm sm:block">{{ userLabel }}</p>
       <ThemeToggle />
       <BaseButton variant="secondary" size="sm" @click="auth.logout()">
         {{ t('common.nav.logout') }}

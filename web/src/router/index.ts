@@ -40,12 +40,31 @@ const router = createRouter({
       meta: { layout: 'blank', requiresAuth: false },
     },
   ],
-  scrollBehavior() {
-    return { top: 0 }
+  scrollBehavior(to, _from, savedPosition) {
+    const scroller = document.getElementById('app-scroll')
+    if (scroller) {
+      scroller.scrollTo({ top: 0, left: 0 })
+    }
+
+    if (savedPosition) {
+      return savedPosition
+    }
+    if (to.hash) {
+      return { el: to.hash, top: 0 }
+    }
+    return { top: 0, left: 0 }
   },
 })
 
 registerAuthGuard(router)
+
+router.afterEach((to) => {
+  if (to.hash) return
+  requestAnimationFrame(() => {
+    document.getElementById('app-scroll')?.scrollTo({ top: 0, left: 0 })
+    window.scrollTo({ top: 0, left: 0 })
+  })
+})
 
 router.onError((error) => {
   logger.error('Router error', error)

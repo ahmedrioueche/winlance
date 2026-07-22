@@ -57,9 +57,9 @@ function formatWhen(iso: string) {
       <BaseSelect v-model="filter" :label="t('leads.followUps.filter')" :options="filterOptions" />
     </div>
 
-    <LoadingState v-if="query.isPending" />
+    <LoadingState v-if="query.isPending.value" />
     <ErrorState
-      v-else-if="query.isError"
+      v-else-if="query.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="query.refetch()"
@@ -82,7 +82,7 @@ function formatWhen(iso: string) {
           v-if="!item.completed"
           size="sm"
           variant="secondary"
-          :loading="Boolean(complete.isPending)"
+          :loading="complete.isPending.value"
           @click="markComplete(item.id)"
         >
           {{ t('leads.followUps.complete') }}

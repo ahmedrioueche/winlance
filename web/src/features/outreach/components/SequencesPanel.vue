@@ -35,9 +35,9 @@ const playbook = computed(() => playbookQuery.data.value)
       </p>
     </div>
 
-    <LoadingState v-if="sequencesQuery.isPending" />
+    <LoadingState v-if="sequencesQuery.isPending.value" />
     <ErrorState
-      v-else-if="sequencesQuery.isError"
+      v-else-if="sequencesQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="sequencesQuery.refetch()"

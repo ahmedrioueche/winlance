@@ -25,14 +25,16 @@
     "templateDefault": "{name} (default)",
     "project": "Linked project",
     "noProject": "No project linked",
-    "generating": "Generation in progress. This page will refresh when ready."
+    "generating": "Generation in progress. This page will refresh when ready.",
+    "cancelGeneration": "Cancel generation"
   },
   "messages": {
     "created": "Proposal created",
     "saved": "Proposal saved.",
     "generated": "Proposal generated",
     "generating": "Generation started.",
-    "sendd": "Proposal sent"
+    "cancelled": "Generation cancelled.",
+    "sent": "Proposal sent"
   },
   "insert": {
     "title": "Insert outreach content",

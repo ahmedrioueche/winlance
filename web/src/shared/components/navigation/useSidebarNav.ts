@@ -107,13 +107,14 @@ export function useSidebarLinks(
 
     return [
       { to: '/app', label: t('common.nav.dashboard'), exact: true },
+      { to: '/app/guide', label: t('common.nav.guide'), exact: true },
       { to: '/app/leads', label: t('common.nav.leads') },
       { to: '/app/leads/follow-ups', label: t('common.nav.followUps') },
-      { to: '/app/companies', label: t('common.nav.companies') },
       { to: '/app/proposals', label: t('common.nav.proposals') },
       { to: '/app/contracts', label: t('common.nav.contracts') },
       { to: '/app/projects', label: t('common.nav.projects') },
       { to: '/app/outreach', label: t('common.nav.outreach') },
+      { to: '/app/companies', label: t('common.nav.companies') },
       { to: '/app/ai-coach', label: t('common.nav.aiCoach') },
       { to: '/app/analytics', label: t('common.nav.analytics') },
       { to: '/app/profile', label: t('common.nav.profile') },

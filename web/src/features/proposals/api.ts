@@ -39,6 +39,11 @@ export async function generateProposal(id: string) {
   return data
 }
 
+export async function cancelProposalGeneration(id: string) {
+  const { data } = await apiClient.post<Proposal>(`/proposals/${id}/cancel-generation/`)
+  return data
+}
+
 export async function sendProposal(id: string) {
   const { data } = await apiClient.post<Proposal>(`/proposals/${id}/send/`)
   return data

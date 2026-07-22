@@ -81,9 +81,9 @@ async function confirmDelete() {
       <p class="mt-1 text-sm text-muted">{{ t('outreach.tags.subtitle') }}</p>
     </div>
 
-    <LoadingState v-if="query.isPending" />
+    <LoadingState v-if="query.isPending.value" />
     <ErrorState
-      v-else-if="query.isError"
+      v-else-if="query.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="query.refetch()"
@@ -91,7 +91,7 @@ async function confirmDelete() {
     <template v-else>
       <form class="flex flex-wrap items-end gap-3" @submit.prevent="onCreate">
         <BaseInput v-model="name" class="min-w-[14rem] flex-1" :label="t('outreach.tags.name')" />
-        <BaseButton type="submit" :loading="Boolean(create.isPending)">
+        <BaseButton type="submit" :loading="create.isPending.value">
           {{ t('outreach.tags.create') }}
         </BaseButton>
       </form>
@@ -108,7 +108,7 @@ async function confirmDelete() {
             <template v-if="editingId === tag.id">
               <BaseInput v-model="editName" class="min-w-[12rem] flex-1" :label="t('outreach.tags.name')" />
               <div class="flex gap-2">
-                <BaseButton size="sm" :loading="Boolean(update.isPending)" @click="saveEdit">
+                <BaseButton size="sm" :loading="update.isPending.value" @click="saveEdit">
                   {{ t('common.actions.save') }}
                 </BaseButton>
                 <BaseButton size="sm" variant="secondary" @click="editingId = null">
@@ -158,7 +158,7 @@ async function confirmDelete() {
         <BaseButton variant="secondary" @click="deleteId = null">
           {{ t('common.actions.cancel') }}
         </BaseButton>
-        <BaseButton :loading="Boolean(remove.isPending)" @click="confirmDelete">
+        <BaseButton :loading="remove.isPending.value" @click="confirmDelete">
           {{ t('common.actions.delete') }}
         </BaseButton>
       </template>

@@ -22,6 +22,7 @@
     "home": "Accueil",
     "login": "Connexion",
     "dashboard": "Tableau de bord",
+    "guide": "Guide",
     "logout": "Déconnexion",
     "toggleTheme": "Changer le thème",
     "themeLight": "Clair",
@@ -81,5 +82,8 @@
   },
   "success": {
     "generic": "Terminé."
+  },
+  "forms": {
+    "selectPlaceholder": "Choisir une option"
   }
 }

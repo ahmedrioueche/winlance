@@ -24,13 +24,27 @@ const asideClass = computed(() => {
     : '-translate-x-full pointer-events-none'
 })
 
-function isActive(link: SidebarLink) {
-  const [path, hash] = link.to.split('#')
-  const pathMatches = link.exact
+function pathMatches(path: string, exact?: boolean) {
+  return exact
     ? route.path === path
     : route.path === path || route.path.startsWith(`${path}/`)
+}
 
-  if (!pathMatches) return false
+function isActive(link: SidebarLink) {
+  const [path, hash] = link.to.split('#')
+  if (!pathMatches(path, link.exact)) return false
+
+  // Prefer the longest matching path so /app/leads/follow-ups does not also activate /app/leads.
+  if (!link.exact && !hash) {
+    const hasMoreSpecificMatch = props.links.some((other) => {
+      if (other.to === link.to) return false
+      const [otherPath, otherHash] = other.to.split('#')
+      if (otherHash || otherPath.length <= path.length) return false
+      return pathMatches(otherPath, other.exact)
+    })
+    if (hasMoreSpecificMatch) return false
+  }
+
   if (hash) return route.hash === `#${hash}`
   // Exact overview link: active when no section hash
   if (link.exact) return !route.hash || route.hash === '#'

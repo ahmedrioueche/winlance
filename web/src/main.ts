@@ -20,6 +20,6 @@ app.use(VueQueryPlugin)
 initMonitoring(app)
 
 const auth = useAuthStore()
-auth.bootstrap()
-
-app.mount('#app')
+void auth.bootstrap().finally(() => {
+  app.mount('#app')
+})

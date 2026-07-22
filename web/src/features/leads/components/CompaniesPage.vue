@@ -47,9 +47,9 @@ async function onCreate() {
       <p class="mt-2 text-muted">{{ t('leads.companies.subtitle') }}</p>
     </div>
 
-    <LoadingState v-if="query.isPending" />
+    <LoadingState v-if="query.isPending.value" />
     <ErrorState
-      v-else-if="query.isError"
+      v-else-if="query.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="query.refetch()"
@@ -74,7 +74,7 @@ async function onCreate() {
       <BaseInput v-model="name" :label="t('leads.companies.name')" required />
       <BaseInput v-model="website" :label="t('leads.companies.website')" />
       <BaseInput v-model="industry" :label="t('leads.companies.industry')" />
-      <BaseButton :loading="Boolean(create.isPending)" @click="onCreate">
+      <BaseButton :loading="create.isPending.value" @click="onCreate">
         {{ t('leads.companies.create') }}
       </BaseButton>
     </div>

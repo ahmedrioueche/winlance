@@ -50,6 +50,10 @@ export function useGenerateProposalMutation() {
   return useInvalidateMutation(api.generateProposal)
 }
 
+export function useCancelProposalGenerationMutation() {
+  return useInvalidateMutation(api.cancelProposalGeneration)
+}
+
 export function useSendProposalMutation() {
   return useInvalidateMutation(api.sendProposal)
 }

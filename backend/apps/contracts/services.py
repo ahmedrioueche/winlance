@@ -99,10 +99,22 @@ def queue_contract_generation(contract):
         return contract
 
     def enqueue():
-        result = generate_contract_draft.delay(str(contract.id))
-        Contract.objects.filter(id=contract.id).update(generation_task_id=result.id or "")
+        try:
+            result = generate_contract_draft.delay(str(contract.id))
+            Contract.objects.filter(id=contract.id).update(generation_task_id=result.id or "")
+        except Exception:
+            generate_contract_content(contract)
 
     transaction.on_commit(enqueue)
+    return contract
+
+
+def cancel_contract_generation(contract):
+    if contract.status != Contract.Status.GENERATING:
+        raise ValidationError({"status": "Contract is not generating."})
+    contract.status = Contract.Status.DRAFT
+    contract.generation_task_id = ""
+    contract.save(update_fields=["status", "generation_task_id", "updated_at"])
     return contract
 
 

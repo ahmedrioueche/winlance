@@ -32,7 +32,7 @@ const redirectTarget = computed(() => {
 async function onSubmit() {
   submitting.value = true
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(email.value, password.value, remember.value)
     toast.success('auth.login.success')
     await router.push(redirectTarget.value ?? { name: 'dashboard' })
   } catch (error) {

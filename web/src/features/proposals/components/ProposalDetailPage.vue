@@ -17,6 +17,7 @@ import { useStatusPolling } from '@/shared/composables/useStatusPolling'
 import { useToast } from '@/shared/toast/useToast'
 
 import {
+  useCancelProposalGenerationMutation,
   useGenerateProposalMutation,
   useProposalQuery,
   useProposalTemplatesQuery,
@@ -34,6 +35,7 @@ const proposalQuery = useProposalQuery(id)
 const templatesQuery = useProposalTemplatesQuery()
 const projectsQuery = useProjectsQuery(computed(() => ({ page: 1, page_size: 50 })))
 const generate = useGenerateProposalMutation()
+const cancelGeneration = useCancelProposalGenerationMutation()
 const send = useSendProposalMutation()
 const update = useUpdateProposalMutation()
 
@@ -126,10 +128,21 @@ async function onGenerate() {
   }
 }
 
+async function onCancelGeneration() {
+  try {
+    await cancelGeneration.mutateAsync(id.value)
+    dirty.value = false
+    toast.success('proposals.messages.cancelled')
+    await proposalQuery.refetch()
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
+
 async function onSend() {
   try {
     await send.mutateAsync(id.value)
-    toast.success('proposals.messages.sendd')
+    toast.success('proposals.messages.sent')
     await proposalQuery.refetch()
   } catch (error) {
     toast.errorFromUnknown(error)
@@ -143,9 +156,9 @@ async function onSend() {
       ← {{ t('proposals.editor.back') }}
     </BaseButton>
 
-    <LoadingState v-if="proposalQuery.isPending" />
+    <LoadingState v-if="proposalQuery.isPending.value" />
     <ErrorState
-      v-else-if="proposalQuery.isError"
+      v-else-if="proposalQuery.isError.value"
       :title="t('common.errors.generic')"
       :retry-label="t('common.actions.retry')"
       @retry="proposalQuery.refetch()"
@@ -161,14 +174,14 @@ async function onSend() {
         <div class="flex flex-wrap gap-2">
           <BaseButton
             variant="secondary"
-            :loading="Boolean(update.isPending)"
+            :loading="update.isPending.value"
             :disabled="isGenerating"
             @click="save"
           >
             {{ t('common.actions.save') }}
           </BaseButton>
           <BaseButton
-            :loading="Boolean(generate.isPending) || isGenerating"
+            :loading="generate.isPending.value"
             :disabled="isGenerating"
             @click="onGenerate"
           >
@@ -176,7 +189,7 @@ async function onSend() {
           </BaseButton>
           <BaseButton
             variant="secondary"
-            :loading="Boolean(send.isPending)"
+            :loading="send.isPending.value"
             :disabled="isGenerating"
             @click="onSend"
           >
@@ -187,10 +200,18 @@ async function onSend() {
 
       <div
         v-if="isGenerating"
-        class="rounded-lg border border-border bg-accent-soft px-4 py-3 text-sm text-ink"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-accent-soft px-4 py-3 text-sm text-ink"
         role="status"
       >
-        {{ t('proposals.editor.generating') }}
+        <p>{{ t('proposals.editor.generating') }}</p>
+        <BaseButton
+          size="sm"
+          variant="secondary"
+          :loading="cancelGeneration.isPending.value"
+          @click="onCancelGeneration"
+        >
+          {{ t('proposals.editor.cancelGeneration') }}
+        </BaseButton>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
