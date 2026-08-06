@@ -36,12 +36,12 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "apps.core",
     "apps.accounts",
-    "apps.leads",
-    "apps.outreach",
+        "apps.leads",
+    # "apps.outreach",  # deprecated
     "apps.proposals",
     "apps.contracts",
     "apps.projects",
-    "apps.ai_coach",
+    # "apps.ai_coach",  # deprecated
     "apps.analytics",
 ]
 

@@ -26,23 +26,11 @@ const title = computed(() => {
   }
   const name = typeof route.name === 'string' ? route.name : 'dashboard'
   const map: Record<string, string> = {
-    dashboard: 'common.nav.dashboard',
-    guide: 'common.nav.guide',
-    leads: 'common.nav.leads',
-    'leads-pipeline': 'common.nav.leads',
-    'lead-detail': 'common.nav.leads',
-    'follow-ups': 'common.nav.followUps',
-    proposals: 'common.nav.proposals',
-    'proposal-detail': 'common.nav.proposals',
-    contracts: 'common.nav.contracts',
-    'contract-detail': 'common.nav.contracts',
+    home: 'common.nav.home',
     projects: 'common.nav.projects',
-    'project-detail': 'common.shell.projectTitle',
-    outreach: 'common.nav.outreach',
-    'ai-coach': 'common.nav.aiCoach',
-    companies: 'common.nav.companies',
+    clients: 'common.nav.clients',
     analytics: 'common.nav.analytics',
-    profile: 'common.nav.profile',
+    settings: 'common.nav.settings',
   }
   return t(map[name] ?? 'common.nav.dashboard')
 })
