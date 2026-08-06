@@ -10,7 +10,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "password")
+        fields = ("username", "email", "password", "first_name", "last_name")
 
     def validate_email(self, value):
         if User.objects.filter(email__iexact=value).exists():
@@ -20,7 +20,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password")
         user = User.objects.create_user(password=password, **validated_data)
-        user.generate_email_verification_token()
+        from django.conf import settings
+        if getattr(settings, "EMAIL_VERIFICATION_REQUIRED", True):
+            user.generate_email_verification_token()
         return user
 
 

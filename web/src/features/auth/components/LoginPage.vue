@@ -63,7 +63,7 @@ async function onGoogleLogin() {
 
 function fillDemo() {
   email.value = 'demo@winlance.local'
-  password.value = 'demo-password-change-me'
+  password.value = 'DemoPass123!'
 }
 </script>
 

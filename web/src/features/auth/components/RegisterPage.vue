@@ -9,6 +9,17 @@ import { BaseButton, BaseInput } from '@/shared/components/base'
 import { getApiFieldErrors } from '@/shared/toast/errorMessages'
 import { useToast } from '@/shared/toast/useToast'
 
+import { useFeatureFlag } from '@/shared/composables/useFeatureFlag'
+
+const demoEnabled = useFeatureFlag('enableDemoAuth')
+
+function fillDemo() {
+  username.value = 'demo@winlance.local'
+  email.value = 'demo@winlance.local'
+  password.value = 'DemoPass123!'
+}
+
+
 const { t } = useI18n()
 const router = useRouter()
 const auth = useAuthStore()
