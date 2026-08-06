@@ -9,17 +9,17 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <main class="relative mx-auto flex min-h-dvh max-w-5xl flex-col justify-center px-page py-16">
-    <div class="absolute end-page top-6">
+  <main class="px-page relative mx-auto flex min-h-dvh max-w-5xl flex-col justify-center py-16">
+    <div class="end-page absolute top-6">
       <ThemeToggle />
     </div>
-    <p class="text-sm font-medium tracking-[0.2em] text-muted uppercase">
+    <p class="text-muted text-sm font-medium tracking-[0.2em] uppercase">
       {{ appConfig.appName }}
     </p>
-    <h1 class="mt-4 max-w-3xl font-display text-5xl leading-tight text-ink md:text-6xl">
+    <h1 class="font-display text-ink mt-4 max-w-3xl text-5xl leading-tight md:text-6xl">
       {{ t('home.hero.title') }}
     </h1>
-    <p class="mt-4 max-w-xl text-lg text-ink-soft">
+    <p class="text-ink-soft mt-4 max-w-xl text-lg">
       {{ t('home.hero.subtitle') }}
     </p>
     <div class="mt-8 flex flex-wrap gap-3">

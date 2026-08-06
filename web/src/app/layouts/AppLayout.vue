@@ -46,10 +46,6 @@ const showMobileOverlay = computed(
     </a>
 
     <div class="blueprint-grid pointer-events-none fixed inset-0 opacity-40" aria-hidden="true" />
-    <div
-      class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,var(--color-glow),transparent_70%)]"
-      aria-hidden="true"
-    />
 
     <AppShellSidebar :links="links" />
 

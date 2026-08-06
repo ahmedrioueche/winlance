@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_DEFAULT_LOCALE: string
   readonly VITE_SENTRY_DSN: string
   readonly VITE_ENABLE_DEMO_AUTH: string
+  readonly VITE_GOOGLE_CLIENT_ID?: string
 }
 
 interface ImportMeta {

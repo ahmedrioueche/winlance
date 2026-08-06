@@ -30,7 +30,11 @@ export const useAuthStore = defineStore('auth', () => {
     saveTokens(next, persistMode.value)
   }
 
-  function setSession(nextUser: AuthUser, nextTokens: AuthTokens, mode: PersistMode = persistMode.value) {
+  function setSession(
+    nextUser: AuthUser,
+    nextTokens: AuthTokens,
+    mode: PersistMode = persistMode.value,
+  ) {
     persistMode.value = mode
     user.value = nextUser
     tokens.value = nextTokens
@@ -80,6 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
       logger.warn('Logout request failed', error)
     } finally {
       clearSession()
+      window.location.href = '/login'
     }
   }
 
@@ -140,6 +145,21 @@ export const useAuthStore = defineStore('auth', () => {
     return readyPromise ?? Promise.resolve()
   }
 
+  async function socialLogin(provider: 'google' | 'github', accessToken: string, remember = false) {
+    status.value = 'authenticating'
+    const mode: PersistMode = remember ? 'local' : 'session'
+    persistMode.value = mode
+    try {
+      const nextTokens = await authApi.socialLoginRequest(provider, accessToken)
+      setTokens(nextTokens)
+      const nextUser = await authApi.fetchCurrentUser()
+      setSession(nextUser, nextTokens, mode)
+    } catch (error) {
+      clearSession()
+      throw error
+    }
+  }
+
   return {
     user,
     status,
@@ -147,6 +167,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isReady,
     login,
+    socialLogin,
     register,
     logout,
     hydrateUser,

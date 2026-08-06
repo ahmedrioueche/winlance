@@ -18,10 +18,6 @@
     font-family: var(--font-sans);
     color: var(--color-ink);
     background-color: var(--color-canvas);
-    background-image:
-      radial-gradient(1100px 560px at 8% -12%, var(--color-glow), transparent 60%),
-      radial-gradient(900px 480px at 100% 0%, var(--color-glow-secondary), transparent 55%);
-    background-attachment: fixed;
   }
 
   ::selection {
@@ -77,5 +73,24 @@
       linear-gradient(90deg, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px);
     background-size: 28px 28px;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
-  }
+  } 
+/* Custom scrollbar – uses theme primary accent */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-accent);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-canvas);
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) var(--color-canvas);
+}
+
 }
