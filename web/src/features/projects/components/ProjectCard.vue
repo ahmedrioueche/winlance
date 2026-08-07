@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import {
+  Calendar,
+  ClipboardList,
+  Clock,
+  DollarSign,
+  FileSignature,
+  FileText,
+  Folder,
+  Rocket,
+  User,
+} from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -100,8 +111,9 @@ const completedMilestones = computed(() => {
 
       <!-- Client Info & Added Date -->
       <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-        <span v-if="project.client_name" class="font-medium text-ink-soft">
-          👤 {{ project.client_name }}
+        <span v-if="project.client_name" class="inline-flex items-center gap-1 font-medium text-ink-soft">
+          <User class="h-3 w-3 text-muted" />
+          <span>{{ project.client_name }}</span>
         </span>
         <span v-if="project.client_name && project.client_email" class="opacity-40">•</span>
         <span v-if="project.client_email" class="truncate max-w-[180px]">
@@ -113,7 +125,8 @@ const completedMilestones = computed(() => {
 
         <!-- Added Date Tag -->
         <span v-if="formattedCreatedDate" class="ml-auto inline-flex items-center gap-1 font-mono text-[11px] text-muted">
-          📅 {{ t('projects.addedDate', { date: formattedCreatedDate }) }}
+          <Calendar class="h-3 w-3 text-muted" />
+          <span>{{ t('projects.addedDate', { date: formattedCreatedDate }) }}</span>
         </span>
       </div>
 
@@ -128,37 +141,43 @@ const completedMilestones = computed(() => {
           v-if="formattedBudget"
           class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
         >
-          💰 {{ formattedBudget }}
+          <DollarSign class="h-3 w-3" />
+          <span>{{ formattedBudget }}</span>
         </span>
         <span
           v-if="formattedStartDate"
           class="inline-flex items-center gap-1 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-ink-soft border border-border"
         >
-          🚀 Start: {{ formattedStartDate }}
+          <Rocket class="h-3 w-3 text-muted" />
+          <span>Start: {{ formattedStartDate }}</span>
         </span>
         <span
           v-if="formattedDueDate"
           class="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/30"
         >
-          ⏳ Due: {{ formattedDueDate }}
+          <Clock class="h-3 w-3" />
+          <span>Due: {{ formattedDueDate }}</span>
         </span>
         <span
           v-if="project.proposal"
           class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent border border-accent/20"
         >
-          📄 {{ t('projects.proposalLinked', 'Proposal') }}
+          <FileText class="h-3 w-3" />
+          <span>{{ t('projects.proposalLinked', 'Proposal') }}</span>
         </span>
         <span
           v-if="project.contract"
           class="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
         >
-          📜 {{ t('projects.contractLinked', 'Contract') }}
+          <FileSignature class="h-3 w-3" />
+          <span>{{ t('projects.contractLinked', 'Contract') }}</span>
         </span>
         <span
           v-if="project.files && project.files.length > 0"
           class="inline-flex items-center gap-1 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-muted border border-border"
         >
-          📁 {{ project.files.length }} {{ t('projects.filesCount', 'files') }}
+          <Folder class="h-3 w-3 text-muted" />
+          <span>{{ project.files.length }} {{ t('projects.filesCount', 'files') }}</span>
         </span>
       </div>
     </div>
@@ -176,8 +195,9 @@ const completedMilestones = computed(() => {
           {{ completedMilestones.done }}/{{ completedMilestones.total }} {{ t('projects.milestones') }} ({{ completedMilestones.percentage }}%)
         </span>
       </div>
-      <div v-else-if="project.requirements?.length" class="text-muted font-medium">
-        📋 {{ project.requirements.length }} {{ t('projects.requirements') }}
+      <div v-else-if="project.requirements?.length" class="inline-flex items-center gap-1.5 text-muted font-medium">
+        <ClipboardList class="h-3.5 w-3.5 text-muted" />
+        <span>{{ project.requirements.length }} {{ t('projects.requirements') }}</span>
       </div>
       <div v-else class="text-muted italic text-[11px]">
         {{ t('projects.noMilestonesYet', 'No milestones yet') }}

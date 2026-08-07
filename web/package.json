@@ -20,8 +20,10 @@
     "check:vue-query-refs": "node scripts/check-vue-query-refs.mjs"
   },
   "dependencies": {
+    "@lucide/vue": "^1.30.0",
     "@tanstack/vue-query": "^5.101.2",
     "axios": "^1.18.1",
+    "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.39",
     "vue-i18n": "^11.4.6",

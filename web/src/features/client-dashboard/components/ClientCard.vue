@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Building2, Calendar, Globe, Mail, MapPin, Phone } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -72,11 +73,11 @@ const formattedCreatedDate = computed(() => {
       <!-- Contact Info -->
       <div class="mt-4 space-y-1.5 text-xs text-muted">
         <div v-if="client.email" class="flex items-center gap-2 truncate">
-          <span aria-hidden="true">✉️</span>
+          <Mail class="h-3.5 w-3.5 shrink-0 text-muted" />
           <span class="truncate">{{ client.email }}</span>
         </div>
         <div v-if="client.phone" class="flex items-center gap-2">
-          <span aria-hidden="true">📞</span>
+          <Phone class="h-3.5 w-3.5 shrink-0 text-muted" />
           <span>{{ client.phone }}</span>
         </div>
       </div>
@@ -85,33 +86,37 @@ const formattedCreatedDate = computed(() => {
       <div v-if="client.location || client.industry || client.website" class="mt-3.5 flex flex-wrap items-center gap-1.5 text-xs">
         <span
           v-if="client.location"
-          class="inline-flex items-center gap-1 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-ink-soft border border-border"
+          class="inline-flex items-center gap-1.5 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-ink-soft border border-border"
         >
-          📍 {{ client.location }}
+          <MapPin class="h-3 w-3 text-muted" />
+          <span>{{ client.location }}</span>
         </span>
         <span
           v-if="client.industry"
-          class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent border border-accent/20"
+          class="inline-flex items-center gap-1.5 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent border border-accent/20"
         >
-          🏢 {{ client.industry }}
+          <Building2 class="h-3 w-3 text-accent" />
+          <span>{{ client.industry }}</span>
         </span>
         <a
           v-if="client.website"
           :href="client.website"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-muted hover:text-accent border border-border"
+          class="inline-flex items-center gap-1.5 rounded-md bg-canvas-muted px-2 py-0.5 text-[11px] font-medium text-muted hover:text-accent border border-border transition-colors"
           @click.stop
         >
-          🌐 {{ t('clients.fields.website', 'Website') }}
+          <Globe class="h-3 w-3 text-muted" />
+          <span>{{ t('clients.fields.website', 'Website') }}</span>
         </a>
       </div>
     </div>
 
     <!-- Bottom Row: Date Added -->
     <div class="mt-5 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted">
-      <span v-if="formattedCreatedDate" class="font-mono text-[11px]">
-        📅 {{ t('clients.addedDate', { date: formattedCreatedDate }) }}
+      <span v-if="formattedCreatedDate" class="inline-flex items-center gap-1.5 text-[11px]">
+        <Calendar class="h-3.5 w-3.5 text-muted" />
+        <span>{{ t('clients.addedDate', { date: formattedCreatedDate }) }}</span>
       </span>
       <span class="text-accent font-medium text-[11px] group-hover:underline">
         View Client →

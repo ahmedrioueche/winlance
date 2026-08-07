@@ -1,0 +1,7 @@
+export { default as AccountSecuritySettings } from './components/AccountSecuritySettings.vue'
+export { default as AppearanceSettings } from './components/AppearanceSettings.vue'
+export { default as BillingSettings } from './components/BillingSettings.vue'
+export { default as IntegrationsSettings } from './components/IntegrationsSettings.vue'
+export { default as NotificationSettings } from './components/NotificationSettings.vue'
+export { default as ProfileSettings } from './components/ProfileSettings.vue'
+export { default as SettingsLayout } from './components/SettingsLayout.vue'

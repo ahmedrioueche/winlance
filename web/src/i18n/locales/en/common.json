@@ -185,5 +185,78 @@
       "notes": "Notes",
       "notesPlaceholder": "Additional client details or contact info..."
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile, security, notifications, billing, and workspace preferences",
+    "savedSuccess": "Settings updated successfully.",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Account & Security",
+      "notifications": "Notifications",
+      "billing": "Billing & Plan",
+      "integrations": "Integrations",
+      "appearance": "Appearance"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "subtitle": "Update your photo, personal details, and freelance rates",
+      "changePhoto": "Change Photo",
+      "fullName": "Full Name",
+      "titleField": "Professional Title",
+      "hourlyRate": "Default Hourly Rate ($)",
+      "currency": "Preferred Currency",
+      "bio": "Professional Bio / Summary"
+    },
+    "security": {
+      "title": "Account & Security",
+      "subtitle": "Manage password, authentication methods, and active sessions",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "updatePasswordSubmit": "Update Password",
+      "twoFactorTitle": "Two-Factor Authentication (2FA)",
+      "twoFactorSubtitle": "Secure your account with an authenticator app (TOTP)",
+      "enableTwoFactor": "Enable 2FA",
+      "activeSessions": "Active Login Sessions",
+      "revokeOtherSessions": "Revoke Other Sessions"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "subtitle": "Configure how and when you receive alerts and digests",
+      "emailAlerts": "Email Notifications",
+      "proposalAlerts": "Proposal Accepted & View Alerts",
+      "contractAlerts": "Contract Signed Alerts",
+      "weeklyDigest": "Weekly Performance Digest"
+    },
+    "billing": {
+      "title": "Billing & Subscription",
+      "subtitle": "Manage your plan, quotas, payment methods, and invoices",
+      "currentPlan": "Pro Freelancer Plan",
+      "renewDate": "Renews on Sept 1, 2026",
+      "upgradePlan": "Upgrade Plan",
+      "usageTitle": "Monthly Quota Usage",
+      "paymentMethod": "Payment Method",
+      "invoices": "Billing History"
+    },
+    "integrations": {
+      "title": "Connected Apps & API",
+      "subtitle": "Integrate third-party tools to automate your workflow",
+      "googleCalendar": "Google Calendar",
+      "stripe": "Stripe Payments",
+      "slack": "Slack Alerts",
+      "webhooks": "Custom Webhooks"
+    },
+    "appearance": {
+      "title": "Appearance & Preferences",
+      "subtitle": "Customize your theme, language, and interface layout",
+      "themeTitle": "Color Theme",
+      "darkTheme": "Dark Mode",
+      "lightTheme": "Light Mode",
+      "systemTheme": "System Default",
+      "language": "Language",
+      "compactView": "Compact Mode"
+    }
   }
 }
