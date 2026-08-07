@@ -137,14 +137,53 @@
     }
   },
   "clients": {
+    "title": "Clients",
+    "subtitle": "Manage all client relationships, contacts, and engagements",
+    "create": "New Client",
     "createModalTitle": "Create New Client",
     "createSubmit": "Create Client",
     "createdSuccess": "Client created successfully.",
+    "empty": "No clients found",
+    "emptyDescription": "Get started by creating your first client.",
+    "searchPlaceholder": "Search clients by name, company, email, location...",
+    "filterByStatus": "Filter by status",
+    "filterByDateAdded": "Filter by date added",
+    "allStatuses": "All Statuses",
+    "dateFilter": {
+      "allTime": "All Time",
+      "today": "Today",
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days",
+      "thisYear": "This Year"
+    },
+    "addedDate": "Added: {date}",
+    "noCompany": "Individual Client",
+    "status": {
+      "lead": "Lead",
+      "proposal_sent": "Proposal Sent",
+      "negotiating": "Negotiating",
+      "active": "Active",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
     "fields": {
       "name": "Client Name",
       "namePlaceholder": "e.g. Acme Corp",
       "email": "Client Email",
-      "emailPlaceholder": "contact{'@'}acme.com"
+      "emailPlaceholder": "contact{'@'}acme.com",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "Acme Group Ltd",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "website": "Website",
+      "websitePlaceholder": "https://acme.com",
+      "location": "Location",
+      "locationPlaceholder": "New York, USA",
+      "industry": "Industry",
+      "industryPlaceholder": "Technology",
+      "status": "Status",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional client details or contact info..."
     }
   }
 }

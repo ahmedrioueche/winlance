@@ -1,3 +1,6 @@
+export { default as ClientCard } from './components/ClientCard.vue'
+export { default as ClientsListPage } from './components/ClientsListPage.vue'
+export { default as ClientsSkeleton } from './components/ClientsSkeleton.vue'
 export { default as CreateClientModal } from './components/CreateClientModal.vue'
 export { useClientsQuery, useCreateClientMutation } from './queries'
 export * from './routes'
