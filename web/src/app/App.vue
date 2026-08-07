@@ -7,7 +7,7 @@ import AppLayout from '@/app/layouts/AppLayout.vue'
 import AuthLayout from '@/app/layouts/AuthLayout.vue'
 import BlankLayout from '@/app/layouts/BlankLayout.vue'
 import LoadingPage from '@/app/pages/LoadingPage.vue'
-import { Toaster } from '@/shared/components/composite'
+import { GlobalModalContainer, Toaster } from '@/shared/components/composite'
 import type { ShellVariant } from '@/shared/components/navigation/useSidebarNav'
 
 const route = useRoute()
@@ -18,6 +18,7 @@ const shellVariant = computed<ShellVariant>(() => route.meta.shellVariant ?? 'wo
 
 <template>
   <Toaster />
+  <GlobalModalContainer />
   <ErrorBoundary>
     <AppLayout v-if="layoutKind === 'app'" :variant="shellVariant">
       <RouterView v-slot="{ Component }">

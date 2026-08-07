@@ -6,6 +6,7 @@ urlpatterns = [
     path("api/v1/", include("apps.core.urls")),
     path("api/v1/", include("apps.accounts.urls")),
     path("api/v1/", include("apps.accounts.social_urls")),
+    path("api/v1/", include("apps.clients.urls")),
 # path("api/v1/", include("apps.leads.urls")),  # deprecated
     path("api/v1/", include("apps.proposals.urls")),
     path("api/v1/", include("apps.contracts.urls")),

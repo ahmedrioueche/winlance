@@ -60,6 +60,10 @@ class Project(TimeStampedModel):
         default=Status.DRAFT,
         db_index=True,
     )
+    start_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    budget = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, default="USD")
 
     class Meta(TimeStampedModel.Meta):
         ordering = ["-created_at"]

@@ -87,5 +87,64 @@
   },
   "forms": {
     "selectPlaceholder": "Select an option"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage and track all client engagements and projects",
+    "create": "New Project",
+    "createModalTitle": "Create New Project",
+    "createSubmit": "Create Project",
+    "createdSuccess": "Project created successfully.",
+    "empty": "No projects found",
+    "emptyDescription": "Get started by creating your first project.",
+    "noClientAssigned": "No client assigned",
+    "milestones": "milestones",
+    "requirements": "requirements",
+    "filesCount": "files",
+    "addedDate": "Added: {date}",
+    "noMilestonesYet": "No milestones set",
+    "proposalLinked": "Proposal",
+    "contractLinked": "Contract",
+    "searchPlaceholder": "Search projects by title, client, or summary...",
+    "filterByStatus": "Filter by status",
+    "filterByClient": "Filter by client",
+    "allStatuses": "All Statuses",
+    "allClients": "All Clients",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "on_hold": "On Hold",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "fields": {
+      "title": "Project Title",
+      "titlePlaceholder": "e.g. E-Commerce Platform Redesign",
+      "client": "Client",
+      "selectClient": "Select a client",
+      "addNewClient": "+ Add New Client",
+      "noClientsFound": "No existing clients found. Please enter new client details below.",
+      "clientName": "Client Name",
+      "clientNamePlaceholder": "Acme Corp",
+      "clientEmail": "Client Email",
+      "clientEmailPlaceholder": "client{'@'}acme.com",
+      "status": "Status",
+      "summary": "Summary",
+      "summaryPlaceholder": "Brief scope or notes..."
+    },
+    "errors": {
+      "clientRequired": "A client is required for the project."
+    }
+  },
+  "clients": {
+    "createModalTitle": "Create New Client",
+    "createSubmit": "Create Client",
+    "createdSuccess": "Client created successfully.",
+    "fields": {
+      "name": "Client Name",
+      "namePlaceholder": "e.g. Acme Corp",
+      "email": "Client Email",
+      "emailPlaceholder": "contact{'@'}acme.com"
+    }
   }
 }

@@ -22,6 +22,14 @@ export const fetchProjects = async (params: ProjectListParams = {}) =>
 export const fetchProject = async (id: string) =>
   (await apiClient.get<Project>(`/projects/${id}/`)).data
 
+export const createProject = async (payload: {
+  title: string
+  summary?: string
+  client_name?: string
+  client_email?: string
+  status?: string
+}) => (await apiClient.post<Project>('/projects/', payload)).data
+
 export const createProjectFromProposal = async (payload: {
   proposal_id: string
   title?: string

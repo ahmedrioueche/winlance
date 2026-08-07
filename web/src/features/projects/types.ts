@@ -35,8 +35,14 @@ export type Project = {
   client_email: string
   proposal: string | null
   contract: string | null
-  requirements: Requirement[]
-  milestones: Milestone[]
-  reports: ProjectReport[]
+  start_date?: string | null
+  due_date?: string | null
+  budget?: string | number | null
+  currency?: string
+  requirements?: Requirement[]
+  milestones?: Milestone[]
+  reports?: ProjectReport[]
   files?: ProjectFile[]
+  created_at?: string
+  updated_at?: string
 }

@@ -33,8 +33,11 @@ const listboxId = `${id}-listbox`
 const open = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLButtonElement | null>(null)
+const listboxRef = ref<HTMLElement | null>(null)
 const optionRefs = ref<HTMLElement[]>([])
 const activeIndex = ref(-1)
+
+const dropdownStyle = ref<Record<string, string>>({})
 
 const emptyLabel = computed(
   () => props.placeholder || props.label || t('common.forms.selectPlaceholder'),
@@ -63,9 +66,38 @@ function setOptionRef(el: unknown, index: number) {
   }
 }
 
+function updateDropdownPosition() {
+  if (!triggerRef.value) return
+  const rect = triggerRef.value.getBoundingClientRect()
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    zIndex: '9999',
+  }
+}
+
 function close() {
   open.value = false
   activeIndex.value = -1
+}
+
+function scrollToActiveOption() {
+  const listboxEl = listboxRef.value || document.getElementById(listboxId)
+  const optionEl = optionRefs.value[activeIndex.value]
+  if (!listboxEl || !optionEl) return
+
+  const listTop = listboxEl.scrollTop
+  const listBottom = listTop + listboxEl.clientHeight
+  const optionTop = optionEl.offsetTop
+  const optionBottom = optionTop + optionEl.offsetHeight
+
+  if (optionTop < listTop) {
+    listboxEl.scrollTop = optionTop
+  } else if (optionBottom > listBottom) {
+    listboxEl.scrollTop = optionBottom - listboxEl.clientHeight
+  }
 }
 
 function toggle() {
@@ -75,13 +107,15 @@ function toggle() {
     return
   }
   open.value = true
+  updateDropdownPosition()
   const selected = props.options.findIndex((option) => option.value === model.value)
   activeIndex.value =
     selected >= 0 && !props.options[selected]?.disabled
       ? selected
       : (selectableIndexes.value[0] ?? -1)
   void nextTick(() => {
-    optionRefs.value[activeIndex.value]?.scrollIntoView({ block: 'nearest' })
+    updateDropdownPosition()
+    scrollToActiveOption()
   })
 }
 
@@ -104,7 +138,7 @@ function moveActive(delta: number) {
       : (currentPos + delta + indexes.length) % indexes.length
   activeIndex.value = indexes[nextPos] ?? indexes[0]!
   void nextTick(() => {
-    optionRefs.value[activeIndex.value]?.scrollIntoView({ block: 'nearest' })
+    scrollToActiveOption()
   })
 }
 
@@ -139,29 +173,44 @@ function onTriggerKeydown(event: KeyboardEvent) {
 }
 
 function onDocumentPointerDown(event: PointerEvent) {
-  if (!open.value || !rootRef.value) return
+  if (!open.value) return
   const target = event.target
-  if (target instanceof Node && !rootRef.value.contains(target)) {
-    close()
+  if (target instanceof Node) {
+    if (rootRef.value?.contains(target) || listboxRef.value?.contains(target)) {
+      return
+    }
+  }
+  close()
+}
+
+function onScrollOrResize() {
+  if (open.value) {
+    updateDropdownPosition()
   }
 }
 
 watch(open, (isOpen) => {
   if (isOpen) {
     document.addEventListener('pointerdown', onDocumentPointerDown)
+    window.addEventListener('resize', onScrollOrResize)
+    window.addEventListener('scroll', onScrollOrResize, true)
   } else {
     document.removeEventListener('pointerdown', onDocumentPointerDown)
+    window.removeEventListener('resize', onScrollOrResize)
+    window.removeEventListener('scroll', onScrollOrResize, true)
   }
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocumentPointerDown)
+  window.removeEventListener('resize', onScrollOrResize)
+  window.removeEventListener('scroll', onScrollOrResize, true)
 })
 </script>
 
 <template>
   <div ref="rootRef" class="relative space-y-1.5">
-    <label class="block text-sm font-medium text-ink" :for="id">
+    <label v-if="label" class="block text-sm font-medium text-ink" :for="id">
       {{ label }}
       <span v-if="required" class="text-error" aria-hidden="true">*</span>
     </label>
@@ -193,34 +242,38 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <ul
-      v-if="open"
-      :id="listboxId"
-      role="listbox"
-      class="absolute z-40 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-canvas-elevated p-1 shadow-lift"
-      :aria-labelledby="id"
-    >
-      <li
-        v-for="(option, index) in options"
-        :key="option.value"
-        :ref="(el) => setOptionRef(el, index)"
-        role="option"
-        class="cursor-pointer rounded-md px-3 py-2 text-sm transition"
-        :class="[
-          option.disabled && 'cursor-not-allowed opacity-50',
-          !option.disabled &&
-            (model === option.value || activeIndex === index
-              ? 'bg-accent text-accent-foreground'
-              : 'text-ink hover:bg-accent hover:text-accent-foreground'),
-        ]"
-        :aria-selected="model === option.value"
-        :aria-disabled="option.disabled || undefined"
-        @mouseenter="!option.disabled && (activeIndex = index)"
-        @click="selectOption(option)"
+    <Teleport to="body">
+      <ul
+        v-if="open"
+        :id="listboxId"
+        ref="listboxRef"
+        role="listbox"
+        class="max-h-60 overflow-auto rounded-md border border-border bg-canvas-elevated p-1 shadow-lift"
+        :style="dropdownStyle"
+        :aria-labelledby="id"
       >
-        {{ option.label }}
-      </li>
-    </ul>
+        <li
+          v-for="(option, index) in options"
+          :key="option.value"
+          :ref="(el) => setOptionRef(el, index)"
+          role="option"
+          class="cursor-pointer rounded-md px-3 py-2 text-sm transition"
+          :class="[
+            option.disabled && 'cursor-not-allowed opacity-50',
+            !option.disabled &&
+              (model === option.value || activeIndex === index
+                ? 'bg-accent text-accent-foreground'
+                : 'text-ink hover:bg-accent hover:text-accent-foreground'),
+          ]"
+          :aria-selected="model === option.value"
+          :aria-disabled="option.disabled || undefined"
+          @mouseenter="!option.disabled && (activeIndex = index)"
+          @click="selectOption(option)"
+        >
+          {{ option.label }}
+        </li>
+      </ul>
+    </Teleport>
 
     <!-- Keep native required validation hook when needed -->
     <input

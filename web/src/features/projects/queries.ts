@@ -59,6 +59,16 @@ export const useReportsQuery = (id: MaybeRefOrGetter<string>) =>
 export function useCreateProjectMutation() {
   const qc = useQueryClient()
   return useMutation({
+    mutationFn: api.createProject,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: projectKeys.all })
+    },
+  })
+}
+
+export function useCreateProjectFromProposalMutation() {
+  const qc = useQueryClient()
+  return useMutation({
     mutationFn: api.createProjectFromProposal,
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: projectKeys.all })

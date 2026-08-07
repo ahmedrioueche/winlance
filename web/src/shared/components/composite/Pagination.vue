@@ -13,10 +13,13 @@ interface Props {
   pageSize: number
   total: number
   disabled?: boolean
+  /** Force showing pagination even when total items fit on 1 page */
+  showSinglePage?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
+  showSinglePage: false,
 })
 
 const emit = defineEmits<{
@@ -26,6 +29,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
+const shouldShow = computed(() => props.showSinglePage || totalPages.value > 1)
 const canPrev = computed(() => props.page > 1)
 const canNext = computed(() => props.page < totalPages.value)
 
@@ -38,6 +42,7 @@ function go(page: number) {
 
 <template>
   <nav
+    v-if="shouldShow"
     class="flex flex-wrap items-center justify-between gap-3 text-sm text-ink-soft"
     :aria-label="t('common.pagination.label')"
   >
