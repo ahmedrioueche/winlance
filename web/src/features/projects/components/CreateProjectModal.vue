@@ -16,11 +16,15 @@ export interface ClientOption {
 interface Props {
   open?: boolean
   clients?: ClientOption[]
+  presetClientName?: string
+  presetClientEmail?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   open: true,
   clients: () => [],
+  presetClientName: '',
+  presetClientEmail: '',
 })
 
 const emit = defineEmits<{
@@ -55,6 +59,7 @@ const allClients = computed<ClientOption[]>(() => {
 })
 
 const isAddingNewClient = computed(() => {
+  if (props.presetClientName) return false
   return allClients.value.length === 0
 })
 
@@ -77,21 +82,25 @@ const statusOptions: SelectOption[] = [
 
 function resetForm() {
   title.value = ''
-  clientName.value = ''
-  clientEmail.value = ''
   status.value = 'DRAFT'
   summary.value = ''
   titleError.value = ''
   clientError.value = ''
   customClients.value = []
 
-  if (allClients.value.length > 0) {
+  if (props.presetClientName) {
+    clientName.value = props.presetClientName
+    clientEmail.value = props.presetClientEmail || ''
+    selectedClientValue.value = props.presetClientName
+  } else if (allClients.value.length > 0) {
     const first = allClients.value[0]
     selectedClientValue.value = first?.name ?? ''
     clientName.value = first?.name ?? ''
     clientEmail.value = first?.email ?? ''
   } else {
     selectedClientValue.value = ''
+    clientName.value = ''
+    clientEmail.value = ''
   }
 }
 
@@ -110,6 +119,7 @@ function handleTriggerCreateClientModal() {
 }
 
 watch(selectedClientValue, (val) => {
+  if (props.presetClientName) return
   clientError.value = ''
   const match = allClients.value.find((c) => c.name === val)
   if (match) {
@@ -176,57 +186,71 @@ async function handleSubmit() {
         :error="titleError"
       />
 
-      <!-- Client Selection Section -->
+      <!-- Client Display / Selection Section -->
       <div class="space-y-2">
-        <div class="flex items-center justify-between">
+        <!-- Preset Client Read-Only View -->
+        <div v-if="presetClientName" class="space-y-1">
           <label class="block text-sm font-medium text-ink">
             {{ t('projects.fields.client', 'Client') }}
-            <span class="text-error" aria-hidden="true">*</span>
           </label>
-
-          <button
-            type="button"
-            class="text-xs font-semibold text-accent hover:underline focus:outline-none"
-            @click="handleTriggerCreateClientModal"
-          >
-            {{ t('projects.fields.addNewClient', '+ Create Client') }}
-          </button>
+          <div class="rounded-lg border border-border bg-canvas p-2.5 text-sm font-semibold text-ink flex items-center justify-between">
+            <span>{{ presetClientName }}</span>
+            <span v-if="presetClientEmail" class="text-xs font-normal text-muted truncate max-w-[200px]">{{ presetClientEmail }}</span>
+          </div>
         </div>
 
-        <!-- If clients exist, show dropdown -->
-        <BaseSelect
-          v-if="allClients.length > 0"
-          v-model="selectedClientValue"
-          label=""
-          :options="clientSelectOptions"
-          :error="clientError"
-        />
+        <!-- Dynamic Client Select Dropdown (when no preset) -->
+        <template v-else>
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-ink">
+              {{ t('projects.fields.client', 'Client') }}
+              <span class="text-error" aria-hidden="true">*</span>
+            </label>
 
-        <!-- Empty case notice -->
-        <div
-          v-else
-          class="rounded-lg border border-border/80 bg-canvas-muted/60 p-3 text-xs text-muted"
-        >
-          {{ t('projects.fields.noClientsFound', 'No existing clients found. Please enter new client details below.') }}
-        </div>
+            <button
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus:outline-none"
+              @click="handleTriggerCreateClientModal"
+            >
+              {{ t('projects.fields.addNewClient', '+ Create Client') }}
+            </button>
+          </div>
 
-        <!-- Manual Client Inputs (shown when empty case) -->
-        <div v-if="isAddingNewClient" class="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-1">
-          <BaseInput
-            v-model="clientName"
-            :label="t('projects.fields.clientName', 'Client Name')"
-            :placeholder="t('projects.fields.clientNamePlaceholder', 'Acme Corp')"
-            required
+          <!-- If clients exist, show dropdown -->
+          <BaseSelect
+            v-if="allClients.length > 0"
+            v-model="selectedClientValue"
+            label=""
+            :options="clientSelectOptions"
             :error="clientError"
           />
 
-          <BaseInput
-            v-model="clientEmail"
-            type="email"
-            :label="t('projects.fields.clientEmail', 'Client Email')"
-            :placeholder="t('projects.fields.clientEmailPlaceholder', 'client{\'@\'}acme.com')"
-          />
-        </div>
+          <!-- Empty case notice -->
+          <div
+            v-else
+            class="rounded-lg border border-border/80 bg-canvas-muted/60 p-3 text-xs text-muted"
+          >
+            {{ t('projects.fields.noClientsFound', 'No existing clients found. Please enter new client details below.') }}
+          </div>
+
+          <!-- Manual Client Inputs (shown when empty case) -->
+          <div v-if="isAddingNewClient" class="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-1">
+            <BaseInput
+              v-model="clientName"
+              :label="t('projects.fields.clientName', 'Client Name')"
+              :placeholder="t('projects.fields.clientNamePlaceholder', 'Acme Corp')"
+              required
+              :error="clientError"
+            />
+
+            <BaseInput
+              v-model="clientEmail"
+              type="email"
+              :label="t('projects.fields.clientEmail', 'Client Email')"
+              :placeholder="t('projects.fields.clientEmailPlaceholder', 'client{\'@\'}acme.com')"
+            />
+          </div>
+        </template>
       </div>
 
       <BaseSelect
