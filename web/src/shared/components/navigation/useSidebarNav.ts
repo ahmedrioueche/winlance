@@ -1,4 +1,17 @@
 import {
+  ArrowLeft,
+  BarChart2,
+  BarChart3,
+  ClipboardList,
+  Files,
+  Flag,
+  Folder,
+  LayoutDashboard,
+  Settings,
+  Share2,
+  Users,
+} from '@lucide/vue'
+import {
   computed,
   inject,
   onMounted,
@@ -17,6 +30,7 @@ export type SidebarLink = {
   label: string
   /** When true, active only on exact path match (ignoring query/hash). */
   exact?: boolean
+  icon?: unknown
 }
 
 export type SidebarNav = {
@@ -91,26 +105,26 @@ export function useSidebarLinks(
     if (mode === 'project') {
       const id = String(projectId?.value ?? '')
       if (!id || id === 'NaN' || id === 'undefined') {
-        return [{ to: '/app/projects', label: t('common.nav.projects'), exact: true }]
+        return [{ to: '/app/projects', label: t('common.nav.projects'), exact: true, icon: Folder }]
       }
       const base = `/app/projects/${id}`
       return [
-        { to: base, label: t('common.shell.projectOverview'), exact: true },
-        { to: `${base}#share`, label: t('common.shell.projectShare') },
-        { to: `${base}#requirements`, label: t('common.shell.projectRequirements') },
-        { to: `${base}#milestones`, label: t('common.shell.projectMilestones') },
-        { to: `${base}#files`, label: t('common.shell.projectFiles') },
-        { to: `${base}#reports`, label: t('common.shell.projectReports') },
-        { to: '/app/projects', label: t('common.shell.allProjects') },
+        { to: base, label: t('common.shell.projectOverview'), exact: true, icon: LayoutDashboard },
+        { to: `${base}#share`, label: t('common.shell.projectShare'), icon: Share2 },
+        { to: `${base}#requirements`, label: t('common.shell.projectRequirements'), icon: ClipboardList },
+        { to: `${base}#milestones`, label: t('common.shell.projectMilestones'), icon: Flag },
+        { to: `${base}#files`, label: t('common.shell.projectFiles'), icon: Files },
+        { to: `${base}#reports`, label: t('common.shell.projectReports'), icon: BarChart2 },
+        { to: '/app/projects', label: t('common.shell.allProjects'), icon: ArrowLeft },
       ]
     }
 
     return [
-      { to: '/app', label: t('common.nav.dashboard'), exact: true },
-      { to: '/app/projects', label: t('common.nav.projects') },
-      { to: '/app/clients', label: t('common.nav.clients') },
-      { to: '/app/analytics', label: t('common.nav.analytics') },
-      { to: '/app/settings', label: t('common.nav.settings') },
+      { to: '/app', label: t('common.nav.dashboard'), exact: true, icon: LayoutDashboard },
+      { to: '/app/projects', label: t('common.nav.projects'), icon: Folder },
+      { to: '/app/clients', label: t('common.nav.clients'), icon: Users },
+      { to: '/app/analytics', label: t('common.nav.analytics'), icon: BarChart3 },
+      { to: '/app/settings', label: t('common.nav.settings'), icon: Settings },
     ]
   })
 }

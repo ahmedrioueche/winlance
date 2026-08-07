@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { RouterLink, useRoute } from 'vue-router'
 
+import { AppLogo, ThemeToggle } from '@/shared/components/base'
 import type { SidebarLink } from '@/shared/components/navigation/useSidebarNav'
 import { useSidebarNavContext } from '@/shared/components/navigation/useSidebarNav'
 
@@ -62,28 +63,35 @@ function onNavigate() {
     :class="asideClass"
     :aria-label="t('common.shell.sidebarLabel')"
   >
-    <div class="flex h-14 items-center gap-2 border-b border-border px-4">
-      <RouterLink
-        class="font-display text-lg font-semibold tracking-tight text-ink"
-        to="/app"
-        @click="onNavigate"
-      >
-        Winlance
-      </RouterLink>
+    <!-- Sidebar Header / Branding -->
+    <div class="flex h-16 items-center px-5 border-b border-border/60">
+      <AppLogo to="/app" @click="onNavigate" />
     </div>
 
-    <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3" :aria-label="t('common.shell.primaryNav')">
+    <!-- Navigation Links -->
+    <nav class="flex flex-1 flex-col space-y-1 p-4 overflow-y-auto" :aria-label="t('common.shell.primaryNav')">
       <RouterLink
         v-for="link in props.links"
         :key="link.to"
         :to="link.to"
-        class="rounded-md px-3 py-2 text-sm font-medium text-ink-soft transition hover:bg-canvas-muted hover:text-ink"
-        :class="isActive(link) && 'bg-accent-soft text-ink'"
+        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+        :class="[
+          isActive(link)
+            ? 'bg-accent/15 text-accent font-semibold shadow-sm'
+            : 'text-ink-soft hover:bg-canvas-muted hover:text-ink',
+        ]"
         :aria-current="isActive(link) ? 'page' : undefined"
         @click="onNavigate"
       >
-        {{ link.label }}
+        <component :is="link.icon" v-if="link.icon" class="h-4 w-4 shrink-0" />
+        <span>{{ link.label }}</span>
       </RouterLink>
     </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
+      <span>Main Workspace</span>
+      <ThemeToggle />
+    </div>
   </aside>
 </template>

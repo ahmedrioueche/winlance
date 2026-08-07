@@ -137,6 +137,17 @@
     }
   },
   "clients": {
+    "portalTitle": "Client Portal",
+    "nav": {
+      "overview": "Overview",
+      "projects": "Projects",
+      "proposals": "Proposals",
+      "contracts": "Contracts",
+      "invoices": "Invoices",
+      "notes": "Notes",
+      "files": "Files",
+      "activity": "Activity"
+    },
     "title": "Clients",
     "subtitle": "Manage all client relationships, contacts, and engagements",
     "create": "New Client",
