@@ -7,7 +7,7 @@ import AppLayout from '@/app/layouts/AppLayout.vue'
 import AuthLayout from '@/app/layouts/AuthLayout.vue'
 import BlankLayout from '@/app/layouts/BlankLayout.vue'
 import LoadingPage from '@/app/pages/LoadingPage.vue'
-import { GlobalModalContainer, Toaster } from '@/shared/components/composite'
+import { GlobalAppLoader, GlobalModalContainer, Toaster } from '@/shared/components/composite'
 import type { ShellVariant } from '@/shared/components/navigation/useSidebarNav'
 
 const route = useRoute()
@@ -17,13 +17,16 @@ const shellVariant = computed<ShellVariant>(() => route.meta.shellVariant ?? 'wo
 </script>
 
 <template>
+  <GlobalAppLoader />
   <Toaster />
   <GlobalModalContainer />
   <ErrorBoundary>
     <AppLayout v-if="layoutKind === 'app'" :variant="shellVariant">
       <RouterView v-slot="{ Component }">
         <Suspense>
-          <component :is="Component" />
+          <div>
+            <component :is="Component" />
+          </div>
           <template #fallback>
             <LoadingPage embedded />
           </template>
@@ -34,7 +37,9 @@ const shellVariant = computed<ShellVariant>(() => route.meta.shellVariant ?? 'wo
     <AuthLayout v-else-if="layoutKind === 'auth'">
       <RouterView v-slot="{ Component }">
         <Suspense>
-          <component :is="Component" />
+          <div>
+            <component :is="Component" />
+          </div>
           <template #fallback>
             <LoadingPage />
           </template>
@@ -45,7 +50,9 @@ const shellVariant = computed<ShellVariant>(() => route.meta.shellVariant ?? 'wo
     <BlankLayout v-else>
       <RouterView v-slot="{ Component }">
         <Suspense>
-          <component :is="Component" />
+          <div>
+            <component :is="Component" />
+          </div>
           <template #fallback>
             <LoadingPage />
           </template>

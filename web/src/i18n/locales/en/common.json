@@ -137,7 +137,7 @@
     }
   },
   "clients": {
-    "portalTitle": "Client Portal",
+    "workspaceTitle": "Client Workspace",
     "nav": {
       "overview": "Overview",
       "projects": "Projects",

@@ -13,27 +13,45 @@ import {
   StickyNote,
   X,
 } from '@lucide/vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 
 import { AppLogo } from '@/shared/components/base'
 import ThemeToggle from '@/shared/components/base/ThemeToggle.vue'
 
+import { useClientQuery } from '../queries'
+
 const { t } = useI18n()
 const route = useRoute()
 const mobileMenuOpen = ref(false)
 
-const navItems = [
-  { path: '/client/overview', labelKey: 'clients.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
-  { path: '/client/projects', labelKey: 'clients.nav.projects', defaultLabel: 'Projects', icon: Folder },
-  { path: '/client/proposals', labelKey: 'clients.nav.proposals', defaultLabel: 'Proposals', icon: FileText },
-  { path: '/client/contracts', labelKey: 'clients.nav.contracts', defaultLabel: 'Contracts', icon: FileSignature },
-  { path: '/client/invoices', labelKey: 'clients.nav.invoices', defaultLabel: 'Invoices', icon: CreditCard },
-  { path: '/client/notes', labelKey: 'clients.nav.notes', defaultLabel: 'Notes', icon: StickyNote },
-  { path: '/client/files', labelKey: 'clients.nav.files', defaultLabel: 'Files', icon: Files },
-  { path: '/client/activity', labelKey: 'clients.nav.activity', defaultLabel: 'Activity', icon: Activity },
-]
+const clientId = computed(() => String(route.params.id || ''))
+const { data: client } = useClientQuery(clientId)
+
+const clientInitials = computed(() => {
+  if (!client.value?.name) return 'CL'
+  const parts = client.value.name.trim().split(' ')
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+  }
+  return client.value.name.substring(0, 2).toUpperCase()
+})
+
+const navItems = computed(() => {
+  const id = clientId.value
+  const base = `/app/clients/${id}`
+  return [
+    { path: `${base}/overview`, labelKey: 'common.clients.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
+    { path: `${base}/projects`, labelKey: 'common.clients.nav.projects', defaultLabel: 'Projects', icon: Folder },
+    { path: `${base}/proposals`, labelKey: 'common.clients.nav.proposals', defaultLabel: 'Proposals', icon: FileText },
+    { path: `${base}/contracts`, labelKey: 'common.clients.nav.contracts', defaultLabel: 'Contracts', icon: FileSignature },
+    { path: `${base}/invoices`, labelKey: 'common.clients.nav.invoices', defaultLabel: 'Invoices', icon: CreditCard },
+    { path: `${base}/notes`, labelKey: 'common.clients.nav.notes', defaultLabel: 'Notes', icon: StickyNote },
+    { path: `${base}/files`, labelKey: 'common.clients.nav.files', defaultLabel: 'Files', icon: Files },
+    { path: `${base}/activity`, labelKey: 'common.clients.nav.activity', defaultLabel: 'Activity', icon: Activity },
+  ]
+})
 
 function isLinkActive(path: string) {
   return route.path === path || route.path.startsWith(`${path}/`)
@@ -63,7 +81,7 @@ function closeMobileMenu() {
     >
       <!-- Sidebar Header / Branding -->
       <div class="flex h-16 items-center justify-between px-5 border-b border-border/60">
-        <AppLogo to="/client/overview" subtitle="Client Portal" @click="closeMobileMenu" />
+        <AppLogo :to="`/app/clients/${clientId}/overview`" subtitle="Client Workspace" @click="closeMobileMenu" />
 
         <!-- Close Mobile Drawer Button -->
         <button
@@ -76,7 +94,7 @@ function closeMobileMenu() {
       </div>
 
       <!-- Navigation Links -->
-      <nav class="flex-1 space-y-1 p-4 overflow-y-auto" aria-label="Client Dashboard Navigation">
+      <nav class="flex-1 space-y-1 p-4 overflow-y-auto" aria-label="Client Workspace Navigation">
         <RouterLink
           v-for="item in navItems"
           :key="item.path"
@@ -96,7 +114,7 @@ function closeMobileMenu() {
 
       <!-- Sidebar Footer -->
       <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
-        <span>Client Workspace</span>
+        <span>Client Details</span>
         <ThemeToggle />
       </div>
     </aside>
@@ -115,14 +133,14 @@ function closeMobileMenu() {
             <Menu class="h-5 w-5" />
           </button>
 
-          <!-- Back to Main Dashboard Button -->
+          <!-- Back to All Clients Button -->
           <RouterLink
-            to="/app"
+            to="/app/clients"
             class="inline-flex items-center gap-2 rounded-lg border border-border bg-canvas px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-accent/40 hover:bg-canvas-muted"
           >
             <ArrowLeft class="h-3.5 w-3.5 shrink-0 text-accent" />
-            <span class="hidden sm:inline">Back to Main Dashboard</span>
-            <span class="sm:hidden">Main App</span>
+            <span class="hidden sm:inline">Back to All Clients</span>
+            <span class="sm:hidden">Clients</span>
           </RouterLink>
         </div>
 
@@ -141,9 +159,11 @@ function closeMobileMenu() {
           <!-- Client User Profile Avatar -->
           <div class="flex items-center gap-2.5 rounded-lg border border-border bg-canvas p-1.5 px-3">
             <div class="flex h-7 w-7 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-              AC
+              {{ clientInitials }}
             </div>
-            <span class="hidden sm:inline text-xs font-semibold text-ink">Acme Corp</span>
+            <span class="hidden sm:inline text-xs font-semibold text-ink">
+              {{ client?.name || 'Client' }}
+            </span>
           </div>
         </div>
       </header>

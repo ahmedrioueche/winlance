@@ -47,7 +47,7 @@ const formattedCreatedDate = computed(() => {
 
 <template>
   <RouterLink
-    :to="{ name: 'client-portal-overview' }"
+    :to="{ name: 'client-overview', params: { id: client.id } }"
     class="group relative flex flex-col justify-between rounded-xl border border-border bg-canvas-elevated p-5 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
   >
     <div>
