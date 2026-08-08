@@ -1,6 +1,14 @@
 import { apiClient } from '@/shared/api/client'
 
-import type { Project, ProjectMilestone, ProjectRequirement } from './types'
+import type { Project, ProjectMilestone, ProjectRequirement, ProjectTask } from './types'
+
+function asList<T>(data: T[] | { results: T[] }): T[] {
+  if (Array.isArray(data)) return data
+  if (data && Array.isArray((data as { results: T[] }).results)) {
+    return (data as { results: T[] }).results
+  }
+  return []
+}
 
 export const projectDashboardApi = {
   /** Fetch single project details with nested requirements & milestones */
@@ -37,5 +45,39 @@ export const projectDashboardApi = {
   async updateMilestone(projectId: string, milestoneId: string, payload: Partial<ProjectMilestone>): Promise<ProjectMilestone> {
     const { data } = await apiClient.patch<ProjectMilestone>(`/projects/${projectId}/milestones/${milestoneId}/`, payload)
     return data
+  },
+
+  /** Fetch project tasks */
+  async fetchTasks(projectId: string): Promise<ProjectTask[]> {
+    const { data } = await apiClient.get<ProjectTask[] | { results: ProjectTask[] }>(`/projects/${projectId}/tasks/`)
+    return asList(data)
+  },
+
+  /** Create project task */
+  async createTask(projectId: string, payload: Partial<ProjectTask>): Promise<ProjectTask> {
+    const { data } = await apiClient.post<ProjectTask>(`/projects/${projectId}/tasks/`, payload)
+    return data
+  },
+
+  /** Update project task */
+  async updateTask(projectId: string, taskId: string, payload: Partial<ProjectTask>): Promise<ProjectTask> {
+    const { data } = await apiClient.patch<ProjectTask>(`/projects/${projectId}/tasks/${taskId}/`, payload)
+    return data
+  },
+
+  /** Delete project task */
+  async deleteTask(projectId: string, taskId: string): Promise<void> {
+    await apiClient.delete(`/projects/${projectId}/tasks/${taskId}/`)
+  },
+
+  /** Reorder tasks */
+  async reorderTasks(projectId: string, orders: Array<{ id: string; order: number }> | string[]): Promise<ProjectTask[]> {
+    const { data } = await apiClient.post<ProjectTask[] | { results: ProjectTask[] }>(`/projects/${projectId}/tasks/reorder/`, { orders })
+    return asList(data)
+  },
+
+  /** Delete project */
+  async deleteProject(id: string): Promise<void> {
+    await apiClient.delete(`/projects/${id}/`)
   },
 }

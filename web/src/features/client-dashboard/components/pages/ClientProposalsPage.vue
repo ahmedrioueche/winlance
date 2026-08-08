@@ -3,13 +3,22 @@ import {
   ArrowRight,
   CreditCard,
   FileText,
+  FolderKanban,
   Plus,
 } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import { BaseButton, BaseInput, BaseSelect, EmptyState, ErrorState, Skeleton } from '@/shared/components/base'
+import {
+  BaseButton,
+  BaseInput,
+  BaseModal,
+  BaseSelect,
+  EmptyState,
+  ErrorState,
+  Skeleton,
+} from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
 import { useToast } from '@/shared/toast/useToast'
 
@@ -26,6 +35,12 @@ const clientId = computed(() => String(route.params.id || ''))
 const { data: client } = useClientQuery(clientId)
 
 const createProposal = useCreateProposalMutation()
+
+// Modal & Form State
+const isCreateModalOpen = ref(false)
+const proposalTitle = ref('')
+const targetProjectName = ref('')
+const userEditedProjectName = ref(false)
 
 // Search & Filter state
 const searchQuery = ref('')
@@ -85,17 +100,33 @@ function getStatusBadgeClass(status: string) {
   }
 }
 
-async function handleCreateProposal() {
+watch(proposalTitle, (val) => {
+  if (!userEditedProjectName.value) {
+    const cleaned = val.replace(/^proposal\s+(?:for\s+)?/i, '').trim()
+    targetProjectName.value = cleaned || val
+  }
+})
+
+function handleOpenCreateModal() {
+  const clientName = client.value?.name || ''
+  proposalTitle.value = clientName ? `Proposal for ${clientName}` : 'New Proposal'
+  targetProjectName.value = clientName ? `${clientName}` : 'New Project'
+  userEditedProjectName.value = false
+  isCreateModalOpen.value = true
+}
+
+async function handleConfirmCreateProposal() {
   try {
-    const newTitle = client.value?.name ? `Proposal for ${client.value.name}` : 'New Proposal'
     const created = await createProposal.mutateAsync({
-      title: newTitle,
+      title: proposalTitle.value.trim() || 'New Proposal',
+      target_project_name: targetProjectName.value.trim() || undefined,
       amount: 0,
       currency: 'USD',
       status: 'DRAFT',
       summary: `Proposal scope and estimate for ${client.value?.name || 'client'}.`,
     })
 
+    isCreateModalOpen.value = false
     toast.success(t('proposals.createdSuccess', 'Proposal created. Opening document editor...'))
     await router.push(`/app/clients/${clientId.value}/proposals/${created.id}`)
   } catch (error) {
@@ -117,7 +148,7 @@ async function handleCreateProposal() {
         </p>
       </div>
 
-      <BaseButton class="shrink-0" :loading="createProposal.isPending.value" @click="handleCreateProposal">
+      <BaseButton class="shrink-0" @click="handleOpenCreateModal">
         <Plus class="h-4 w-4" />
         <span>{{ t('proposals.create', 'New Proposal') }}</span>
       </BaseButton>
@@ -168,7 +199,7 @@ async function handleCreateProposal() {
       :description="t('proposals.emptyDescription', 'Create your first proposal to send scope estimates and draft legal terms.')"
     >
       <template #action>
-        <BaseButton :loading="createProposal.isPending.value" @click="handleCreateProposal">
+        <BaseButton @click="handleOpenCreateModal">
           <Plus class="h-4 w-4" />
           <span>{{ t('proposals.create', 'New Proposal') }}</span>
         </BaseButton>
@@ -219,5 +250,52 @@ async function handleCreateProposal() {
         </div>
       </RouterLink>
     </div>
+
+    <!-- ═══ PROPOSAL CREATION MODAL ═══ -->
+    <BaseModal
+      :open="isCreateModalOpen"
+      title="Create New Proposal"
+      @close="isCreateModalOpen = false"
+    >
+      <div class="space-y-4">
+        <!-- Proposal Name / Title -->
+        <BaseInput
+          v-model="proposalTitle"
+          label="Proposal Name / Title"
+          placeholder="e.g. Proposal for Rookie Corp ERP v1"
+          required
+        />
+
+        <!-- Target Project Name -->
+        <BaseInput
+          v-model="targetProjectName"
+          label="Target Project Name"
+          placeholder="e.g. Rookie Corp ERP v1"
+          @input="userEditedProjectName = true"
+        />
+
+        <!-- Clear Explanation Box -->
+        <div class="flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent-soft p-3.5 text-xs leading-relaxed text-ink">
+          <FolderKanban class="h-4 w-4 text-accent shrink-0 mt-0.5" />
+          <div>
+            <span class="font-bold text-accent">Workspace Project Naming:</span>
+            When the client accepts this proposal, WinLance will automatically create a workspace project named using the <strong class="underline">Target Project Name</strong> specified above.
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" size="sm" @click="isCreateModalOpen = false">
+          Cancel
+        </BaseButton>
+        <BaseButton
+          size="sm"
+          :loading="createProposal.isPending.value"
+          @click="handleConfirmCreateProposal"
+        >
+          Create Proposal
+        </BaseButton>
+      </template>
+    </BaseModal>
   </section>
 </template>

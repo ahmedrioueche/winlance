@@ -40,6 +40,7 @@ export type Proposal = {
   project_id: string | null
   template: string | null
   title: string
+  target_project_name?: string
   summary: string
   body: string
   amount: string | number | null
@@ -54,6 +55,7 @@ export type Proposal = {
 export type ProposalFromLead = {
   lead_id: number
   title?: string
+  target_project_name?: string
   amount?: string
   currency?: string
   template_id?: string
@@ -61,5 +63,5 @@ export type ProposalFromLead = {
 }
 
 export type ProposalUpdate = Partial<
-  Pick<Proposal, 'title' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status'>
+  Pick<Proposal, 'title' | 'target_project_name' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status'>
 >

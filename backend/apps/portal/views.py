@@ -166,9 +166,6 @@ def portal_accept_proposal(request, token, proposal_id):
         id=proposal_id, user=client.freelancer
     ).first()
 
-    if not proposal:
-        return Response({"detail": "Proposal not found."}, status=status.HTTP_404_NOT_FOUND)
-
     proposal.status = Proposal.Status.ACCEPTED
     proposal.save(update_fields=["status", "updated_at"])
 

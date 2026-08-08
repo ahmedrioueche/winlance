@@ -37,15 +37,19 @@ export interface ProjectFileItem {
   updated_at: string
 }
 
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE'
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
 export interface ProjectTask {
   id: string
   project: string
   title: string
   description?: string
-  status: 'todo' | 'in_progress' | 'review' | 'completed'
-  priority?: 'low' | 'medium' | 'high'
+  status: TaskStatus
+  priority: TaskPriority
+  order: number
   due_date?: string | null
-  assignee?: string
+  source_proposal?: string | null
   created_at: string
   updated_at: string
 }

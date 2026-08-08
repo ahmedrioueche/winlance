@@ -72,6 +72,57 @@ class Project(TimeStampedModel):
         return self.title
 
 
+class Task(TimeStampedModel):
+    class Status(models.TextChoices):
+        TODO = "TODO", "To Do"
+        IN_PROGRESS = "IN_PROGRESS", "In Progress"
+        IN_REVIEW = "IN_REVIEW", "In Review"
+        DONE = "DONE", "Done"
+
+    class Priority(models.TextChoices):
+        LOW = "LOW", "Low"
+        MEDIUM = "MEDIUM", "Medium"
+        HIGH = "HIGH", "High"
+        URGENT = "URGENT", "Urgent"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="tasks",
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.TODO,
+        db_index=True,
+    )
+    priority = models.CharField(
+        max_length=20,
+        choices=Priority.choices,
+        default=Priority.MEDIUM,
+        db_index=True,
+    )
+    order = models.PositiveIntegerField(default=0, db_index=True)
+    due_date = models.DateField(null=True, blank=True)
+    source_proposal = models.ForeignKey(
+        "proposals.Proposal",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="generated_tasks",
+    )
+
+    class Meta(TimeStampedModel.Meta):
+        ordering = ["order", "created_at"]
+
+    def __str__(self):
+        return self.title
+
+
+
 class Requirement(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(

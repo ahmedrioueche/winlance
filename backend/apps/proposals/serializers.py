@@ -53,6 +53,7 @@ class ProposalSerializer(serializers.ModelSerializer):
             "project_id",
             "template",
             "title",
+            "target_project_name",
             "summary",
             "body",
             "amount",
@@ -91,6 +92,7 @@ class ProposalSerializer(serializers.ModelSerializer):
 class ProposalFromLeadSerializer(serializers.Serializer):
     lead_id = serializers.IntegerField()
     title = serializers.CharField(required=False, allow_blank=True)
+    target_project_name = serializers.CharField(required=False, allow_blank=True)
     amount = serializers.DecimalField(
         max_digits=12, decimal_places=2, required=False, allow_null=True
     )
@@ -117,6 +119,7 @@ class ProposalFromLeadSerializer(serializers.Serializer):
             request.user,
             lead,
             title=validated_data.get("title") or None,
+            target_project_name=validated_data.get("target_project_name") or None,
             amount=validated_data.get("amount"),
             template=template,
             currency=validated_data.get("currency") or "USD",

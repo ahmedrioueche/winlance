@@ -74,3 +74,11 @@ export function useUpdateProposalMutation() {
     ({ id, ...payload }: { id: string } & ProposalUpdate) => api.updateProposal(id, payload),
   )
 }
+
+export function useDeleteProposalMutation() {
+  return useInvalidateMutation(api.deleteProposal)
+}
+
+export function useCreateProjectFromProposalMutation() {
+  return useInvalidateMutation(api.createProjectFromProposal)
+}

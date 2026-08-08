@@ -198,3 +198,92 @@ class ProjectPortalAPITests(APITestCase):
         )
         self.assertEqual(contract.status_code, status.HTTP_200_OK)
         self.assertEqual(contract.data["status"], Contract.Status.SIGNED)
+
+    def test_auto_project_and_task_generation_on_proposal_acceptance(self):
+        proposal = Proposal.objects.create(
+            user=self.user,
+            lead=self.lead,
+            title="Proposal for Acme Platform v2",
+            target_project_name="Acme Platform v2",
+            summary="Full e-commerce platform delivery",
+            body="""# Scope of Work
+## Phase 1: Setup & Design
+- [ ] Database Schema Setup
+- [ ] UI Wireframing & Design Tokens
+
+## Phase 2: Core Development
+- [ ] Stripe Payment Gateway Integration
+- [ ] User Auth & Permission System
+""",
+            amount=12000,
+            status=Proposal.Status.SENT,
+        )
+
+        # Accept proposal via API action
+        res = self.client.post(reverse("proposal-accept", kwargs={"pk": str(proposal.id)}))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        proposal.refresh_from_db()
+        self.assertIsNotNone(proposal.project_id)
+        
+        project = Project.objects.get(id=proposal.project_id)
+        # Verify title uses target_project_name
+        self.assertEqual(project.title, "Acme Platform v2")
+        self.assertEqual(project.status, Project.Status.ACTIVE)
+
+        # Verify tasks were automatically seeded
+        tasks = list(project.tasks.order_by("order"))
+        self.assertGreaterEqual(len(tasks), 4)
+        self.assertEqual(tasks[0].title, "Database Schema Setup")
+        self.assertEqual(tasks[1].title, "UI Wireframing & Design Tokens")
+        self.assertEqual(tasks[2].title, "Stripe Payment Gateway Integration")
+
+    def test_task_crud_and_reorder_api(self):
+        project = Project.objects.create(
+            freelancer=self.user,
+            title="Task Test Project",
+            status=Project.Status.ACTIVE,
+        )
+        project.tasks.all().delete()
+        
+        # 1. Create tasks
+        t1 = self.client.post(
+            reverse("project-task-list", kwargs={"project_pk": str(project.id)}),
+            {"title": "Task 1", "priority": "HIGH", "status": "TODO"},
+            format="json",
+        )
+        self.assertEqual(t1.status_code, status.HTTP_201_CREATED)
+        task1_id = t1.data["id"]
+
+        t2 = self.client.post(
+            reverse("project-task-list", kwargs={"project_pk": str(project.id)}),
+            {"title": "Task 2", "priority": "MEDIUM", "status": "TODO"},
+            format="json",
+        )
+        task2_id = t2.data["id"]
+
+        # 2. Update status & priority
+        patch_res = self.client.patch(
+            reverse("project-task-detail", kwargs={"project_pk": str(project.id), "pk": task1_id}),
+            {"status": "IN_PROGRESS", "priority": "URGENT"},
+            format="json",
+        )
+        self.assertEqual(patch_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(patch_res.data["status"], "IN_PROGRESS")
+        self.assertEqual(patch_res.data["priority"], "URGENT")
+
+        # 3. Reorder tasks
+        reorder_res = self.client.post(
+            reverse("project-task-reorder", kwargs={"project_pk": str(project.id)}),
+            {"orders": [task2_id, task1_id]},
+            format="json",
+        )
+        self.assertEqual(reorder_res.status_code, status.HTTP_200_OK)
+        
+        # 4. List tasks
+        list_res = self.client.get(reverse("project-task-list", kwargs={"project_pk": str(project.id)}))
+        self.assertEqual(list_res.status_code, status.HTTP_200_OK)
+        results = list_res.data.get("results", list_res.data)
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], task2_id)
+        self.assertEqual(results[1]["id"], task1_id)

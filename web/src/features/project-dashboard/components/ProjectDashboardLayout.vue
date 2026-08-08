@@ -7,6 +7,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   Menu,
+  Settings,
   X,
 } from '@lucide/vue'
 import { computed, ref } from 'vue'
@@ -39,9 +40,10 @@ const navItems = computed(() => {
   const base = `/app/projects/${id}`
   return [
     { path: `${base}/overview`, labelKey: 'common.projects.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
-    { path: `${base}/tasks`, labelKey: 'common.projects.nav.tasks', defaultLabel: 'Tasks & Scope', icon: CheckSquare },
+    { path: `${base}/tasks`, labelKey: 'common.projects.nav.tasks', defaultLabel: 'Tasks', icon: CheckSquare },
     { path: `${base}/milestones`, labelKey: 'common.projects.nav.milestones', defaultLabel: 'Milestones', icon: FolderKanban },
     { path: `${base}/files`, labelKey: 'common.projects.nav.files', defaultLabel: 'Files', icon: Files },
+    { path: `${base}/settings`, labelKey: 'common.projects.nav.settings', defaultLabel: 'Settings', icon: Settings },
   ]
 })
 

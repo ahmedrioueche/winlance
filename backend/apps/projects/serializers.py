@@ -11,8 +11,34 @@ from .models import (
     ProjectReport,
     ProjectShareLink,
     Requirement,
+    Task,
 )
 from .services import create_project_from_proposal
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "project",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "order",
+            "due_date",
+            "source_proposal",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "project",
+            "source_proposal",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class RequirementSerializer(serializers.ModelSerializer):
@@ -124,6 +150,7 @@ class ProjectShareLinkSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    tasks = TaskSerializer(many=True, read_only=True)
     requirements = RequirementSerializer(many=True, read_only=True)
     milestones = MilestoneSerializer(many=True, read_only=True)
     reports = ProjectReportSerializer(many=True, read_only=True)
@@ -147,6 +174,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "due_date",
             "budget",
             "currency",
+            "tasks",
             "requirements",
             "milestones",
             "reports",

@@ -347,7 +347,7 @@ async function handleAcceptProposal() {
       token: token.value,
       proposalId: proposalId.value,
     })
-    toast.success(t('portal.proposalView.proposalAcceptedToast', 'Proposal accepted! Your freelancer has been notified.'))
+    toast.success(t('portal.proposalView.proposalAcceptedToast', 'Proposal accepted! Project & task list automatically generated.'))
   } catch (error) {
     toast.errorFromUnknown(error)
   }

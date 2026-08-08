@@ -5,6 +5,7 @@ import {
   ChevronDown,
   Clock,
   Eye,
+  FolderPlus,
   GitCompare,
   Globe,
   History,
@@ -14,11 +15,12 @@ import {
   Save,
   Search,
   Send,
+  Trash2,
   X,
 } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import {
   BaseButton,
@@ -36,7 +38,9 @@ import { computeSideBySideDiff } from '@/shared/utils/diff'
 import { useClientQuery } from '@/features/client-dashboard/queries'
 
 import {
+  useCreateProjectFromProposalMutation,
   useCreateProposalVersionMutation,
+  useDeleteProposalMutation,
   useProposalQuery,
   useUpdateProposalMutation,
 } from '../queries'
@@ -44,6 +48,7 @@ import type { ProposalVersion } from '../types'
 
 const { t, d } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 
 const proposalId = computed(() => String(route.params.proposalId || route.params.id || ''))
@@ -54,6 +59,8 @@ const { data: client } = useClientQuery(clientId)
 
 const updateProposal = useUpdateProposalMutation()
 const createVersion = useCreateProposalVersionMutation()
+const deleteProposalMutation = useDeleteProposalMutation()
+const createProjectMutation = useCreateProjectFromProposalMutation()
 
 // ─── Document Form State ─────────────────────────────────────────
 const title = ref('')
@@ -68,6 +75,37 @@ const lastSaved = ref({ title: '', body: '', amount: 0 as number | string })
 // Auto-save state
 const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'unsaved'>('idle')
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+// Deletion & Project Creation State
+const deleteModalOpen = ref(false)
+const confirmDeleteText = ref('')
+
+async function handleCreateProject() {
+  if (!proposalId.value) return
+  try {
+    const res = await createProjectMutation.mutateAsync(proposalId.value)
+    toast.success('Project workspace and task list created!')
+    router.push(`/app/projects/${res.project_id}/overview`)
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
+
+async function handleConfirmDelete() {
+  if (confirmDeleteText.value.trim() !== 'DELETE' || !proposalId.value) return
+  try {
+    await deleteProposalMutation.mutateAsync(proposalId.value)
+    toast.success('Proposal deleted successfully.')
+    deleteModalOpen.value = false
+    if (clientId.value) {
+      router.push(`/app/clients/${clientId.value}/proposals`)
+    } else {
+      router.push('/app/proposals')
+    }
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
 
 // Normalized helper functions for dirty check
 function normalizeText(str: string | null | undefined): string {
@@ -701,6 +739,16 @@ function formatAuthor(ver: ProposalVersion): string {
             <Link2 v-else class="h-4 w-4" />
           </button>
 
+          <!-- Delete Proposal Icon Button -->
+          <button
+            type="button"
+            class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-muted hover:bg-canvas-muted hover:text-red-500 transition-colors"
+            title="Delete proposal"
+            @click="deleteModalOpen = true"
+          >
+            <Trash2 class="h-4 w-4" />
+          </button>
+
           <!-- Save Button -->
           <BaseButton
             variant="secondary"
@@ -713,9 +761,20 @@ function formatAuthor(ver: ProposalVersion): string {
             <span>Save</span>
           </BaseButton>
 
+          <!-- Create Project Button (replaces Publish when status is ACCEPTED) -->
+          <BaseButton
+            v-if="currentStatus === 'ACCEPTED'"
+            size="sm"
+            :loading="createProjectMutation.isPending.value"
+            @click="handleCreateProject"
+          >
+            <FolderPlus class="h-3.5 w-3.5" />
+            <span>Create Project</span>
+          </BaseButton>
+
           <!-- Publish Button (pre-publish only) -->
           <BaseButton
-            v-if="!hasVersions"
+            v-else-if="!hasVersions"
             size="sm"
             :loading="createVersion.isPending.value"
             :disabled="isViewingPast"
@@ -998,6 +1057,44 @@ function formatAuthor(ver: ProposalVersion): string {
         </BaseButton>
         <BaseButton size="sm" :loading="updateProposal.isPending.value" @click="handleSaveAndView">
           Save & View
+        </BaseButton>
+      </template>
+    </BaseModal>
+
+    <!-- ═══ DELETE PROPOSAL CONFIRMATION MODAL ═══ -->
+    <BaseModal
+      :open="deleteModalOpen"
+      title="Delete Proposal"
+      @close="deleteModalOpen = false"
+    >
+      <div class="space-y-4 text-xs">
+        <p class="text-muted leading-relaxed">
+          Are you sure you want to delete this proposal? This action is permanent and cannot be undone.
+        </p>
+        <p class="font-semibold text-ink">
+          To confirm deletion, type <span class="text-red-500 font-mono font-bold">DELETE</span> in capital letters below:
+        </p>
+        <BaseInput
+          v-model="confirmDeleteText"
+          label="Confirmation"
+          placeholder="DELETE"
+        />
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" size="sm" @click="deleteModalOpen = false">
+          Cancel
+        </BaseButton>
+        <BaseButton
+          variant="secondary"
+          size="sm"
+          class="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20"
+          :disabled="confirmDeleteText.trim() !== 'DELETE'"
+          :loading="deleteProposalMutation.isPending.value"
+          @click="handleConfirmDelete"
+        >
+          <Trash2 class="h-3.5 w-3.5" />
+          <span>Delete Proposal</span>
         </BaseButton>
       </template>
     </BaseModal>

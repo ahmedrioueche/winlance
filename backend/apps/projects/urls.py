@@ -12,6 +12,7 @@ from .views import (
     ProjectReportViewSet,
     ProjectViewSet,
     RequirementViewSet,
+    TaskViewSet,
 )
 
 router = DefaultRouter()
@@ -19,6 +20,23 @@ router.register(r"projects", ProjectViewSet, basename="project")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "projects/<uuid:project_pk>/tasks/",
+        TaskViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-task-list",
+    ),
+    path(
+        "projects/<uuid:project_pk>/tasks/reorder/",
+        TaskViewSet.as_view({"post": "reorder"}),
+        name="project-task-reorder",
+    ),
+    path(
+        "projects/<uuid:project_pk>/tasks/<uuid:pk>/",
+        TaskViewSet.as_view(
+            {"get": "retrieve", "put": "update", "patch": "partial_update", "delete": "destroy"}
+        ),
+        name="project-task-detail",
+    ),
     path(
         "projects/<uuid:project_pk>/requirements/",
         RequirementViewSet.as_view({"get": "list", "post": "create"}),

@@ -29,6 +29,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { BaseButton, BaseCheckbox, BaseInput, ErrorState, Skeleton } from '@/shared/components/base'
 import { useToast } from '@/shared/toast/useToast'
 
+import type { Project } from '@/features/projects/types'
 import { useClientOverviewQuery, useClientQuery, useUpdateClientMutation } from '../../queries'
 
 const { t } = useI18n()
@@ -49,7 +50,7 @@ const stats = computed(() => overviewData.value?.stats || {
   signed_contracts_count: 0,
   total_budget: 0,
 })
-const recentProjects = computed(() => overviewData.value?.recent_projects ?? [])
+const recentProjects = computed<Project[]>(() => (overviewData.value?.recent_projects as Project[]) ?? [])
 
 const isPending = computed(() => isClientPending.value && !client.value)
 const isError = computed(() => isClientError.value && !client.value)
@@ -450,6 +451,7 @@ const quickAccessItems = computed(() => {
           <div v-if="isPasswordProtected" class="flex items-center gap-2">
             <BaseInput
               v-model="portalPasscode"
+              label=""
               type="password"
               placeholder="Set passcode (e.g. Rookie2026!)"
               class="flex-1"

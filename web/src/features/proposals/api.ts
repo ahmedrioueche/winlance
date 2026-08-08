@@ -65,3 +65,12 @@ export async function fetchProposalTemplates() {
   )
   return asList(data)
 }
+
+export async function deleteProposal(id: string) {
+  await apiClient.delete(`/proposals/${id}/`)
+}
+
+export async function createProjectFromProposal(id: string) {
+  const { data } = await apiClient.post<{ project_id: string; title: string }>(`/proposals/${id}/create-project/`)
+  return data
+}

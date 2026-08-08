@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from apps.contracts.models import Contract
 from apps.proposals.models import Proposal
 
-from .models import Milestone, Project, ProjectFile, ProjectReport, ProjectShareLink, Requirement
+from .models import Milestone, Project, ProjectFile, ProjectReport, ProjectShareLink, Requirement, Task
 from .permissions import IsProjectFreelancer
 from .serializers import (
     AttachContractSerializer,
@@ -20,6 +20,7 @@ from .serializers import (
     ProjectSerializer,
     ProjectShareLinkSerializer,
     RequirementSerializer,
+    TaskSerializer,
 )
 from .services import (
     accept_contract_via_portal,
@@ -29,6 +30,7 @@ from .services import (
     build_dashboard,
     create_share_link,
     get_valid_share_link,
+    reorder_project_tasks,
     touch_share_link,
     upsert_requirement,
 )
@@ -141,6 +143,25 @@ class ProjectOwnedChildMixin:
 
             raise NotFound("Project not found.")
         serializer.save(project=project)
+
+
+class TaskViewSet(ProjectOwnedChildMixin, viewsets.ModelViewSet):
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
+
+    @action(detail=False, methods=["post"], url_path="reorder")
+    def reorder(self, request, project_pk=None):
+        project = self.get_project()
+        if not project:
+            from rest_framework.exceptions import NotFound
+
+            raise NotFound("Project not found.")
+
+        task_orders = request.data.get("orders") or request.data.get("task_orders") or request.data
+        reorder_project_tasks(project, task_orders)
+
+        tasks = TaskSerializer(project.tasks.all(), many=True).data
+        return Response(tasks)
 
 
 class RequirementViewSet(ProjectOwnedChildMixin, viewsets.ModelViewSet):

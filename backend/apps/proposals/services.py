@@ -84,7 +84,7 @@ def ensure_default_template(user):
     )
 
 
-def create_proposal_from_lead(user, lead, *, title=None, amount=None, template=None, currency="USD"):
+def create_proposal_from_lead(user, lead, *, title=None, target_project_name=None, amount=None, template=None, currency="USD"):
     if lead.user_id != user.id:
         raise ValidationError({"lead": "Lead not found or not owned by you."})
 
@@ -94,6 +94,7 @@ def create_proposal_from_lead(user, lead, *, title=None, amount=None, template=N
         lead=lead,
         template=template,
         title=title or f"Offer: {lead.title}",
+        target_project_name=target_project_name or "",
         summary=lead.description,
         amount=amount if amount is not None else lead.estimated_value,
         currency=currency,
@@ -107,7 +108,7 @@ def queue_proposal_generation(proposal):
 
     from .tasks import generate_proposal_draft
 
-    proposal.status = Proposal.Status.GENERATING
+    proposal.status = Proposal.Status.DRAFT
     proposal.save(update_fields=["status", "updated_at"])
 
     if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
@@ -127,8 +128,6 @@ def queue_proposal_generation(proposal):
 
 
 def cancel_proposal_generation(proposal):
-    if proposal.status != Proposal.Status.GENERATING:
-        raise ValidationError({"status": "Proposal is not generating."})
     proposal.status = Proposal.Status.DRAFT
     proposal.generation_task_id = ""
     proposal.save(update_fields=["status", "generation_task_id", "updated_at"])

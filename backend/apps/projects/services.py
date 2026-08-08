@@ -3,7 +3,8 @@ from rest_framework.exceptions import NotFound, ValidationError
 
 from apps.proposals.models import Proposal
 
-from .models import Milestone, Project, ProjectShareLink, Requirement
+from .ai_extractor import extract_tasks_from_proposal
+from .models import Milestone, Project, ProjectShareLink, Requirement, Task
 
 
 def user_can_manage_project(user, project):
@@ -47,6 +48,110 @@ def create_share_link(project, *, label="Client access", expires_at=None):
     )
 
 
+def ensure_project_and_tasks_for_proposal(proposal, user=None):
+    """
+    Ensures an active Project exists for the proposal upon acceptance,
+    and automatically populates project tasks using Gemini AI (with fallback).
+    """
+    if proposal.status != Proposal.Status.ACCEPTED:
+        proposal.status = Proposal.Status.ACCEPTED
+        proposal.save(update_fields=["status", "updated_at"])
+
+    project = None
+    if proposal.project_id:
+        project = Project.objects.filter(id=proposal.project_id).first()
+
+    if not project:
+        freelancer = user or proposal.user
+        client_name = ""
+        client_email = ""
+        if proposal.lead:
+            contact = proposal.lead.contacts.first()
+            if contact:
+                client_name = f"{contact.first_name} {contact.last_name}".strip()
+                client_email = contact.email or ""
+            else:
+                client_name = proposal.lead.title
+
+        project_title = (proposal.target_project_name or "").strip() or proposal.title
+
+        project = Project.objects.create(
+            freelancer=freelancer,
+            lead=proposal.lead,
+            proposal=proposal,
+            title=project_title,
+            summary=proposal.summary or "",
+            budget=proposal.amount,
+            currency=proposal.currency,
+            client_name=client_name,
+            client_email=client_email,
+            status=Project.Status.ACTIVE,
+        )
+        proposal.project_id = project.id
+        proposal.save(update_fields=["project_id", "updated_at"])
+
+        contract = proposal.contracts.order_by("-created_at").first()
+        if contract:
+            project.contract = contract
+            project.save(update_fields=["contract", "updated_at"])
+            contract.project_id = project.id
+            contract.save(update_fields=["project_id", "updated_at"])
+
+    # Extract and generate tasks if project currently has no tasks
+    if not project.tasks.exists():
+        extracted_tasks = extract_tasks_from_proposal(
+            title=proposal.title,
+            summary=proposal.summary or "",
+            body=proposal.body or "",
+        )
+        
+        tasks_to_create = [
+            Task(
+                project=project,
+                title=item["title"],
+                description=item.get("description", ""),
+                priority=item.get("priority", "MEDIUM"),
+                due_date=item.get("due_date"),
+                order=item.get("order", idx + 1),
+                source_proposal=proposal,
+                status=Task.Status.TODO,
+            )
+            for idx, item in enumerate(extracted_tasks)
+        ]
+        if tasks_to_create:
+            Task.objects.bulk_create(tasks_to_create)
+
+    return project
+
+
+def reorder_project_tasks(project, task_id_orders):
+    """
+    Bulk updates the order field for tasks in a project.
+    """
+    if not task_id_orders:
+        return
+
+    tasks_by_id = {str(t.id): t for t in project.tasks.all()}
+    to_update = []
+
+    if isinstance(task_id_orders, list):
+        for idx, item in enumerate(task_id_orders, start=1):
+            if isinstance(item, dict):
+                tid = str(item.get("id"))
+                ord_val = item.get("order", idx)
+            else:
+                tid = str(item)
+                ord_val = idx
+
+            if tid in tasks_by_id:
+                t = tasks_by_id[tid]
+                t.order = ord_val
+                to_update.append(t)
+
+    if to_update:
+        Task.objects.bulk_update(to_update, ["order", "updated_at"])
+
+
 def create_project_from_proposal(user, proposal, *, title=None, client_email="", client_name=""):
     if proposal.user_id != user.id:
         raise ValidationError({"proposal": "Proposal not found or not owned by you."})
@@ -70,6 +175,29 @@ def create_project_from_proposal(user, proposal, *, title=None, client_email="",
         project.save(update_fields=["contract", "updated_at"])
         contract.project_id = project.id
         contract.save(update_fields=["project_id", "updated_at"])
+
+    # Auto-extract tasks if empty
+    if not project.tasks.exists():
+        extracted_tasks = extract_tasks_from_proposal(
+            title=proposal.title,
+            summary=proposal.summary or "",
+            body=proposal.body or "",
+        )
+        tasks_to_create = [
+            Task(
+                project=project,
+                title=item["title"],
+                description=item.get("description", ""),
+                priority=item.get("priority", "MEDIUM"),
+                due_date=item.get("due_date"),
+                order=item.get("order", idx + 1),
+                source_proposal=proposal,
+                status=Task.Status.TODO,
+            )
+            for idx, item in enumerate(extracted_tasks)
+        ]
+        if tasks_to_create:
+            Task.objects.bulk_create(tasks_to_create)
 
     return project
 
@@ -95,6 +223,7 @@ def attach_contract(project, contract, user):
 
 
 def build_dashboard(project, *, for_client=False):
+    tasks = list(project.tasks.all())
     requirements = list(project.requirements.all())
     milestones = list(project.milestones.all())
     reports = project.reports.all()
@@ -148,6 +277,19 @@ def build_dashboard(project, *, for_client=False):
             "client_email": project.client_email,
             "progress_percent": progress,
         },
+        "tasks": [
+            {
+                "id": str(t.id),
+                "title": t.title,
+                "description": t.description,
+                "status": t.status,
+                "priority": t.priority,
+                "order": t.order,
+                "due_date": t.due_date.isoformat() if t.due_date else None,
+                "created_at": t.created_at.isoformat(),
+            }
+            for t in tasks
+        ],
         "requirements": [
             {
                 "id": str(r.id),

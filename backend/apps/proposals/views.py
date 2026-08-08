@@ -57,6 +57,23 @@ class ProposalViewSet(viewsets.ModelViewSet):
         ensure_default_template(self.request.user)
         serializer.save(user=self.request.user, status=Proposal.Status.DRAFT)
 
+    def perform_update(self, serializer):
+        serializer.save()
+
+    @action(detail=True, methods=["post"], url_path="accept")
+    def accept(self, request, pk=None):
+        proposal = self.get_object()
+        proposal.status = Proposal.Status.ACCEPTED
+        proposal.save(update_fields=["status", "updated_at"])
+        return Response(ProposalSerializer(proposal, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"], url_path="create-project")
+    def create_project(self, request, pk=None):
+        proposal = self.get_object()
+        from apps.projects.services import ensure_project_and_tasks_for_proposal
+        project = ensure_project_and_tasks_for_proposal(proposal, user=request.user)
+        return Response({"project_id": str(project.id), "title": project.title})
+
     @action(detail=True, methods=["post"], url_path="create-version")
     def create_version(self, request, pk=None):
         proposal = self.get_object()

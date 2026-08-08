@@ -63,6 +63,12 @@ class Proposal(TimeStampedModel):
         related_name="proposals",
     )
     title = models.CharField(max_length=255)
+    target_project_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Workspace project title created upon proposal acceptance.",
+    )
     summary = models.TextField(blank=True, default="")
     body = models.TextField(blank=True, default="")
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)

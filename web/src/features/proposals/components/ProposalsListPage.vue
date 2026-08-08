@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FolderKanban } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -21,6 +22,7 @@ import {
 import { useToast } from '@/shared/toast/useToast'
 
 import {
+  useCreateProposalFromLeadMutation,
   useCreateProposalMutation,
   useProposalTemplatesQuery,
   useProposalsQuery,
@@ -43,6 +45,7 @@ const listParams = computed(() => ({ page: 1, page_size: 20 }))
 const { data, isPending, isError, refetch } = useProposalsQuery(listParams)
 const leadsQuery = useLeadsQuery(computed(() => ({ page: 1, page_size: 50 })))
 const templatesQuery = useProposalTemplatesQuery()
+const createFromLead = useCreateProposalFromLeadMutation()
 const create = useCreateProposalMutation()
 const update = useUpdateProposalMutation()
 
@@ -90,17 +93,39 @@ watch(proposals, (items) => {
   }
 })
 
+const proposalTitle = ref('')
+const targetProjectName = ref('')
+const userEditedProjectName = ref(false)
+
+watch(proposalTitle, (val) => {
+  if (!userEditedProjectName.value) {
+    const cleaned = val.replace(/^proposal\s+(?:for\s+)?/i, '').trim()
+    targetProjectName.value = cleaned || val
+  }
+})
+
 async function submit() {
   try {
-    const item = await create.mutateAsync({
-      lead_id: Number(leadId.value),
-      template_id: templateId.value || undefined,
-      generate: true,
-    })
-    toast.success('proposals.messages.created')
+    const item = leadId.value
+      ? await createFromLead.mutateAsync({
+          lead_id: Number(leadId.value),
+          template_id: templateId.value || undefined,
+          title: proposalTitle.value.trim() || undefined,
+          target_project_name: targetProjectName.value.trim() || undefined,
+          generate: true,
+        })
+      : await create.mutateAsync({
+          template: templateId.value || undefined,
+          title: proposalTitle.value.trim() || 'New Proposal',
+          target_project_name: targetProjectName.value.trim() || undefined,
+        })
+    toast.success(t('proposals.messages.created', 'Proposal created.'))
     open.value = false
     leadId.value = ''
     templateId.value = ''
+    proposalTitle.value = ''
+    targetProjectName.value = ''
+    userEditedProjectName.value = false
     await router.push({ name: 'proposal-detail', params: { id: item.id } })
   } catch (error) {
     toast.errorFromUnknown(error)
@@ -172,8 +197,33 @@ async function applyInsert() {
       </RouterLink>
     </div>
 
-    <BaseModal :open="open" :title="t('proposals.create')" @close="open = false">
-      <div class="space-y-3">
+    <BaseModal :open="open" title="Create Proposal" @close="open = false">
+      <div class="space-y-4">
+        <!-- Proposal Name Input -->
+        <BaseInput
+          v-model="proposalTitle"
+          label="Proposal Name / Title"
+          placeholder="e.g. Proposal for Rookie Corp ERP v1"
+          required
+        />
+
+        <!-- Target Project Name Input -->
+        <BaseInput
+          v-model="targetProjectName"
+          label="Target Project Name"
+          placeholder="e.g. Rookie Corp ERP v1"
+          @input="userEditedProjectName = true"
+        />
+
+        <!-- Explanation Banner -->
+        <div class="flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent-soft p-3.5 text-xs leading-relaxed text-ink">
+          <FolderKanban class="h-4 w-4 text-accent shrink-0 mt-0.5" />
+          <div>
+            <span class="font-bold text-accent">Workspace Project Naming:</span>
+            When the client accepts this proposal, WinLance will automatically create a workspace project named using the <strong class="underline">Target Project Name</strong> specified above.
+          </div>
+        </div>
+
         <BaseSelect
           v-if="leadOptions.length"
           v-model="leadId"

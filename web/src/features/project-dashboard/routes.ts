@@ -34,6 +34,12 @@ export const projectDashboardRoutes: RouteRecordRaw[] = [
         component: () => import('./components/pages/ProjectFilesPage.vue'),
         meta: { layout: 'blank', requiresAuth: true, titleKey: 'projects.nav.files' },
       },
+      {
+        path: 'settings',
+        name: 'project-workspace-settings',
+        component: () => import('./components/pages/ProjectSettingsPage.vue'),
+        meta: { layout: 'blank', requiresAuth: true, titleKey: 'projects.nav.settings' },
+      },
     ],
   },
 ]
