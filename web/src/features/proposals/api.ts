@@ -24,6 +24,16 @@ export async function fetchProposal(id: string) {
   return data
 }
 
+export async function createProposal(payload: Partial<Proposal>) {
+  const { data } = await apiClient.post<Proposal>('/proposals/', payload)
+  return data
+}
+
+export async function createProposalVersion(id: string, payload: { title?: string; body?: string; amount?: number; change_summary?: string; created_by_role?: string }) {
+  const { data } = await apiClient.post<Proposal>(`/proposals/${id}/create-version/`, payload)
+  return data
+}
+
 export async function createProposalFromLead(payload: ProposalFromLead) {
   const { data } = await apiClient.post<Proposal>('/proposals/from-lead/', payload)
   return data

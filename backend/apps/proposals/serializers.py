@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.leads.models import Lead
 
-from .models import Proposal, ProposalTemplate
+from .models import Proposal, ProposalTemplate, ProposalVersion
 from .services import create_proposal_from_lead
 
 
@@ -22,7 +22,28 @@ class ProposalTemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "user", "created_at", "updated_at"]
 
 
+class ProposalVersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProposalVersion
+        fields = [
+            "id",
+            "proposal",
+            "version_number",
+            "title",
+            "body",
+            "amount",
+            "currency",
+            "change_summary",
+            "created_by_name",
+            "created_by_role",
+            "created_at",
+        ]
+        read_only_fields = ["id", "proposal", "version_number", "created_at"]
+
+
 class ProposalSerializer(serializers.ModelSerializer):
+    versions = ProposalVersionSerializer(many=True, read_only=True)
+
     class Meta:
         model = Proposal
         fields = [
@@ -38,13 +59,13 @@ class ProposalSerializer(serializers.ModelSerializer):
             "currency",
             "status",
             "generation_task_id",
+            "versions",
             "created_at",
             "updated_at",
         ]
         read_only_fields = [
             "id",
             "user",
-            "status",
             "generation_task_id",
             "created_at",
             "updated_at",

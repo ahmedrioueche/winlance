@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from apps.core.permissions import IsOwner
 
-from .models import Proposal, ProposalTemplate
+from .models import Proposal, ProposalTemplate, ProposalVersion
 from .serializers import (
     ProposalFromLeadSerializer,
     ProposalSerializer,
@@ -38,7 +38,7 @@ class ProposalTemplateViewSet(viewsets.ModelViewSet):
 class ProposalViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = ProposalSerializer
-    queryset = Proposal.objects.select_related("lead", "template")
+    queryset = Proposal.objects.select_related("lead", "template").prefetch_related("versions")
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
@@ -56,6 +56,39 @@ class ProposalViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         ensure_default_template(self.request.user)
         serializer.save(user=self.request.user, status=Proposal.Status.DRAFT)
+
+    @action(detail=True, methods=["post"], url_path="create-version")
+    def create_version(self, request, pk=None):
+        proposal = self.get_object()
+        body = request.data.get("body", proposal.body)
+        title = request.data.get("title", proposal.title)
+        amount = request.data.get("amount", proposal.amount)
+        change_summary = request.data.get("change_summary", "Updated proposal draft")
+        role = request.data.get("created_by_role", "freelancer")
+
+        last_version = proposal.versions.order_by("-version_number").first()
+        next_ver = (last_version.version_number + 1) if last_version else 1
+
+        author_name = request.user.get_full_name() or request.user.username
+
+        ProposalVersion.objects.create(
+            proposal=proposal,
+            version_number=next_ver,
+            title=title,
+            body=body,
+            amount=amount,
+            currency=proposal.currency,
+            change_summary=change_summary,
+            created_by_name=author_name,
+            created_by_role=role,
+        )
+
+        proposal.body = body
+        proposal.title = title
+        proposal.amount = amount
+        proposal.save()
+
+        return Response(ProposalSerializer(proposal, context={"request": request}).data)
 
     @action(detail=False, methods=["post"], url_path="from-lead")
     def from_lead(self, request):

@@ -31,11 +31,14 @@ class ProposalTemplate(TimeStampedModel):
 class Proposal(TimeStampedModel):
     class Status(models.TextChoices):
         DRAFT = "DRAFT", "Draft"
-        GENERATING = "GENERATING", "Generating"
         READY = "READY", "Ready"
+        UNDER_REVIEW = "UNDER_REVIEW", "Under Review"
+        CHANGES_REQUESTED = "CHANGES_REQUESTED", "Changes Requested"
         SENT = "SENT", "Sent"
         ACCEPTED = "ACCEPTED", "Accepted"
         REJECTED = "REJECTED", "Rejected"
+        EXPIRED = "EXPIRED", "Expired"
+        WITHDRAWN = "WITHDRAWN", "Withdrawn"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -65,7 +68,7 @@ class Proposal(TimeStampedModel):
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     currency = models.CharField(max_length=3, default="USD")
     status = models.CharField(
-        max_length=20,
+        max_length=25,
         choices=Status.choices,
         default=Status.DRAFT,
         db_index=True,
@@ -77,3 +80,30 @@ class Proposal(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+
+class ProposalVersion(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    proposal = models.ForeignKey(
+        Proposal,
+        on_delete=models.CASCADE,
+        related_name="versions",
+    )
+    version_number = models.PositiveIntegerField(default=1)
+    title = models.CharField(max_length=255)
+    body = models.TextField(blank=True, default="")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    currency = models.CharField(max_length=3, default="USD")
+    change_summary = models.CharField(max_length=255, blank=True, default="Initial version")
+    created_by_name = models.CharField(max_length=255, blank=True, default="")
+    created_by_role = models.CharField(
+        max_length=20,
+        choices=(("freelancer", "Freelancer"), ("client", "Client")),
+        default="freelancer",
+    )
+
+    class Meta(TimeStampedModel.Meta):
+        ordering = ["-version_number", "-created_at"]
+
+    def __str__(self):
+        return f"{self.proposal.title} v{self.version_number}"

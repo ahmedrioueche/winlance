@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 
 import * as api from './api'
-import type { ProposalUpdate } from './types'
+import type { Proposal, ProposalUpdate } from './types'
 
 export const proposalKeys = {
   all: ['proposals'] as const,
@@ -42,8 +42,19 @@ function useInvalidateMutation<TVars, TData>(fn: (vars: TVars) => Promise<TData>
   })
 }
 
-export function useCreateProposalMutation() {
+export function useCreateProposalFromLeadMutation() {
   return useInvalidateMutation(api.createProposalFromLead)
+}
+
+export function useCreateProposalMutation() {
+  return useInvalidateMutation((payload: Partial<Proposal>) => api.createProposal(payload))
+}
+
+export function useCreateProposalVersionMutation() {
+  return useInvalidateMutation(
+    ({ id, ...payload }: { id: string; title?: string; body?: string; amount?: number; change_summary?: string; created_by_role?: string }) =>
+      api.createProposalVersion(id, payload),
+  )
 }
 
 export function useGenerateProposalMutation() {
