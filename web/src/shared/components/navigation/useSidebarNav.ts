@@ -109,7 +109,7 @@ export function useSidebarLinks(
       }
       const base = `/app/projects/${id}`
       return [
-        { to: base, label: t('common.shell.projectOverview'), exact: true, icon: LayoutDashboard },
+        { to: `${base}/overview`, label: t('common.shell.projectOverview'), exact: true, icon: LayoutDashboard },
         { to: `${base}#share`, label: t('common.shell.projectShare'), icon: Share2 },
         { to: `${base}#requirements`, label: t('common.shell.projectRequirements'), icon: ClipboardList },
         { to: `${base}#milestones`, label: t('common.shell.projectMilestones'), icon: Flag },

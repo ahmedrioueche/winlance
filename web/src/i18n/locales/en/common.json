@@ -134,6 +134,12 @@
     },
     "errors": {
       "clientRequired": "A client is required for the project."
+    },
+    "nav": {
+      "overview": "Overview",
+      "tasks": "Tasks & Scope",
+      "milestones": "Milestones",
+      "files": "Files"
     }
   },
   "clients": {

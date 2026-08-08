@@ -92,7 +92,7 @@ const completedMilestones = computed(() => {
 
 <template>
   <RouterLink
-    :to="{ name: 'project-detail', params: { id: project.id } }"
+    :to="{ name: 'project-workspace-overview', params: { id: project.id } }"
     class="group relative flex flex-col justify-between rounded-xl border border-border bg-canvas-elevated p-5 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
   >
     <div>

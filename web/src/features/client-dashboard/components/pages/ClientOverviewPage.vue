@@ -609,7 +609,7 @@ const quickAccessItems = computed(() => {
               <span v-if="project.budget" class="font-semibold text-ink">
                 ${{ Number(project.budget).toLocaleString() }}
               </span>
-              <RouterLink :to="`/app/projects/${project.id}`" class="text-accent font-medium hover:underline">
+              <RouterLink :to="`/app/projects/${project.id}/overview`" class="text-accent font-medium hover:underline">
                 View Project Dashboard →
               </RouterLink>
             </div>

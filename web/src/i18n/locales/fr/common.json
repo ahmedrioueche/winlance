@@ -85,5 +85,13 @@
   },
   "forms": {
     "selectPlaceholder": "Choisir une option"
+  },
+  "projects": {
+    "nav": {
+      "overview": "Aperçu",
+      "tasks": "Tâches & Périmètre",
+      "milestones": "Jalons",
+      "files": "Fichiers"
+    }
   }
 }

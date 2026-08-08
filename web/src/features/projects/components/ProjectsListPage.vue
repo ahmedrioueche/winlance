@@ -121,8 +121,7 @@ watch([searchQuery, selectedStatus, selectedClient], () => {
 })
 
 function handleProjectCreated(newProjectId: string) {
-  refetch()
-  void router.push({ name: 'project-detail', params: { id: newProjectId } })
+  void router.push({ name: 'project-workspace-overview', params: { id: newProjectId } })
 }
 </script>
 

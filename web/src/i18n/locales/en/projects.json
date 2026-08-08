@@ -2,6 +2,10 @@
   "title": "Projects",
   "subtitle": "Deliver client work",
   "create": "New project",
+  "createModalTitle": "Create New Project",
+  "searchPlaceholder": "Search projects by title, client, or summary...",
+  "filterByStatus": "Filter by status",
+  "allStatuses": "All Statuses",
   "proposalId": "Proposal ID",
   "empty": "No projects yet",
   "share": "Create and copy portal link",
@@ -23,6 +27,17 @@
   "reportBody": "Report body",
   "reportVisible": "Visible to client",
   "addReport": "Add report",
+  "status": {
+    "draft": "Draft",
+    "active": "Active",
+    "on_hold": "On Hold",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "draftProjects": "Draft Projects",
+    "onHoldProjects": "On Hold Projects",
+    "completedProjects": "Completed Projects",
+    "cancelledProjects": "Cancelled Projects"
+  },
   "messages": {
     "created": "Project created",
     "copied": "Portal link copied",
