@@ -209,6 +209,38 @@ const compareRightLabel = computed(() => {
   return match ? `v${match.version_number} (${match.change_summary})` : 'Selected Version'
 })
 
+const compareRightTitle = computed(() => {
+  if (compareTargetId.value === 'current') {
+    return title.value || proposal.value?.title || ''
+  }
+  const match = versions.value.find((v) => v.id === compareTargetId.value)
+  return match?.title ?? ''
+})
+
+const compareRightAmount = computed(() => {
+  if (compareTargetId.value === 'current') {
+    return Number(amount.value || proposal.value?.amount || 0)
+  }
+  const match = versions.value.find((v) => v.id === compareTargetId.value)
+  return match ? Number(match.amount || 0) : 0
+})
+
+const compareRightCurrency = computed(() => {
+  if (compareTargetId.value === 'current') {
+    return currency.value || proposal.value?.currency || 'USD'
+  }
+  const match = versions.value.find((v) => v.id === compareTargetId.value)
+  return match?.currency ?? 'USD'
+})
+
+const leftAmount = computed(() => Number(comparingVersion.value?.amount || 0))
+const leftCurrency = computed(() => comparingVersion.value?.currency || 'USD')
+const leftTitle = computed(() => comparingVersion.value?.title || '')
+
+const amountDiff = computed(() => compareRightAmount.value - leftAmount.value)
+const hasAmountDiff = computed(() => leftAmount.value !== compareRightAmount.value)
+const hasTitleDiff = computed(() => normalizeText(leftTitle.value) !== normalizeText(compareRightTitle.value))
+
 // ─── Robust LCS Line Diff ───────────────────────────────────────
 const diffLines = computed(() => {
   if (!comparingVersion.value) return { left: [], right: [] }
@@ -447,14 +479,44 @@ function formatAuthor(ver: ProposalVersion): string {
         </BaseButton>
       </div>
 
+      <!-- Financial & Title Diff Summary Bar -->
+      <div
+        v-if="hasAmountDiff || hasTitleDiff"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-canvas-elevated p-3.5 shadow-sm text-xs"
+      >
+        <!-- Price Diff Pill -->
+        <div v-if="hasAmountDiff" class="flex items-center gap-2">
+          <span class="font-semibold text-muted">Estimated Amount Diff:</span>
+          <div class="flex items-center gap-1.5 font-bold">
+            <span class="text-ink">${{ leftAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} {{ leftCurrency }}</span>
+            <span class="text-muted">➔</span>
+            <span class="text-ink">${{ compareRightAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} {{ compareRightCurrency }}</span>
+            <span
+              class="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
+              :class="amountDiff > 0 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30'"
+            >
+              {{ amountDiff > 0 ? '+' : '' }}${{ amountDiff.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Title Diff Pill -->
+        <div v-if="hasTitleDiff" class="flex items-center gap-2">
+          <span class="font-semibold text-muted">Title Changed:</span>
+          <span class="line-through text-muted">{{ leftTitle }}</span>
+          <span class="text-muted">➔</span>
+          <span class="font-bold text-ink">{{ compareRightTitle }}</span>
+        </div>
+      </div>
+
       <!-- Side-by-Side Diff Panels -->
       <div class="grid grid-cols-1 gap-0 lg:grid-cols-2 rounded-2xl border border-border overflow-hidden shadow-lift">
         <!-- Left: Base Version Content -->
         <div class="border-b lg:border-b-0 lg:border-r border-border">
-          <div class="flex items-center gap-2 border-b border-border bg-canvas-muted px-5 py-3">
-            <History class="h-4 w-4 text-muted" />
+          <div class="flex h-14 items-center gap-2 border-b border-border bg-canvas-muted px-5">
+            <History class="h-4 w-4 text-muted shrink-0" />
             <span class="text-sm font-bold text-ink">v{{ comparingVersion.version_number }}</span>
-            <span class="text-xs text-muted">— {{ comparingVersion.change_summary }}</span>
+            <span class="text-xs text-muted truncate">— {{ comparingVersion.change_summary }}</span>
           </div>
           <div class="max-h-[70vh] overflow-auto bg-canvas p-5 font-mono text-sm leading-relaxed">
             <div
@@ -475,7 +537,7 @@ function formatAuthor(ver: ProposalVersion): string {
 
         <!-- Right: Comparison Target (Dropdown to select version vs version or current) -->
         <div>
-          <div class="flex items-center justify-between gap-3 border-b border-border bg-canvas-muted px-5 py-2.5">
+          <div class="flex h-14 items-center justify-between gap-3 border-b border-border bg-canvas-muted px-5">
             <div class="flex items-center gap-2 min-w-0">
               <Globe class="h-4 w-4 text-accent shrink-0" />
               <span class="text-xs font-semibold text-muted shrink-0">Compare against:</span>
