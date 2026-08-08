@@ -19,7 +19,16 @@ class ClientSerializer(serializers.ModelSerializer):
             "industry",
             "start_date",
             "notes",
+            "portal_token",
+            "portal_passcode",
+            "is_portal_password_protected",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "freelancer", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "freelancer",
+            "portal_token",
+            "created_at",
+            "updated_at",
+        ]

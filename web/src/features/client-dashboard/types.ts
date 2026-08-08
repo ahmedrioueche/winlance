@@ -19,6 +19,9 @@ export type Client = {
   industry?: string
   start_date?: string | null
   notes: string
+  portal_token?: string
+  portal_passcode?: string
+  is_portal_password_protected?: boolean
   created_at: string
   updated_at: string
 }

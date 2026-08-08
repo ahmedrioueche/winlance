@@ -39,3 +39,13 @@ export const useCreateClientMutation = () => {
     },
   })
 }
+
+export const useUpdateClientMutation = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: api.updateClient,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: clientKeys.all })
+    },
+  })
+}

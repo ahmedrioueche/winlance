@@ -37,6 +37,11 @@ class Client(TimeStampedModel):
     start_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default="")
 
+    # Client Portal Security Fields
+    portal_token = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    portal_passcode = models.CharField(max_length=128, blank=True, default="")
+    is_portal_password_protected = models.BooleanField(default=False)
+
     class Meta(TimeStampedModel.Meta):
         ordering = ["-created_at"]
 

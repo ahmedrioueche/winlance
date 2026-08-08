@@ -3,7 +3,9 @@ import {
   ArrowRight,
   Building2,
   Calendar,
+  Check,
   Clock,
+  Copy,
   CreditCard,
   ExternalLink,
   FileSignature,
@@ -11,21 +13,23 @@ import {
   FileText,
   Folder,
   Globe,
+  Lock,
   Mail,
   MapPin,
   Phone,
   Plus,
+  ShieldCheck,
   StickyNote,
   UserCheck,
 } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import { BaseButton, ErrorState, Skeleton } from '@/shared/components/base'
+import { BaseButton, BaseCheckbox, BaseInput, ErrorState, Skeleton } from '@/shared/components/base'
 import { useToast } from '@/shared/toast/useToast'
 
-import { useClientOverviewQuery, useClientQuery } from '../../queries'
+import { useClientOverviewQuery, useClientQuery, useUpdateClientMutation } from '../../queries'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -49,6 +53,52 @@ const recentProjects = computed(() => overviewData.value?.recent_projects ?? [])
 
 const isPending = computed(() => isClientPending.value && !client.value)
 const isError = computed(() => isClientError.value && !client.value)
+
+const updateClient = useUpdateClientMutation()
+
+const portalPasscode = ref(client.value?.portal_passcode || '')
+const isPasswordProtected = ref(client.value?.is_portal_password_protected || false)
+const isCopiedPortalLink = ref(false)
+
+watch(
+  client,
+  (c) => {
+    if (c) {
+      portalPasscode.value = c.portal_passcode || ''
+      isPasswordProtected.value = c.is_portal_password_protected || false
+    }
+  },
+  { immediate: true },
+)
+
+const portalShareUrl = computed(() => {
+  if (!client.value?.portal_token) return ''
+  return `${window.location.origin}/portal/${client.value.portal_token}`
+})
+
+function handleCopyPortalLink() {
+  if (!portalShareUrl.value) return
+  void navigator.clipboard.writeText(portalShareUrl.value)
+  isCopiedPortalLink.value = true
+  toast.success('Client Portal share link copied!')
+  setTimeout(() => {
+    isCopiedPortalLink.value = false
+  }, 2500)
+}
+
+async function handleSavePortalSettings() {
+  if (!clientId.value) return
+  try {
+    await updateClient.mutateAsync({
+      id: clientId.value,
+      is_portal_password_protected: isPasswordProtected.value,
+      portal_passcode: portalPasscode.value.trim(),
+    })
+    toast.success('Client portal security settings updated!')
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
 
 function handleRetry() {
   void refetchClient()
@@ -330,6 +380,90 @@ const quickAccessItems = computed(() => {
           </div>
         </div>
       </template>
+    </div>
+
+    <!-- Client Portal Security & Share Access Card -->
+    <div v-if="client?.portal_token" class="rounded-2xl border border-border bg-canvas-elevated p-6 shadow-soft space-y-4">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/30 bg-accent-soft text-accent">
+            <ShieldCheck class="h-5 w-5" />
+          </div>
+          <div>
+            <h3 class="font-display text-base font-bold text-ink">
+              Client Portal Access & Passcode Security
+            </h3>
+            <p class="text-xs text-muted">
+              Share a secure VIP portal link with {{ client.name }} to review proposals, suggest revisions, and track progress
+            </p>
+          </div>
+        </div>
+
+        <a
+          :href="portalShareUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline shrink-0"
+        >
+          <span>Preview Portal</span>
+          <ExternalLink class="h-3.5 w-3.5" />
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12 items-end">
+        <!-- Portal URL Display + 1-Click Copy -->
+        <div class="lg:col-span-7 space-y-1.5">
+          <label class="block text-xs font-semibold text-muted">Shareable Portal Link</label>
+          <div class="flex items-center gap-2">
+            <input
+              type="text"
+              readonly
+              :value="portalShareUrl"
+              class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2 font-mono text-xs text-ink focus:outline-none select-all"
+            />
+            <BaseButton
+              variant="secondary"
+              size="sm"
+              class="shrink-0"
+              @click="handleCopyPortalLink"
+            >
+              <Check v-if="isCopiedPortalLink" class="h-3.5 w-3.5 text-accent" />
+              <Copy v-else class="h-3.5 w-3.5" />
+              <span>{{ isCopiedPortalLink ? 'Copied' : 'Copy Link' }}</span>
+            </BaseButton>
+          </div>
+        </div>
+
+        <!-- Password Protection Toggle & Passcode Field -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-ink flex items-center gap-1.5">
+              <Lock class="h-3.5 w-3.5 text-accent" />
+              Passcode Protect Portal
+            </label>
+            <BaseCheckbox
+              v-model="isPasswordProtected"
+              label=""
+            />
+          </div>
+
+          <div v-if="isPasswordProtected" class="flex items-center gap-2">
+            <BaseInput
+              v-model="portalPasscode"
+              type="password"
+              placeholder="Set passcode (e.g. Rookie2026!)"
+              class="flex-1"
+            />
+            <BaseButton
+              size="sm"
+              :loading="updateClient.isPending.value"
+              @click="handleSavePortalSettings"
+            >
+              Save Passcode
+            </BaseButton>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Summary KPI Metric Cards (4 Columns) -->

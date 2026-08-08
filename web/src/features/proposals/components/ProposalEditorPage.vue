@@ -2,6 +2,8 @@
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
+  Clock,
   Eye,
   GitCompare,
   Globe,
@@ -10,6 +12,7 @@ import {
   Loader2,
   RotateCcw,
   Save,
+  Search,
   Send,
   X,
 } from '@lucide/vue'
@@ -26,8 +29,11 @@ import {
   Skeleton,
 } from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
+import MarkdownToolbar from '@/shared/components/markdown/MarkdownToolbar.vue'
 import { useToast } from '@/shared/toast/useToast'
 import { computeSideBySideDiff } from '@/shared/utils/diff'
+
+import { useClientQuery } from '@/features/client-dashboard/queries'
 
 import {
   useCreateProposalVersionMutation,
@@ -44,6 +50,7 @@ const proposalId = computed(() => String(route.params.proposalId || route.params
 const clientId = computed(() => String(route.params.id || ''))
 
 const { data: proposal, isPending, isError, refetch } = useProposalQuery(proposalId)
+const { data: client } = useClientQuery(clientId)
 
 const updateProposal = useUpdateProposalMutation()
 const createVersion = useCreateProposalVersionMutation()
@@ -105,6 +112,60 @@ const statusOptions = computed<SelectOption[]>(() => {
   ]
 })
 
+// Version search & scalability state
+const versionSearch = ref('')
+const versionRoleFilter = ref<'all' | 'freelancer' | 'client'>('all')
+const showAllVersions = ref(false)
+
+// ─── Computed ────────────────────────────────────────────────────
+const versions = computed(() => proposal.value?.versions ?? [])
+const hasVersions = computed(() => versions.value.length > 0)
+
+const filteredVersions = computed(() => {
+  let list = versions.value
+
+  if (versionRoleFilter.value !== 'all') {
+    list = list.filter((v) => v.created_by_role === versionRoleFilter.value)
+  }
+
+  if (versionSearch.value.trim()) {
+    const q = versionSearch.value.trim().toLowerCase()
+    list = list.filter(
+      (v) =>
+        `v${v.version_number}`.toLowerCase().includes(q) ||
+        (v.change_summary || '').toLowerCase().includes(q) ||
+        (v.created_by_role || '').toLowerCase().includes(q),
+    )
+  }
+
+  return list
+})
+
+const visibleVersions = computed(() => {
+  if (
+    versions.value.length <= 5 ||
+    showAllVersions.value ||
+    versionSearch.value.trim() ||
+    versionRoleFilter.value !== 'all'
+  ) {
+    return filteredVersions.value
+  }
+  return filteredVersions.value.slice(0, 5)
+})
+
+const isViewingPast = computed(() => viewingVersion.value !== null)
+const isComparing = computed(() => comparingVersion.value !== null)
+
+const isDirty = computed(() => {
+  if (viewingVersion.value) return false // Read-only past version viewing is never dirty
+
+  const titleChanged = normalizeText(title.value) !== normalizeText(lastSaved.value.title)
+  const bodyChanged = normalizeText(body.value) !== normalizeText(lastSaved.value.body)
+  const amountChanged = normalizeNum(amount.value) !== normalizeNum(lastSaved.value.amount)
+
+  return titleChanged || bodyChanged || amountChanged
+})
+
 // ─── Populate form when proposal loads ───────────────────────────
 watch(
   proposal,
@@ -128,22 +189,6 @@ watch(
   },
   { immediate: true },
 )
-
-// ─── Computed ────────────────────────────────────────────────────
-const versions = computed(() => proposal.value?.versions ?? [])
-const hasVersions = computed(() => versions.value.length > 0)
-const isViewingPast = computed(() => viewingVersion.value !== null)
-const isComparing = computed(() => comparingVersion.value !== null)
-
-const isDirty = computed(() => {
-  if (viewingVersion.value) return false // Read-only past version viewing is never dirty
-
-  const titleChanged = normalizeText(title.value) !== normalizeText(lastSaved.value.title)
-  const bodyChanged = normalizeText(body.value) !== normalizeText(lastSaved.value.body)
-  const amountChanged = normalizeNum(amount.value) !== normalizeNum(lastSaved.value.amount)
-
-  return titleChanged || bodyChanged || amountChanged
-})
 
 // Debounced auto-save trigger
 function scheduleAutoSave() {
@@ -425,12 +470,19 @@ function handleCloseComparison() {
   comparingVersion.value = null
 }
 
+const portalShareUrl = computed(() => {
+  if (client.value?.portal_token && proposalId.value) {
+    return `${window.location.origin}/portal/${client.value.portal_token}/proposals/${proposalId.value}`
+  }
+  return `${window.location.origin}/app/clients/${clientId.value}/proposals/${proposalId.value}`
+})
+
 /** Share link */
 function handleCopyShareLink() {
-  const shareUrl = `${window.location.origin}/app/clients/${clientId.value}/proposals/${proposalId.value}`
-  void navigator.clipboard.writeText(shareUrl)
+  if (!portalShareUrl.value) return
+  void navigator.clipboard.writeText(portalShareUrl.value)
   isCopied.value = true
-  toast.success(t('proposals.messages.linkCopied', 'Share link copied!'))
+  toast.success(t('proposals.messages.linkCopied', 'Client Portal proposal share link copied!'))
   setTimeout(() => {
     isCopied.value = false
   }, 2500)
@@ -622,18 +674,19 @@ function formatAuthor(ver: ProposalVersion): string {
 
         <!-- Action Buttons -->
         <div class="flex shrink-0 items-center gap-2">
-          <!-- Auto-save Status Indicator -->
-          <div v-if="!isViewingPast" class="me-1 hidden sm:flex items-center text-xs">
-            <span v-if="autoSaveStatus === 'saving'" class="text-muted flex items-center gap-1.5 font-medium">
-              <Loader2 class="h-3 w-3 animate-spin text-accent" />
-              Auto-saving...
+          <!-- Auto-save Status Indicator (Fixed 36px Icon with Tooltip) -->
+          <div
+            v-if="autoSaveStatus !== 'idle' && !isViewingPast"
+            class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-xs shrink-0"
+          >
+            <span v-if="autoSaveStatus === 'saving'" title="Auto-saving...">
+              <Loader2 class="h-4 w-4 animate-spin text-accent" />
             </span>
-            <span v-else-if="autoSaveStatus === 'saved'" class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-              <Check class="h-3 w-3" />
-              Auto-saved
+            <span v-else-if="autoSaveStatus === 'saved'" title="Auto-saved">
+              <Check class="h-4 w-4 text-emerald-500" />
             </span>
-            <span v-else-if="autoSaveStatus === 'unsaved'" class="text-muted font-medium">
-              Unsaved changes
+            <span v-else-if="autoSaveStatus === 'unsaved'" title="Unsaved changes">
+              <Clock class="h-4 w-4 text-amber-500" />
             </span>
           </div>
 
@@ -729,11 +782,13 @@ function formatAuthor(ver: ProposalVersion): string {
             </div>
 
             <!-- Body Editor -->
-            <div class="relative z-10 pt-2">
+            <div class="relative z-10 space-y-2 pt-1">
+              <MarkdownToolbar textarea-id="freelancer-proposal-body-textarea" />
               <textarea
+                id="freelancer-proposal-body-textarea"
                 v-model="body"
-                class="w-full min-h-[620px] resize-y rounded-xl border bg-canvas p-6 font-mono text-sm leading-relaxed text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
-                :class="isViewingPast ? 'border-amber-500/30 border-dashed opacity-80 cursor-default' : 'border-border/80'"
+                class="w-full min-h-[620px] resize-y rounded-xl border bg-canvas p-6 font-mono text-sm leading-relaxed text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 border-border/80"
+                :class="{ 'border-amber-500/30 border-dashed opacity-80 cursor-default': isViewingPast }"
                 :readonly="isViewingPast"
                 placeholder="Write or paste your proposal content here..."
               />
@@ -753,6 +808,46 @@ function formatAuthor(ver: ProposalVersion): string {
               </span>
             </div>
 
+            <!-- Search & Filter Controls (Only rendered if versions.length > 5) -->
+            <div v-if="versions.length > 5" class="space-y-2 border-b border-border/60 pb-3">
+              <div class="relative">
+                <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
+                <input
+                  v-model="versionSearch"
+                  type="text"
+                  placeholder="Search versions..."
+                  class="w-full rounded-lg border border-border bg-canvas pl-8 pr-3 py-1 text-xs text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none"
+                />
+              </div>
+
+              <div class="flex items-center gap-1 rounded-lg border border-border bg-canvas p-0.5 text-[11px]">
+                <button
+                  type="button"
+                  class="flex-1 rounded-md py-0.5 font-medium text-center transition-colors"
+                  :class="versionRoleFilter === 'all' ? 'bg-accent text-accent-contrast font-semibold' : 'text-muted hover:text-ink'"
+                  @click="versionRoleFilter = 'all'"
+                >
+                  All ({{ versions.length }})
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 rounded-md py-0.5 font-medium text-center transition-colors"
+                  :class="versionRoleFilter === 'freelancer' ? 'bg-accent text-accent-contrast font-semibold' : 'text-muted hover:text-ink'"
+                  @click="versionRoleFilter = 'freelancer'"
+                >
+                  Freelancer
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 rounded-md py-0.5 font-medium text-center transition-colors"
+                  :class="versionRoleFilter === 'client' ? 'bg-purple-600 text-white font-semibold' : 'text-muted hover:text-ink'"
+                  @click="versionRoleFilter = 'client'"
+                >
+                  Client
+                </button>
+              </div>
+            </div>
+
             <!-- Empty State -->
             <div
               v-if="versions.length === 0"
@@ -764,10 +859,17 @@ function formatAuthor(ver: ProposalVersion): string {
               </p>
             </div>
 
+            <div
+              v-else-if="filteredVersions.length === 0"
+              class="rounded-lg border border-border bg-canvas p-4 text-center text-xs text-muted"
+            >
+              No matching versions found.
+            </div>
+
             <!-- Version Cards -->
             <div v-else class="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
               <div
-                v-for="ver in versions"
+                v-for="ver in visibleVersions"
                 :key="ver.id"
                 class="rounded-lg border p-3.5 text-xs transition-all duration-150"
                 :class="
@@ -826,6 +928,18 @@ function formatAuthor(ver: ProposalVersion): string {
                     <span>Compare</span>
                   </button>
                 </div>
+              </div>
+
+              <!-- Show Older Versions Expand Button (Only rendered if versions.length > 5 and not showing all) -->
+              <div v-if="versions.length > 5 && !showAllVersions && !versionSearch && versionRoleFilter === 'all'" class="pt-2 text-center border-t border-border/60">
+                <button
+                  type="button"
+                  class="text-xs font-semibold text-accent hover:underline flex items-center justify-center gap-1 mx-auto"
+                  @click="showAllVersions = true"
+                >
+                  <span>Show older versions ({{ versions.length - 5 }} remaining)</span>
+                  <ChevronDown class="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { clientDashboardRoutes } from '@/features/client-dashboard'
 import { projectDashboardRoutes } from '@/features/project-dashboard'
 import { homeRoutes } from '@/features/home'
 import { analyticsRoutes } from '@/features/analytics'
+import { portalRoutes } from '@/features/portal'
 import { logger } from '@/shared/utils/logger'
 
 import { registerAuthGuard } from './guards'
@@ -19,6 +20,7 @@ const router = createRouter({
     ...clientDashboardRoutes,
     ...projectDashboardRoutes,
     ...analyticsRoutes,
+    ...portalRoutes,
     {
       path: '/error',
       name: 'app-error',
