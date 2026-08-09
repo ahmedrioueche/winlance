@@ -1,6 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
-import { toValue } from 'vue'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 
 import { projectDashboardApi } from './api'
 import type { Project, ProjectMilestone, ProjectRequirement, ProjectTask } from './types'
@@ -9,6 +8,7 @@ export const projectKeys = {
   all: ['projects'] as const,
   detail: (id: MaybeRefOrGetter<string>) => ['projects', 'detail', toValue(id)] as const,
   tasks: (id: MaybeRefOrGetter<string>) => ['projects', 'tasks', toValue(id)] as const,
+  tasksInfinite: (id: MaybeRefOrGetter<string>, pageSize: number) => ['projects', 'tasks', 'infinite', toValue(id), pageSize] as const,
 }
 
 export function useProjectQuery(id: MaybeRefOrGetter<string>) {
@@ -82,6 +82,19 @@ export function useProjectTasksQuery(id: MaybeRefOrGetter<string>) {
   })
 }
 
+export function useProjectTasksInfiniteQuery(id: MaybeRefOrGetter<string>, pageSize = 5) {
+  return useInfiniteQuery({
+    queryKey: computed(() => projectKeys.tasksInfinite(toValue(id), pageSize)),
+    queryFn: ({ pageParam = 1 }) =>
+      projectDashboardApi.fetchTasksPaginated(toValue(id), { page: pageParam, page_size: pageSize }),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.next ? allPages.length + 1 : undefined
+    },
+    initialPageParam: 1,
+    enabled: () => Boolean(toValue(id)),
+  })
+}
+
 export function useCreateTaskMutation() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -89,9 +102,33 @@ export function useCreateTaskMutation() {
       projectDashboardApi.createTask(projectId, payload),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) })
-      queryClient.invalidateQueries({ queryKey: projectKeys.tasks(projectId) })
+      queryClient.invalidateQueries({ queryKey: ['projects', 'tasks'] })
     },
   })
+}
+
+type InfiniteDataShape = {
+  pageParams: unknown[]
+  pages: Array<{ count: number; next: string | null; previous: string | null; results: ProjectTask[] }>
+}
+
+function updateInfiniteTaskResults(
+  queryClient: ReturnType<typeof useQueryClient>,
+  updater: (tasks: ProjectTask[]) => ProjectTask[],
+) {
+  queryClient.setQueriesData<InfiniteDataShape>(
+    { queryKey: ['projects', 'tasks'] },
+    (oldData) => {
+      if (!oldData || !Array.isArray(oldData.pages)) return oldData
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page) => ({
+          ...page,
+          results: updater(page.results),
+        })),
+      }
+    },
+  )
 }
 
 export function useUpdateTaskMutation() {
@@ -100,7 +137,7 @@ export function useUpdateTaskMutation() {
     mutationFn: ({ projectId, taskId, payload }: { projectId: string; taskId: string; payload: Partial<ProjectTask> }) =>
       projectDashboardApi.updateTask(projectId, taskId, payload),
     onMutate: async ({ projectId, taskId, payload }) => {
-      await queryClient.cancelQueries({ queryKey: projectKeys.tasks(projectId) })
+      await queryClient.cancelQueries({ queryKey: ['projects', 'tasks'] })
       const previousTasks = queryClient.getQueryData<ProjectTask[]>(projectKeys.tasks(projectId))
 
       if (previousTasks) {
@@ -112,6 +149,12 @@ export function useUpdateTaskMutation() {
         )
       }
 
+      updateInfiniteTaskResults(queryClient, (tasks) =>
+        tasks.map((task) =>
+          task.id === taskId ? { ...task, ...payload, updated_at: new Date().toISOString() } : task,
+        ),
+      )
+
       return { previousTasks }
     },
     onError: (_err, { projectId }, context) => {
@@ -120,7 +163,7 @@ export function useUpdateTaskMutation() {
       }
     },
     onSettled: (_, __, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.tasks(projectId) })
+      queryClient.invalidateQueries({ queryKey: ['projects', 'tasks'] })
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) })
     },
   })
@@ -132,7 +175,7 @@ export function useDeleteTaskMutation() {
     mutationFn: ({ projectId, taskId }: { projectId: string; taskId: string }) =>
       projectDashboardApi.deleteTask(projectId, taskId),
     onMutate: async ({ projectId, taskId }) => {
-      await queryClient.cancelQueries({ queryKey: projectKeys.tasks(projectId) })
+      await queryClient.cancelQueries({ queryKey: ['projects', 'tasks'] })
       const previousTasks = queryClient.getQueryData<ProjectTask[]>(projectKeys.tasks(projectId))
 
       if (previousTasks) {
@@ -142,6 +185,10 @@ export function useDeleteTaskMutation() {
         )
       }
 
+      updateInfiniteTaskResults(queryClient, (tasks) =>
+        tasks.filter((t) => t.id !== taskId),
+      )
+
       return { previousTasks }
     },
     onError: (_err, { projectId }, context) => {
@@ -150,7 +197,7 @@ export function useDeleteTaskMutation() {
       }
     },
     onSettled: (_, __, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.tasks(projectId) })
+      queryClient.invalidateQueries({ queryKey: ['projects', 'tasks'] })
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) })
     },
   })
@@ -162,16 +209,16 @@ export function useReorderTasksMutation() {
     mutationFn: ({ projectId, orders }: { projectId: string; orders: Array<{ id: string; order: number }> | string[] }) =>
       projectDashboardApi.reorderTasks(projectId, orders),
     onMutate: async ({ projectId, orders }) => {
-      await queryClient.cancelQueries({ queryKey: projectKeys.tasks(projectId) })
+      await queryClient.cancelQueries({ queryKey: ['projects', 'tasks'] })
       const previousTasks = queryClient.getQueryData<ProjectTask[]>(projectKeys.tasks(projectId))
 
+      const orderedIds = Array.isArray(orders)
+        ? orders.map((o) => (typeof o === 'string' ? o : o.id))
+        : []
+
       if (previousTasks) {
-        const orderedIds = Array.isArray(orders)
-          ? orders.map((o) => (typeof o === 'string' ? o : o.id))
-          : []
         const tasksById = new Map(previousTasks.map((t) => [t.id, t]))
         const newTasks: ProjectTask[] = []
-
         orderedIds.forEach((id, idx) => {
           const t = tasksById.get(id)
           if (t) {
@@ -180,9 +227,22 @@ export function useReorderTasksMutation() {
           }
         })
         tasksById.forEach((t) => newTasks.push(t))
-
         queryClient.setQueryData(projectKeys.tasks(projectId), newTasks)
       }
+
+      updateInfiniteTaskResults(queryClient, (tasks) => {
+        const tasksById = new Map(tasks.map((t) => [t.id, t]))
+        const newTasks: ProjectTask[] = []
+        orderedIds.forEach((id, idx) => {
+          const t = tasksById.get(id)
+          if (t) {
+            newTasks.push({ ...t, order: idx + 1 })
+            tasksById.delete(id)
+          }
+        })
+        tasksById.forEach((t) => newTasks.push(t))
+        return newTasks
+      })
 
       return { previousTasks }
     },
@@ -192,7 +252,7 @@ export function useReorderTasksMutation() {
       }
     },
     onSettled: (_, __, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.tasks(projectId) })
+      queryClient.invalidateQueries({ queryKey: ['projects', 'tasks'] })
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) })
     },
   })

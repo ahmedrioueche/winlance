@@ -223,6 +223,10 @@ class ProjectPortalAPITests(APITestCase):
         res = self.client.post(reverse("proposal-accept", kwargs={"pk": str(proposal.id)}))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+        # Create project from accepted proposal via API action
+        create_res = self.client.post(reverse("proposal-create-project", kwargs={"pk": str(proposal.id)}))
+        self.assertEqual(create_res.status_code, status.HTTP_200_OK)
+
         proposal.refresh_from_db()
         self.assertIsNotNone(proposal.project_id)
         
@@ -237,6 +241,19 @@ class ProjectPortalAPITests(APITestCase):
         self.assertEqual(tasks[0].title, "Database Schema Setup")
         self.assertEqual(tasks[1].title, "UI Wireframing & Design Tokens")
         self.assertEqual(tasks[2].title, "Stripe Payment Gateway Integration")
+
+        # Test project deletion and re-creation from same proposal
+        project_id_before = project.id
+        self.client.delete(reverse("project-detail", kwargs={"pk": str(project_id_before)}))
+        proposal.refresh_from_db()
+        self.assertIsNone(proposal.project_id)
+
+        # Re-create project from proposal
+        recreate_res = self.client.post(reverse("proposal-create-project", kwargs={"pk": str(proposal.id)}))
+        self.assertEqual(recreate_res.status_code, status.HTTP_200_OK)
+        proposal.refresh_from_db()
+        self.assertIsNotNone(proposal.project_id)
+        self.assertNotEqual(proposal.project_id, project_id_before)
 
     def test_task_crud_and_reorder_api(self):
         project = Project.objects.create(

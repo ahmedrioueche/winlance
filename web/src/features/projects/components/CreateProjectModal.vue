@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { Sparkles } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useProposalsQuery } from '@/features/proposals/queries'
 import { BaseButton, BaseInput, BaseModal, BaseSelect, BaseTextarea } from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
 import { openCreateClientModal } from '@/shared/modal/registry'
@@ -36,17 +38,55 @@ const { t } = useI18n()
 const toast = useToast()
 const createProject = useCreateProjectMutation()
 
+const { data: proposalsData } = useProposalsQuery({ page_size: 100 })
+
 const title = ref('')
+const selectedProposalId = ref('')
 const selectedClientValue = ref('')
 const clientName = ref('')
 const clientEmail = ref('')
-const status = ref('DRAFT')
+const status = ref('ACTIVE')
 const summary = ref('')
 
 const customClients = ref<ClientOption[]>([])
 
 const titleError = ref('')
 const clientError = ref('')
+
+const proposalOptions = computed<SelectOption[]>(() => {
+  const options: SelectOption[] = [
+    { value: '', label: 'None (Standalone Project)' },
+  ]
+  if (proposalsData.value?.results) {
+    proposalsData.value.results.forEach((p) => {
+      if (!p.project_id) {
+        options.push({
+          value: p.id,
+          label: `${p.title} (${p.status}) - ${p.currency} ${Number(p.amount).toLocaleString()}`,
+        })
+      }
+    })
+  }
+  return options
+})
+
+const selectedProposal = computed(() => {
+  if (!selectedProposalId.value || !proposalsData.value?.results) return null
+  return proposalsData.value.results.find((p) => p.id === selectedProposalId.value) || null
+})
+
+watch(selectedProposalId, (newProposalId) => {
+  if (!newProposalId || !proposalsData.value?.results) return
+  const p = proposalsData.value.results.find((item) => item.id === newProposalId)
+  if (p) {
+    if (!title.value.trim()) {
+      title.value = p.target_project_name || p.title
+    }
+    if (!summary.value.trim() && p.summary) {
+      summary.value = p.summary
+    }
+  }
+})
 
 const allClients = computed<ClientOption[]>(() => {
   const list = [...props.clients]
@@ -82,7 +122,8 @@ const statusOptions: SelectOption[] = [
 
 function resetForm() {
   title.value = ''
-  status.value = 'DRAFT'
+  selectedProposalId.value = ''
+  status.value = 'ACTIVE'
   summary.value = ''
   titleError.value = ''
   clientError.value = ''
@@ -160,6 +201,7 @@ async function handleSubmit() {
       client_email: clientEmail.value.trim() || undefined,
       status: status.value,
       summary: summary.value.trim() || undefined,
+      proposal: selectedProposalId.value || undefined,
     })
 
     toast.success(t('projects.createdSuccess', 'Project created successfully.'))
@@ -177,7 +219,20 @@ async function handleSubmit() {
     :title="t('projects.createModalTitle', 'Create New Project')"
     @close="emit('close')"
   >
-    <form class="space-y-4" @submit.prevent="handleSubmit">
+    <form class="space-y-4 text-xs" @submit.prevent="handleSubmit">
+      <!-- Optional Link Proposal Dropdown -->
+      <div v-if="proposalOptions.length > 1" class="space-y-1.5">
+        <BaseSelect
+          v-model="selectedProposalId"
+          label="Link Proposal & Seed Tasks (Optional)"
+          :options="proposalOptions"
+        />
+        <div v-if="selectedProposal" class="flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 p-2 text-[11px] text-accent font-medium">
+          <Sparkles class="h-3.5 w-3.5 shrink-0" />
+          <span>AI Task Generation: Project tasks will be automatically parsed & seeded from this proposal.</span>
+        </div>
+      </div>
+
       <BaseInput
         v-model="title"
         :label="t('projects.fields.title', 'Project Title')"

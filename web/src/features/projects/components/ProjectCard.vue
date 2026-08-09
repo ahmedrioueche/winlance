@@ -120,13 +120,13 @@ const completedMilestones = computed(() => {
           {{ project.client_email }}
         </span>
         <span v-if="!project.client_name && !project.client_email" class="italic">
-          {{ t('projects.noClientAssigned') }}
+          {{ t('projects.noClientAssigned', 'No client assigned') }}
         </span>
 
         <!-- Added Date Tag -->
         <span v-if="formattedCreatedDate" class="ml-auto inline-flex items-center gap-1 font-mono text-[11px] text-muted">
           <Calendar class="h-3 w-3 text-muted" />
-          <span>{{ t('projects.addedDate', { date: formattedCreatedDate }) }}</span>
+          <span>{{ t('projects.addedDate', { date: formattedCreatedDate }, `Added ${formattedCreatedDate}`) }}</span>
         </span>
       </div>
 

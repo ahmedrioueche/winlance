@@ -60,6 +60,9 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
     project = None
     if proposal.project_id:
         project = Project.objects.filter(id=proposal.project_id).first()
+        if not project:
+            proposal.project_id = None
+            proposal.save(update_fields=["project_id", "updated_at"])
 
     if not project:
         freelancer = user or proposal.user
@@ -70,8 +73,34 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
             if contact:
                 client_name = f"{contact.first_name} {contact.last_name}".strip()
                 client_email = contact.email or ""
-            else:
-                client_name = proposal.lead.title
+            if not client_name:
+                company = getattr(proposal.lead, "company", None)
+                if company and getattr(company, "name", None):
+                    client_name = company.name
+                else:
+                    client_name = proposal.lead.title
+
+        if not client_name or not client_email:
+            from apps.clients.models import Client
+            matched_client = None
+            if client_email:
+                matched_client = Client.objects.filter(freelancer=freelancer, email__iexact=client_email).first()
+            if not matched_client and proposal.lead and getattr(proposal.lead, "company", None):
+                matched_client = Client.objects.filter(freelancer=freelancer, company_name__iexact=proposal.lead.company.name).first()
+            if not matched_client and proposal.lead:
+                matched_client = Client.objects.filter(freelancer=freelancer, name__icontains=proposal.lead.title).first()
+
+            if matched_client:
+                client_name = client_name or matched_client.name or matched_client.company_name
+                client_email = client_email or matched_client.email
+
+        if not client_name and proposal.title:
+            import re
+            m = re.search(r'(?:for|–|-|:)\s+([A-Za-z0-9\s.&]+?)(?:\s+v\d+|\s+ERP|\s+Proposal|\s+Project|$)', proposal.title, re.IGNORECASE)
+            if m:
+                extracted = m.group(1).strip()
+                if extracted and len(extracted) > 1:
+                    client_name = extracted
 
         project_title = (proposal.target_project_name or "").strip() or proposal.title
 

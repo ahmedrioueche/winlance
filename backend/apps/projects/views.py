@@ -49,6 +49,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(freelancer=self.request.user)
 
+    def perform_destroy(self, instance):
+        if instance.proposal_id:
+            Proposal.objects.filter(id=instance.proposal_id).update(project_id=None)
+        Proposal.objects.filter(project_id=instance.id).update(project_id=None)
+        instance.delete()
+
     @action(detail=False, methods=["post"], url_path="from-proposal")
     def from_proposal(self, request):
         serializer = ProjectFromProposalSerializer(

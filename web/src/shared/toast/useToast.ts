@@ -1,7 +1,7 @@
 import { useI18n } from 'vue-i18n'
 
 import { errorCodeToI18nKey, resolveErrorToastMessage } from './errorMessages'
-import { clearToasts, dismissToast, pushToast, toasts } from './store'
+import { clearToasts, dismissToast, pushToast, toasts, type ToastAction, type ToastKind } from './store'
 
 export function useToast() {
   const { t } = useI18n()
@@ -27,6 +27,15 @@ export function useToast() {
     pushToast('error', params ? t(messageKey, params) : t(messageKey))
   }
 
+  function withAction(
+    kind: ToastKind,
+    message: string,
+    action: ToastAction,
+    ttlMs = 7_000,
+  ) {
+    return pushToast(kind, message, ttlMs, action)
+  }
+
   return {
     toasts,
     errorFromCode,
@@ -34,6 +43,7 @@ export function useToast() {
     errorKey,
     success,
     info,
+    withAction,
     dismiss: dismissToast,
     clear: clearToasts,
   }

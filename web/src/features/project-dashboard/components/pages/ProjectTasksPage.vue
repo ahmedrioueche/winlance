@@ -33,7 +33,7 @@ import {
   useCreateTaskMutation,
   useDeleteTaskMutation,
   useProjectQuery,
-  useProjectTasksQuery,
+  useProjectTasksInfiniteQuery,
   useReorderTasksMutation,
   useUpdateTaskMutation,
 } from '../../queries'
@@ -44,7 +44,15 @@ const toast = useToast()
 
 const projectId = computed(() => String(route.params.id || ''))
 const { data: project } = useProjectQuery(projectId)
-const { data: tasksData, isPending, isError, refetch } = useProjectTasksQuery(projectId)
+const {
+  data: infiniteTasksData,
+  isPending,
+  isError,
+  refetch,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+} = useProjectTasksInfiniteQuery(projectId, 10)
 
 const createTaskMutation = useCreateTaskMutation()
 const updateTaskMutation = useUpdateTaskMutation()
@@ -85,16 +93,22 @@ const taskStatus = ref<TaskStatus>('TODO')
 const taskPriority = ref<TaskPriority>('MEDIUM')
 const taskDueDate = ref('')
 
+// Delete Confirmation Modal State
+const isDeleteModalOpen = ref(false)
+const taskToDelete = ref<ProjectTask | null>(null)
+
 // Drag and Drop state (Kanban & Table row reordering)
 const draggedTaskId = ref<string | null>(null)
 const draggedRowIndex = ref<number | null>(null)
 
 const tasks = computed<ProjectTask[]>(() => {
-  if (tasksData.value && Array.isArray(tasksData.value)) {
-    return tasksData.value
+  if (infiniteTasksData.value?.pages) {
+    return infiniteTasksData.value.pages.flatMap((page) => page.results)
   }
-  return project.value?.tasks ?? []
+  return []
 })
+
+const totalCount = computed(() => infiniteTasksData.value?.pages[0]?.count ?? tasks.value.length)
 
 const priorityOptions: SelectOption[] = [
   { value: 'LOW', label: 'Low' },
@@ -162,19 +176,7 @@ function getPriorityBadgeClass(priority?: TaskPriority | string) {
   }
 }
 
-function getStatusBadgeClass(status?: TaskStatus | string) {
-  switch (status) {
-    case 'DONE':
-      return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-    case 'IN_REVIEW':
-      return 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30'
-    case 'IN_PROGRESS':
-      return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
-    case 'TODO':
-    default:
-      return 'bg-canvas-muted text-muted border-border'
-  }
-}
+
 
 // ─── Table Row Reordering Handlers ───
 function handleRowDragStart(index: number) {
@@ -291,11 +293,53 @@ async function handleQuickStatusChange(task: ProjectTask, newStatus: TaskStatus)
   }
 }
 
-async function handleDeleteTask(taskId: string) {
+function handlePromptDeleteTask(task: ProjectTask) {
+  taskToDelete.value = task
+  isDeleteModalOpen.value = true
+}
+
+async function handleConfirmDeleteTask() {
+  if (!projectId.value || !taskToDelete.value) return
+  const targetTask = { ...taskToDelete.value }
+  isDeleteModalOpen.value = false
+
+  try {
+    await deleteTaskMutation.mutateAsync({
+      projectId: projectId.value,
+      taskId: targetTask.id,
+    })
+
+    toast.withAction(
+      'info',
+      `Task "${targetTask.title}" deleted.`,
+      {
+        label: 'Undo',
+        onClick: () => handleUndoDeleteTask(targetTask),
+      },
+      7000,
+    )
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  } finally {
+    taskToDelete.value = null
+  }
+}
+
+async function handleUndoDeleteTask(task: ProjectTask) {
   if (!projectId.value) return
   try {
-    await deleteTaskMutation.mutateAsync({ projectId: projectId.value, taskId })
-    toast.success('Task deleted.')
+    await createTaskMutation.mutateAsync({
+      projectId: projectId.value,
+      payload: {
+        title: task.title,
+        description: task.description || '',
+        status: task.status,
+        priority: task.priority,
+        due_date: task.due_date,
+        order: task.order,
+      },
+    })
+    toast.success(`Restored task "${task.title}"`)
   } catch (error) {
     toast.errorFromUnknown(error)
   }
@@ -518,18 +562,13 @@ async function handleDropOnColumn(targetStatus: TaskStatus) {
             </td>
 
             <!-- Quick Status Select -->
-            <td class="px-4 py-3.5">
-              <select
-                :value="task.status"
-                class="rounded-lg border px-2 py-1 text-[11px] font-bold uppercase tracking-wider focus:outline-none cursor-pointer"
-                :class="getStatusBadgeClass(task.status)"
-                @change="handleQuickStatusChange(task, ($event.target as HTMLSelectElement).value as TaskStatus)"
-              >
-                <option value="TODO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="IN_REVIEW">In Review</option>
-                <option value="DONE">Done</option>
-              </select>
+            <td class="px-4 py-2 w-44">
+              <BaseSelect
+                :model-value="task.status"
+                label=""
+                :options="statusOptions"
+                @update:model-value="handleQuickStatusChange(task, $event as TaskStatus)"
+              />
             </td>
 
             <!-- Priority -->
@@ -567,7 +606,7 @@ async function handleDropOnColumn(targetStatus: TaskStatus) {
                   type="button"
                   class="p-1 text-muted hover:text-red-500 transition-colors"
                   title="Delete Task"
-                  @click="handleDeleteTask(task.id)"
+                  @click="handlePromptDeleteTask(task)"
                 >
                   <Trash2 class="h-3.5 w-3.5" />
                 </button>
@@ -769,6 +808,19 @@ async function handleDropOnColumn(targetStatus: TaskStatus) {
       </div>
     </div>
 
+    <!-- ═══ SHOW MORE TASKS PAGINATION BUTTON ═══ -->
+    <div v-if="hasNextPage" class="flex flex-col items-center justify-center pt-4 pb-2">
+      <BaseButton
+        variant="secondary"
+        size="sm"
+        :loading="isFetchingNextPage"
+        @click="fetchNextPage()"
+      >
+        <ChevronDown class="h-4 w-4" />
+        <span>Show More Tasks (Showing {{ tasks.length }} of {{ totalCount }})</span>
+      </BaseButton>
+    </div>
+
     <!-- ═══ CREATE / EDIT TASK MODAL ═══ -->
     <BaseModal
       :open="isModalOpen"
@@ -823,6 +875,37 @@ async function handleDropOnColumn(targetStatus: TaskStatus) {
           <Plus v-if="!editingTask" class="h-3.5 w-3.5" />
           <Edit3 v-else class="h-3.5 w-3.5" />
           <span>{{ editingTask ? 'Save Changes' : 'Create Task' }}</span>
+        </BaseButton>
+      </template>
+    </BaseModal>
+
+    <!-- ═══ DELETE TASK CONFIRMATION MODAL (ZERO INPUT) ═══ -->
+    <BaseModal
+      :open="isDeleteModalOpen"
+      title="Delete Task"
+      @close="isDeleteModalOpen = false"
+    >
+      <div class="space-y-3 text-xs">
+        <p class="text-ink text-sm">
+          Are you sure you want to delete <strong class="font-bold text-ink">{{ taskToDelete?.title }}</strong>?
+        </p>
+        <p class="text-muted">
+          This task will be removed from your workspace. You can revert this action using the Undo toast notice.
+        </p>
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" size="sm" @click="isDeleteModalOpen = false">
+          Cancel
+        </BaseButton>
+        <BaseButton
+          variant="primary"
+          class="!bg-red-600 !text-white hover:!bg-red-700"
+          size="sm"
+          :loading="deleteTaskMutation.isPending.value"
+          @click="handleConfirmDeleteTask"
+        >
+          Delete Task
         </BaseButton>
       </template>
     </BaseModal>

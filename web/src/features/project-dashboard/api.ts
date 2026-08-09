@@ -1,6 +1,9 @@
 import { apiClient } from '@/shared/api/client'
+import type { PaginatedResponse } from '@/shared/types/pagination'
 
 import type { Project, ProjectMilestone, ProjectRequirement, ProjectTask } from './types'
+
+export type TaskListParams = { page?: number; page_size?: number }
 
 function asList<T>(data: T[] | { results: T[] }): T[] {
   if (Array.isArray(data)) return data
@@ -48,9 +51,18 @@ export const projectDashboardApi = {
   },
 
   /** Fetch project tasks */
-  async fetchTasks(projectId: string): Promise<ProjectTask[]> {
-    const { data } = await apiClient.get<ProjectTask[] | { results: ProjectTask[] }>(`/projects/${projectId}/tasks/`)
+  async fetchTasks(projectId: string, params: TaskListParams = {}): Promise<ProjectTask[]> {
+    const { data } = await apiClient.get<ProjectTask[] | { results: ProjectTask[] }>(`/projects/${projectId}/tasks/`, { params })
     return asList(data)
+  },
+
+  /** Fetch project tasks paginated */
+  async fetchTasksPaginated(projectId: string, params: TaskListParams = {}): Promise<PaginatedResponse<ProjectTask>> {
+    const { data } = await apiClient.get<PaginatedResponse<ProjectTask> | ProjectTask[]>(`/projects/${projectId}/tasks/`, { params })
+    if (Array.isArray(data)) {
+      return { count: data.length, next: null, previous: null, results: data }
+    }
+    return data
   },
 
   /** Create project task */

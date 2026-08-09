@@ -208,6 +208,16 @@ class ProjectSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Contract not found or not owned by you.")
         return contract
 
+    def create(self, validated_data):
+        proposal = validated_data.get("proposal")
+        project = super().create(validated_data)
+        if proposal:
+            proposal.project_id = project.id
+            proposal.save(update_fields=["project_id", "updated_at"])
+            if not project.tasks.exists():
+                extract_tasks_for_proposal(proposal, project)
+        return project
+
 
 class ProjectFromProposalSerializer(serializers.Serializer):
     proposal_id = serializers.UUIDField()

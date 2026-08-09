@@ -42,14 +42,24 @@ function kindLabel(kind: ToastKind) {
           </p>
           <p class="mt-1 text-sm">{{ toast.message }}</p>
         </div>
-        <button
-          type="button"
-          class="rounded-md px-1.5 py-0.5 text-sm text-muted hover:bg-canvas-elevated hover:text-ink"
-          :aria-label="t('common.toast.dismiss')"
-          @click="dismissToast(toast.id)"
-        >
-          ✕
-        </button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            v-if="toast.action"
+            type="button"
+            class="rounded-md bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground hover:opacity-90 transition-opacity"
+            @click="toast.action.onClick(); dismissToast(toast.id)"
+          >
+            {{ toast.action.label }}
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-1.5 py-0.5 text-sm text-muted hover:bg-canvas-elevated hover:text-ink transition-colors"
+            :aria-label="t('common.toast.dismiss')"
+            @click="dismissToast(toast.id)"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     </div>
   </div>

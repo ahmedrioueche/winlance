@@ -5,6 +5,7 @@ import {
   ChevronDown,
   Clock,
   Eye,
+  Folder,
   FolderPlus,
   GitCompare,
   Globe,
@@ -761,9 +762,20 @@ function formatAuthor(ver: ProposalVersion): string {
             <span>Save</span>
           </BaseButton>
 
-          <!-- Create Project Button (replaces Publish when status is ACCEPTED) -->
+          <!-- Open Existing Project Workspace Button -->
           <BaseButton
-            v-if="currentStatus === 'ACCEPTED'"
+            v-if="currentStatus === 'ACCEPTED' && proposal?.project_id"
+            size="sm"
+            variant="secondary"
+            @click="router.push(`/app/projects/${proposal.project_id}/overview`)"
+          >
+            <Folder class="h-3.5 w-3.5 text-accent" />
+            <span>Open Project Workspace</span>
+          </BaseButton>
+
+          <!-- Create Project Button (replaces Publish when status is ACCEPTED and project not created yet) -->
+          <BaseButton
+            v-else-if="currentStatus === 'ACCEPTED'"
             size="sm"
             :loading="createProjectMutation.isPending.value"
             @click="handleCreateProject"
