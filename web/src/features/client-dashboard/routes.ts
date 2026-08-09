@@ -30,7 +30,7 @@ export const clientDashboardRoutes: RouteRecordRaw[] = [
       {
         path: 'proposals/:proposalId',
         name: 'client-workspace-proposal-editor',
-        component: () => import('@/features/proposals/components/ProposalEditorPage.vue'),
+        component: () => import('@/features/proposals/components/pages/ProposalEditorPage.vue'),
         meta: { layout: 'blank', requiresAuth: true, titleKey: 'clients.nav.proposals' },
       },
       {

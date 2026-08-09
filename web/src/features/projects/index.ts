@@ -1,7 +1,7 @@
-export { default as CreateProjectModal } from './components/CreateProjectModal.vue'
-export { default as ProjectCard } from './components/ProjectCard.vue'
-export { default as ProjectsListPage } from './components/ProjectsListPage.vue'
-export { default as ProjectsSkeleton } from './components/ProjectsSkeleton.vue'
+export { default as CreateProjectModal } from './components/create/CreateProjectModal.vue'
+export { default as ProjectCard } from './components/list/ProjectCard.vue'
+export { default as ProjectsListPage } from './components/pages/ProjectsListPage.vue'
+export { default as ProjectsSkeleton } from './components/list/ProjectsSkeleton.vue'
 
 export { useCreateProjectMutation, useProjectsQuery } from './queries'
 export { projectsRoutes } from './routes'

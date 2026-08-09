@@ -27,6 +27,9 @@ export interface ProjectMilestone {
   updated_at: string
 }
 
+export type Milestone = ProjectMilestone
+export type Requirement = ProjectRequirement
+
 export interface ProjectFileItem {
   id: string
   project: string

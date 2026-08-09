@@ -29,6 +29,10 @@ export const createProject = async (payload: {
   client_email?: string
   status?: string
   proposal?: string
+  budget?: number | string
+  currency?: string
+  start_date?: string
+  due_date?: string
 }) => (await apiClient.post<Project>('/projects/', payload)).data
 
 export const createProjectFromProposal = async (payload: {

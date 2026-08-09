@@ -6,6 +6,23 @@ export type ClientStatus =
   | 'COMPLETED'
   | 'ARCHIVED'
 
+export interface ClientProject {
+  id: string
+  title: string
+  summary?: string
+  status: string
+  budget?: number | string | null
+  due_date?: string | null
+}
+
+export interface ClientProposal {
+  id: string
+  title: string
+  amount?: number | string | null
+  status: string
+  created_at?: string
+}
+
 export type Client = {
   id: string
   freelancer: number | string
@@ -22,6 +39,8 @@ export type Client = {
   portal_token?: string
   portal_passcode?: string
   is_portal_password_protected?: boolean
+  projects?: ClientProject[]
+  proposals?: ClientProposal[]
   created_at: string
   updated_at: string
 }

@@ -52,7 +52,7 @@ function getStatusBadgeClass(status: string) {
         {{ t('portal.proposals.title', 'Proposals & Scope Offers') }}
       </h2>
       <p class="mt-1 text-sm text-muted">
-        {{ t('portal.proposals.subtitle', 'Review proposals, suggest revisions, or accept offers prepared for {client}', { client: portalInfo?.company_name || portalInfo?.client_name || 'you' }) }}
+        {{ t('portal.proposals.subtitle', { client: portalInfo?.company_name || portalInfo?.client_name || 'you' }) }}
       </p>
     </div>
 

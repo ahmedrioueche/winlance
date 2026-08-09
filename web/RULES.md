@@ -1,6 +1,6 @@
-# Vue.js Project Rules (Cursor AI)
+# Vue.js Project Rules
 
-These rules define how Cursor's AI should generate, refactor, and reason about code in this Vue.js project. Follow every section strictly. When a request conflicts with these rules, prefer the rules unless the user explicitly overrides them.
+These rules define how AI should generate, refactor, and reason about code in this Vue.js project. Follow every section strictly. When a request conflicts with these rules, prefer the rules unless the user explicitly overrides them.
 
 **Stack assumptions:** Vue 3, `<script setup>`, Composition API, TypeScript, Vite, Pinia, Vue Router, vue-i18n. Adjust only if the project's `package.json` says otherwise — always check actual dependencies before assuming a tool.
 
@@ -257,7 +257,7 @@ These rules define how Cursor's AI should generate, refactor, and reason about c
 
 ---
 
-## How Cursor Should Apply These Rules
+## How AI Should Apply These Rules
 
 - When generating a new component, place it in the correct tier/folder per §1 and §4, use design tokens per §3, ensure a11y per §6, and type props/emits.
 - When generating anything that fetches data, route it through the API client + caching layer per §11, and handle loading/empty/error states per §5 and §13.

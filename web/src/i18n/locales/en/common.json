@@ -276,5 +276,122 @@
       "language": "Language",
       "compactView": "Compact Mode"
     }
+  },
+  "projects": {
+    "nav": {
+      "overview": "Overview",
+      "tasks": "Tasks",
+      "milestones": "Milestones",
+      "files": "Files",
+      "settings": "Settings"
+    }
+  },
+  "clients": {
+    "title": "Client Management",
+    "subtitle": "Track client relationships, contact points, active project engagements, and proposals",
+    "newClient": "New Client",
+    "createClient": "Create Client",
+    "searchPlaceholder": "Search clients by name, company, or email...",
+    "allStatuses": "All Statuses",
+    "activeClients": "Active",
+    "inactiveClients": "Inactive",
+    "noClientsFound": "No clients found. Click \"New Client\" to add your first client.",
+    "clientPortalLink": "Client Portal Link",
+    "portalCopiedToast": "Client portal link copied to clipboard!",
+    "createdToast": "Client created successfully!",
+    "overview": {
+      "title": "Client Workspace Overview",
+      "subtitle": "Key metrics, active project contracts, and recent proposal activity for {name}",
+      "totalRevenue": "Total Revenue",
+      "activeProjects": "Active Projects",
+      "totalProposals": "Total Proposals",
+      "winRate": "Proposal Win Rate",
+      "projectsTitle": "Active Project Engagements",
+      "proposalsTitle": "Proposals & Estimates",
+      "viewAll": "View All",
+      "noProjects": "No active projects for this client yet.",
+      "noProposals": "No proposals generated for this client yet."
+    },
+    "projects": {
+      "title": "Client Projects",
+      "subtitle": "Project engagements, deliverables, and timeline progress for {name}",
+      "createProject": "Create Project",
+      "noProjects": "No projects associated with this client yet."
+    },
+    "proposals": {
+      "title": "Client Proposals",
+      "subtitle": "Estimates, statements of work, and proposal history for {name}",
+      "createProposal": "Create Proposal",
+      "noProposals": "No proposals generated for this client yet."
+    },
+    "form": {
+      "nameLabel": "Client Full Name",
+      "namePlaceholder": "e.g. Sarah Jenkins",
+      "companyLabel": "Company / Organization",
+      "companyPlaceholder": "e.g. Rookie Corp",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "e.g. sarah@rookiecorp.com",
+      "phoneLabel": "Phone Number (Optional)",
+      "phonePlaceholder": "e.g. +1 (555) 019-2834",
+      "notesLabel": "Internal Client Notes",
+      "notesPlaceholder": "Contract preferences, invoicing instructions, timezone details..."
+    }
+  },
+  "proposals": {
+    "title": "Proposals & Scope Estimates",
+    "subtitle": "Create, publish, and manage client statements of work and project estimates",
+    "newProposal": "New Proposal",
+    "createProposal": "Create Proposal",
+    "editProposal": "Edit Proposal",
+    "searchPlaceholder": "Search proposals by title or client...",
+    "allStatuses": "All Statuses",
+    "noProposalsFound": "No proposals found. Click \"New Proposal\" above to generate one.",
+    "savedToast": "Proposal saved successfully.",
+    "publishedToast": "Proposal published successfully!",
+    "deletedToast": "Proposal \"{title}\" deleted.",
+    "editor": {
+      "title": "Proposal Editor",
+      "publishBtn": "Publish Proposal",
+      "openWorkspaceBtn": "Open Project Workspace",
+      "createProjectBtn": "Create Project Workspace",
+      "clientSectionTitle": "Target Client & Contact Entity",
+      "scopeSectionTitle": "Proposal & Project Details",
+      "titleLabel": "Proposal Document Title",
+      "titlePlaceholder": "e.g. Rookie Corp ERP Implementation Proposal",
+      "targetProjectNameLabel": "Workspace Project Name",
+      "targetProjectNamePlaceholder": "e.g. Rookie Corp ERP",
+      "targetProjectNameHelp": "This workspace name will be used when generating the project from an accepted proposal.",
+      "summaryLabel": "Executive Summary & Deliverable Scope",
+      "summaryPlaceholder": "Outline project scope, objectives, technical deliverables, and timeline...",
+      "milestonesTitle": "Milestone Deliverables & Pricing",
+      "addMilestone": "Add Milestone",
+      "milestoneTitleLabel": "Milestone Phase Title",
+      "milestoneTitlePlaceholder": "e.g. Phase 1: Architecture & DB Setup",
+      "milestoneAmountLabel": "Amount",
+      "milestoneAmountPlaceholder": "1500",
+      "totalsTitle": "Total Investment",
+      "currencyLabel": "Currency",
+      "deletePrompt": "Are you sure you want to delete {title}?",
+      "deleteConfirmHelp": "Type the proposal title to confirm deletion."
+    }
+  },
+  "portal": {
+    "title": "Client Portal Workspace",
+    "subtitle": "Review project deliverables, milestones, and proposal estimates",
+    "signProposal": "Sign & Accept Proposal",
+    "downloadPdf": "Download PDF",
+    "versionHistory": "Version History",
+    "acceptedToast": "Proposal accepted and signed successfully!",
+    "acceptanceModal": {
+      "title": "Sign & Accept Proposal Document",
+      "subtitle": "By typing your full name and signing below, you agree to the statement of work and milestone pricing.",
+      "nameLabel": "Signer Full Name",
+      "namePlaceholder": "e.g. Sarah Jenkins",
+      "emailLabel": "Signer Email",
+      "emailPlaceholder": "e.g. sarah@rookiecorp.com",
+      "drawSignature": "Draw Signature Below",
+      "clearSignature": "Clear Signature",
+      "submitBtn": "Confirm & Sign Proposal"
+    }
   }
 }

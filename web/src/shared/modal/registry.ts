@@ -3,10 +3,10 @@ import { useModalStore } from '@/shared/stores/modal'
 
 const modalRegistry: Record<string, Component> = {
   'create-project': defineAsyncComponent(
-    () => import('@/features/projects/components/CreateProjectModal.vue'),
+    () => import('@/features/projects/components/create/CreateProjectModal.vue'),
   ),
   'create-client': defineAsyncComponent(
-    () => import('@/features/client-dashboard/components/CreateClientModal.vue'),
+    () => import('@/features/client-dashboard/components/clients/CreateClientModal.vue'),
   ),
 }
 

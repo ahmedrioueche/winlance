@@ -4,13 +4,13 @@ export const projectsRoutes: RouteRecordRaw[] = [
   {
     path: '/app/projects',
     name: 'projects',
-    component: () => import('./components/ProjectsListPage.vue'),
+    component: () => import('./components/pages/ProjectsListPage.vue'),
     meta: { layout: 'app', shellVariant: 'workspace', requiresAuth: true },
   },
   {
     path: '/app/projects/:id',
     name: 'project-detail',
-    component: () => import('./components/ProjectDetailPage.vue'),
+    component: () => import('./components/pages/ProjectDetailPage.vue'),
     meta: { layout: 'app', shellVariant: 'project', requiresAuth: true },
   },
 ]

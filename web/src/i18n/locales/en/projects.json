@@ -38,10 +38,85 @@
     "completedProjects": "Completed Projects",
     "cancelledProjects": "Cancelled Projects"
   },
+  "newProject": "New Project",
+  "proposalLinked": "Proposal Linked",
+  "contractLinked": "Contract Linked",
+  "noMilestonesYet": "No milestones yet",
+  "noClientAssigned": "No client assigned",
+  "addedDate": "Added {date}",
+  "noProjectsFound": "No projects found. Click \"New Project\" to get started.",
+  "createdToast": "Project workspace created successfully!",
+  "nav": {
+    "overview": "Overview",
+    "tasks": "Tasks",
+    "milestones": "Milestones",
+    "files": "Files",
+    "settings": "Settings"
+  },
   "messages": {
     "created": "Project created",
     "copied": "Portal link copied",
     "fileAdded": "File added.",
     "reportAdded": "Report added."
+  },
+  "tasks": {
+    "title": "Tasks & Scope Requirements",
+    "subtitle": "Track, organize, and reorder deliverables and scope items for this workspace",
+    "totalTasks": "Total Tasks: {count}",
+    "showingTasks": "Showing {count} Tasks",
+    "doneStatus": "{count} Done ({percent}%)",
+    "inProgressStatus": "{count} In Progress",
+    "highUrgentStatus": "{count} High / Urgent",
+    "listTable": "List Table",
+    "board": "Board",
+    "newTask": "New Task",
+    "editTask": "Edit Task",
+    "addNewTask": "Add New Task",
+    "saveChanges": "Save Changes",
+    "createTask": "Create Task",
+    "deleteTask": "Delete Task",
+    "searchPlaceholder": "Search task title or description...",
+    "allStatuses": "All Statuses",
+    "allPriorities": "All Priorities",
+    "showMoreTasks": "Show More Tasks (Showing {current} of {total})",
+    "noTasksFound": "No tasks found. Click \"New Task\" above to add one.",
+    "confirmDeleteTitle": "Delete Task",
+    "confirmDeletePrompt": "Are you sure you want to delete {title}?",
+    "confirmDeleteMessage": "This task will be removed from your workspace. You can revert this action using the Undo toast notice.",
+    "deletedToast": "Task \"{title}\" deleted.",
+    "restoredToast": "Restored task \"{title}\"",
+    "statusUpdatedToast": "Task status updated to {status}",
+    "createdToast": "Task created successfully!",
+    "updatedToast": "Task updated successfully!",
+    "undo": "Undo",
+    "tableHeaders": {
+      "reorder": "Reorder",
+      "taskTitle": "Task / Deliverable Title",
+      "status": "Status",
+      "priority": "Priority",
+      "dueDate": "Target Due Date",
+      "actions": "Actions"
+    },
+    "statuses": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "inReview": "In Review",
+      "done": "Done"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "form": {
+      "titleLabel": "Task Title",
+      "titlePlaceholder": "e.g. Implement Stripe Webhook Handlers",
+      "descLabel": "Task Description / Scope Details",
+      "descPlaceholder": "Detailed task specifications and requirements...",
+      "statusLabel": "Status",
+      "priorityLabel": "Priority",
+      "dueDateLabel": "Target Due Date"
+    }
   }
 }

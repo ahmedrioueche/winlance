@@ -1,122 +1,41 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-
 import {
   BaseButton,
-  BaseCheckbox,
   BaseInput,
   BaseModal,
   EmptyState,
   ErrorState,
   LoadingState,
 } from '@/shared/components/base'
-import { useToast } from '@/shared/toast/useToast'
-
-import {
-  useAddChecklistItemMutation,
-  useChecklistsQuery,
-  useCreateChecklistMutation,
-  useDeleteChecklistItemMutation,
-  useUpdateChecklistItemMutation,
-} from '../queries'
-import type { ChecklistItem } from '../types'
+import { useChecklistsState } from '../composables/checklists/useChecklistsState'
+import ChecklistEditModal from './checklists/ChecklistEditModal.vue'
 
 const { t } = useI18n()
-const toast = useToast()
-const query = useChecklistsQuery()
-const create = useCreateChecklistMutation()
-const addItem = useAddChecklistItemMutation()
-const updateItem = useUpdateChecklistItemMutation()
-const deleteItem = useDeleteChecklistItemMutation()
 
-const checklists = computed(() => query.data.value ?? [])
-const selectedId = ref<number | null>(null)
-const title = ref('')
-const description = ref('')
-const itemContent = ref('')
-const editing = ref<ChecklistItem | null>(null)
-const editContent = ref('')
-const editOrder = ref('0')
-const editDoneDefault = ref(false)
-const deleteItemId = ref<number | null>(null)
-
-watch(
+const {
+  query,
   checklists,
-  (items) => {
-    if (selectedId.value == null && items[0]) selectedId.value = items[0].id
-  },
-  { immediate: true },
-)
-
-const selected = computed(
-  () => checklists.value.find((item) => item.id === selectedId.value) ?? null,
-)
-
-async function onCreate() {
-  if (!title.value.trim()) return
-  try {
-    const checklist = await create.mutateAsync({
-      title: title.value.trim(),
-      description: description.value,
-    })
-    title.value = ''
-    description.value = ''
-    selectedId.value = checklist.id
-    toast.success('outreach.checklists.created')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
-}
-
-async function onAddItem() {
-  if (!selected.value || !itemContent.value.trim()) return
-  try {
-    await addItem.mutateAsync({
-      checklistId: selected.value.id,
-      content: itemContent.value.trim(),
-      order: selected.value.items.length,
-    })
-    itemContent.value = ''
-    toast.success('outreach.checklists.itemAdded')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
-}
-
-function openEdit(item: ChecklistItem) {
-  editing.value = item
-  editContent.value = item.content
-  editOrder.value = String(item.order)
-  editDoneDefault.value = item.is_done_default
-}
-
-async function saveEdit() {
-  if (!editing.value) return
-  try {
-    await updateItem.mutateAsync({
-      id: editing.value.id,
-      content: editContent.value.trim(),
-      order: Number(editOrder.value) || 0,
-      is_done_default: editDoneDefault.value,
-    })
-    editing.value = null
-    toast.success('outreach.checklists.itemUpdated')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
-}
-
-async function confirmDeleteItem() {
-  if (deleteItemId.value == null) return
-  try {
-    await deleteItem.mutateAsync(deleteItemId.value)
-    deleteItemId.value = null
-    toast.success('outreach.checklists.itemDeleted')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
-}
+  selectedId,
+  selected,
+  title,
+  description,
+  itemContent,
+  editing,
+  editContent,
+  editOrder,
+  editDoneDefault,
+  deleteItemId,
+  createPending,
+  addItemPending,
+  updateItemPending,
+  deleteItemPending,
+  onCreate,
+  onAddItem,
+  openEdit,
+  saveEdit,
+  confirmDeleteItem,
+} = useChecklistsState()
 </script>
 
 <template>
@@ -138,7 +57,7 @@ async function confirmDeleteItem() {
         <BaseInput v-model="title" :label="t('outreach.checklists.name')" />
         <BaseInput v-model="description" :label="t('outreach.checklists.description')" />
       </div>
-      <BaseButton :loading="create.isPending.value" @click="onCreate">
+      <BaseButton :loading="createPending" @click="onCreate">
         {{ t('outreach.checklists.create') }}
       </BaseButton>
 
@@ -206,7 +125,7 @@ async function confirmDeleteItem() {
               class="min-w-[16rem] flex-1"
               :label="t('outreach.checklists.itemContent')"
             />
-            <BaseButton :loading="addItem.isPending.value" @click="onAddItem">
+            <BaseButton :loading="addItemPending" @click="onAddItem">
               {{ t('outreach.checklists.addItem') }}
             </BaseButton>
           </div>
@@ -214,25 +133,15 @@ async function confirmDeleteItem() {
       </div>
     </template>
 
-    <BaseModal
+    <ChecklistEditModal
+      v-model:edit-content="editContent"
+      v-model:edit-order="editOrder"
+      v-model:edit-done-default="editDoneDefault"
       :open="editing != null"
-      :title="t('outreach.checklists.editItem')"
+      :is-updating="updateItemPending"
       @close="editing = null"
-    >
-      <div class="space-y-3">
-        <BaseInput v-model="editContent" :label="t('outreach.checklists.itemContent')" />
-        <BaseInput v-model="editOrder" type="number" :label="t('outreach.checklists.orderLabel')" />
-        <BaseCheckbox v-model="editDoneDefault" :label="t('outreach.checklists.doneDefaultLabel')" />
-      </div>
-      <template #footer>
-        <BaseButton variant="secondary" @click="editing = null">
-          {{ t('common.actions.cancel') }}
-        </BaseButton>
-        <BaseButton :loading="updateItem.isPending.value" @click="saveEdit">
-          {{ t('common.actions.save') }}
-        </BaseButton>
-      </template>
-    </BaseModal>
+      @save="saveEdit"
+    />
 
     <BaseModal
       :open="deleteItemId != null"
@@ -244,7 +153,7 @@ async function confirmDeleteItem() {
         <BaseButton variant="secondary" @click="deleteItemId = null">
           {{ t('common.actions.cancel') }}
         </BaseButton>
-        <BaseButton :loading="deleteItem.isPending.value" @click="confirmDeleteItem">
+        <BaseButton :loading="deleteItemPending" @click="confirmDeleteItem">
           {{ t('common.actions.delete') }}
         </BaseButton>
       </template>

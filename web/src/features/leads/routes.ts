@@ -28,7 +28,7 @@ export const leadsRoutes: RouteRecordRaw[] = [
   {
     path: '/app/leads/:id',
     name: 'lead-detail',
-    component: () => import('./components/LeadDetailPage.vue'),
+    component: () => import('./components/pages/LeadDetailPage.vue'),
     meta: { layout: 'app', requiresAuth: true },
   },
 ]

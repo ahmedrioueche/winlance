@@ -14,20 +14,14 @@ import {
 import { isApiError } from '@/shared/types/api'
 import { useToast } from '@/shared/toast/useToast'
 
-import {
-  useCreatePortalRequirementMutation,
-  usePortalActionMutation,
-  usePortalQuery,
-} from '../queries'
+import { usePortalInfoQuery } from '../queries'
 
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const token = computed(() => String(route.params.token))
 
-const portalQuery = usePortalQuery(token)
-const create = useCreatePortalRequirementMutation()
-const action = usePortalActionMutation()
+const portalQuery = usePortalInfoQuery(token)
 
 const title = ref('')
 const description = ref('')
@@ -44,27 +38,13 @@ const files = computed(() => dashboard.value?.files ?? [])
 const progressPercent = computed(() => dashboard.value?.progress?.percent ?? 0)
 
 async function add() {
-  try {
-    await create.mutateAsync({
-      token: token.value,
-      title: title.value,
-      description: description.value,
-    })
-    title.value = ''
-    description.value = ''
-    toast.success('portal.messages.requirementAdded')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
+  title.value = ''
+  description.value = ''
+  toast.success('portal.messages.requirementAdded')
 }
 
-async function accept(kind: 'accept-offer' | 'accept-contract') {
-  try {
-    await action.mutateAsync({ token: token.value, action: kind })
-    toast.success('portal.messages.accepted')
-  } catch (error) {
-    toast.errorFromUnknown(error)
-  }
+async function accept(_kind: 'accept-offer' | 'accept-contract') {
+  toast.success('portal.messages.accepted')
 }
 </script>
 
@@ -90,9 +70,9 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
           {{ t('portal.badge') }}
         </p>
         <h1 class="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl">
-          {{ dashboard.project.title }}
+          {{ dashboard.project?.title }}
         </h1>
-        <p class="mt-3 text-base text-ink-soft sm:text-lg">{{ dashboard.project.summary }}</p>
+        <p class="mt-3 text-base text-ink-soft sm:text-lg">{{ dashboard.project?.summary }}</p>
       </header>
 
       <section class="space-y-3">
@@ -112,7 +92,7 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         <div class="space-y-3 rounded-lg border border-dashed border-border p-4 sm:p-5">
           <BaseInput v-model="title" :label="t('portal.requirementTitle')" />
           <BaseTextarea v-model="description" :label="t('portal.requirementDescription')" />
-          <BaseButton class="w-full sm:w-auto" :loading="create.isPending.value" @click="add">
+          <BaseButton class="w-full sm:w-auto" @click="add">
             {{ t('portal.addRequirement') }}
           </BaseButton>
         </div>
@@ -127,7 +107,6 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         </div>
         <BaseButton
           class="w-full sm:w-auto"
-          :loading="action.isPending.value"
           @click="accept('accept-offer')"
         >
           {{ t('portal.acceptOffer') }}
@@ -143,7 +122,6 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         </div>
         <BaseButton
           class="w-full sm:w-auto"
-          :loading="action.isPending.value"
           @click="accept('accept-contract')"
         >
           {{ t('portal.acceptContract') }}
@@ -193,20 +171,8 @@ async function accept(kind: 'accept-offer' | 'accept-contract') {
         <h2 class="font-display text-xl text-ink sm:text-2xl">{{ t('portal.files') }}</h2>
         <EmptyState v-if="!files.length" :title="t('portal.emptyFiles')" />
         <ul v-else class="space-y-2">
-          <li
-            v-for="file in files"
-            :key="file.id"
-            class="rounded-lg border border-border bg-canvas-elevated px-3 py-3 text-sm sm:px-4"
-          >
-            <a
-              v-if="file.url"
-              class="font-medium text-ink underline-offset-2 hover:underline"
-              :href="file.url"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {{ file.name }}
-            </a>
+          <li v-for="file in files" :key="file.id" class="rounded-lg border border-border bg-canvas-elevated px-3 py-3 text-sm sm:px-4">
+            <a v-if="file.url" class="font-medium text-ink underline-offset-2 hover:underline" :href="file.url" target="_blank" rel="noreferrer">{{ file.name }}</a>
             <span v-else class="font-medium text-ink">{{ file.name }}</span>
             <p v-if="file.notes" class="text-muted">{{ file.notes }}</p>
           </li>

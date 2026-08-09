@@ -57,7 +57,7 @@ const { data: portalInfo } = usePortalInfoQuery(token)
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-semibold text-ink">{{ t('portal.projects.milestoneProgress', 'Milestones Progress') }}</span>
-            <span class="font-bold text-accent">{{ t('portal.projects.complete', '{percent}% Complete', { percent: 65 }) }}</span>
+            <span class="font-bold text-accent">{{ t('portal.projects.complete', { percent: 65 }) }}</span>
           </div>
           <div class="h-2 w-full rounded-full bg-canvas-muted overflow-hidden">
             <div class="h-full bg-accent rounded-full transition-all duration-500 w-[65%]" />
@@ -115,7 +115,7 @@ const { data: portalInfo } = usePortalInfoQuery(token)
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-semibold text-ink">{{ t('portal.projects.milestoneProgress', 'Milestones Progress') }}</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ t('portal.projects.complete', '{percent}% Complete', { percent: 100 }) }}</span>
+            <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ t('portal.projects.complete', { percent: 100 }) }}</span>
           </div>
           <div class="h-2 w-full rounded-full bg-canvas-muted overflow-hidden">
             <div class="h-full bg-emerald-500 rounded-full transition-all duration-500 w-full" />

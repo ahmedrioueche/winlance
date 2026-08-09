@@ -34,6 +34,8 @@ export const i18n = createI18n({
       outreach: enOutreach,
       aiCoach: enAiCoach,
       analytics: enAnalytics,
+      clients: enCommon.clients,
+      settings: enCommon.settings,
     },
     fr: {
       common: frCommon,

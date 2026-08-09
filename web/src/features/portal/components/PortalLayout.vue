@@ -155,7 +155,7 @@ function handleUnlocked() {
 
       <!-- Passcode Challenge Lock Screen -->
       <PasscodeChallengeModal
-        v-else-if="showChallengeModal"
+        v-else-if="showChallengeModal && portalInfo"
         :token="token"
         :client-name="portalInfo.client_name"
         :company-name="portalInfo.company_name"
