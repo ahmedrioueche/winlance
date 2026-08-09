@@ -395,10 +395,14 @@ async function handleDropOnColumn(targetStatus: TaskStatus) {
         </div>
 
         <!-- Inline Compact Stats Summary -->
-        <div class="mt-1.5 flex flex-wrap items-center gap-3 text-xs">
-          <span class="inline-flex items-center gap-1.5 text-muted">
+        <div class="flex flex-wrap items-center gap-3 text-xs text-muted font-medium">
+          <span class="inline-flex items-center gap-1.5">
             <span class="h-2 w-2 rounded-full bg-accent" />
-            <strong class="text-ink font-semibold">{{ tasks.length }}</strong> Total Tasks
+            <span class="text-ink font-semibold">Total Tasks: <strong class="font-bold">{{ totalCount }}</strong></span>
+          </span>
+          <span class="text-border">|</span>
+          <span class="inline-flex items-center gap-1.5 text-accent font-medium">
+            <span>Showing <strong class="font-bold text-ink">{{ tasks.length }}</strong> Tasks</span>
           </span>
           <span class="text-border">|</span>
           <span class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
