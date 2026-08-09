@@ -293,6 +293,28 @@
     "createClient": "Create Client",
     "searchPlaceholder": "Search clients by name, company, or email...",
     "allStatuses": "All Statuses",
+    "allDates": "All Dates",
+    "filterByDate": "Filter by date",
+    "datePresets": {
+      "all": "All Time",
+      "thisMonth": "This Month",
+      "last30Days": "Last 30 Days",
+      "thisYear": "This Year",
+      "custom": "Custom Range"
+    },
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "createdDesc": "Newest First",
+      "createdAsc": "Oldest First",
+      "nameAsc": "Name (A-Z)",
+      "companyAsc": "Company (A-Z)"
+    },
+    "clearFilters": "Clear Filters",
+    "activeFiltersCount": "{count} active filter | {count} active filters",
+    "noClientsFoundTitle": "No Clients Found",
+    "noClientsMatchingFilters": "No clients match your current filter criteria. Try resetting filters.",
     "activeClients": "Active",
     "inactiveClients": "Inactive",
     "noClientsFound": "No clients found. Click \"New Client\" to add your first client.",

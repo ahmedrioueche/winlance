@@ -12,11 +12,20 @@ const router = useRouter()
 
 const {
   filteredProjects,
+  clientOptions,
   isPending,
   isError,
   refetch,
   searchQuery,
   statusFilter,
+  clientFilter,
+  dateFilter,
+  startDate,
+  endDate,
+  sortBy,
+  hasActiveFilters,
+  activeFiltersCount,
+  clearFilters,
   isModalOpen,
   handleOpenCreateModal,
 } = useProjectsList()
@@ -42,9 +51,23 @@ function handleProjectCreated(newProjectId: string) {
     <ProjectsListFilterBar
       v-model:search-query="searchQuery"
       v-model:status-filter="statusFilter"
+      v-model:client-filter="clientFilter"
+      v-model:date-filter="dateFilter"
+      v-model:start-date="startDate"
+      v-model:end-date="endDate"
+      v-model:sort-by="sortBy"
+      :client-options="clientOptions"
+      :has-active-filters="hasActiveFilters"
+      :active-filters-count="activeFiltersCount"
+      @clear-filters="clearFilters"
     />
 
-    <ProjectsListGrid :projects="filteredProjects" />
+    <ProjectsListGrid
+      :projects="filteredProjects"
+      :has-active-filters="hasActiveFilters"
+      @clear-filters="clearFilters"
+      @create-project="handleOpenCreateModal"
+    />
 
     <!-- Create Project Modal -->
     <CreateProjectModal
