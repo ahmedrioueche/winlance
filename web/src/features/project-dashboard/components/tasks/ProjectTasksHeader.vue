@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { Kanban, ListFilter, Plus } from 'lucide-vue-next'
-import { BaseButton } from '@/shared/components/base'
+import { BaseButton, BaseCardHeader } from '@/shared/components/base'
 
 interface Props {
   viewMode: 'list' | 'kanban'
@@ -24,18 +24,15 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div>
-      <div class="flex items-center gap-2">
-        <h1 class="text-xl font-bold tracking-tight text-ink">
-          {{ t('projects.tasks.title') }}
-        </h1>
-        <span class="rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-accent uppercase">
-          AI Parsed
-        </span>
-      </div>
+  <BaseCardHeader :title="t('projects.tasks.title')">
+    <template #badge>
+      <span class="rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-accent uppercase">
+        AI Parsed
+      </span>
+    </template>
 
-      <div class="mt-1.5 flex flex-wrap items-center gap-3 text-xs font-medium text-muted">
+    <template #subtitle>
+      <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-muted">
         <span class="inline-flex items-center gap-1.5">
           <span class="h-2 w-2 rounded-full bg-accent" />
           <span class="font-semibold text-ink">
@@ -64,10 +61,9 @@ const { t } = useI18n()
           </span>
         </template>
       </div>
-    </div>
+    </template>
 
-    <!-- Header Actions -->
-    <div class="flex shrink-0 items-center gap-3">
+    <template #actions>
       <!-- View Toggle (List Table vs Kanban Board) -->
       <div class="flex items-center gap-1 rounded-xl border border-border bg-canvas p-1 text-xs">
         <button
@@ -94,6 +90,6 @@ const { t } = useI18n()
         <Plus class="h-3.5 w-3.5" />
         <span>{{ t('projects.tasks.newTask') }}</span>
       </BaseButton>
-    </div>
-  </div>
+    </template>
+  </BaseCardHeader>
 </template>
