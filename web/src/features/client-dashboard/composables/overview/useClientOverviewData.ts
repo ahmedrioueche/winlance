@@ -29,9 +29,12 @@ export function useClientOverviewData(clientId: Ref<string>) {
   }
 
   function handleCopyPortalLink() {
-    const portalUrl = `${window.location.origin}/portal`
+    const token = client.value?.portal_token
+    const portalUrl = token
+      ? `${window.location.origin}/portal/${token}`
+      : `${window.location.origin}/portal`
     void navigator.clipboard.writeText(portalUrl)
-    toast.success('clients.portalCopiedToast')
+    toast.success('Client portal link copied to clipboard!')
   }
 
   return {

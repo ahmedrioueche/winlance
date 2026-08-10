@@ -9,6 +9,8 @@ export const portalKeys = {
   info: (token: string) => ['portal', 'info', token] as const,
   proposals: (token: string) => ['portal', 'proposals', token] as const,
   proposalDetail: (token: string, id: string) => ['portal', 'proposal', token, id] as const,
+  projects: (token: string) => ['portal', 'projects', token] as const,
+  projectDetail: (token: string, id: string) => ['portal', 'project', token, id] as const,
 }
 
 export function usePortalInfoQuery(token: MaybeRefOrGetter<string>) {
@@ -35,6 +37,25 @@ export function usePortalProposalQuery(
     queryKey: computed(() => portalKeys.proposalDetail(toValue(token), toValue(proposalId))),
     queryFn: () => api.fetchPortalProposal(toValue(token), toValue(proposalId)),
     enabled: computed(() => Boolean(toValue(token) && toValue(proposalId))),
+  })
+}
+
+export function usePortalProjectsQuery(token: MaybeRefOrGetter<string>) {
+  return useQuery({
+    queryKey: computed(() => portalKeys.projects(toValue(token))),
+    queryFn: () => api.fetchPortalProjects(toValue(token)),
+    enabled: computed(() => Boolean(toValue(token))),
+  })
+}
+
+export function usePortalProjectQuery(
+  token: MaybeRefOrGetter<string>,
+  projectId: MaybeRefOrGetter<string>,
+) {
+  return useQuery({
+    queryKey: computed(() => portalKeys.projectDetail(toValue(token), toValue(projectId))),
+    queryFn: () => api.fetchPortalProject(toValue(token), toValue(projectId)),
+    enabled: computed(() => Boolean(toValue(token) && toValue(projectId))),
   })
 }
 
@@ -75,6 +96,26 @@ export function useAcceptPortalProposalMutation() {
       api.acceptPortalProposal(token, proposalId),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: portalKeys.all })
+    },
+  })
+}
+
+export function useApprovePortalTaskMutation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      token,
+      projectId,
+      taskId,
+    }: {
+      token: string
+      projectId: string
+      taskId: string
+    }) => api.approvePortalTask(token, projectId, taskId),
+    onSuccess: async (_, { token, projectId }) => {
+      await qc.invalidateQueries({
+        queryKey: portalKeys.projectDetail(token, projectId),
+      })
     },
   })
 }

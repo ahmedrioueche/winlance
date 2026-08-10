@@ -9,4 +9,7 @@ urlpatterns = [
     path("portal/<str:token>/proposals/<uuid:proposal_id>/", views.portal_proposal_detail, name="portal-proposal-detail"),
     path("portal/<str:token>/proposals/<uuid:proposal_id>/suggest-edits/", views.portal_suggest_edits, name="portal-suggest-edits"),
     path("portal/<str:token>/proposals/<uuid:proposal_id>/accept/", views.portal_accept_proposal, name="portal-accept-proposal"),
+    path("portal/<str:token>/projects/", views.portal_projects_list, name="portal-projects-list"),
+    path("portal/<str:token>/projects/<uuid:project_id>/", views.portal_project_detail, name="portal-project-detail"),
+    path("portal/<str:token>/projects/<uuid:project_id>/tasks/<uuid:task_id>/approve/", views.portal_approve_task, name="portal-approve-task"),
 ]

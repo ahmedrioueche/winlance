@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { ArrowLeft, FileText, FolderKanban, Lock, ScrollText, Sparkles } from '@lucide/vue'
+import {
+  FileText,
+  FolderKanban,
+  Lock,
+  Menu,
+  ScrollText,
+  Sparkles,
+  X,
+} from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
@@ -11,12 +19,12 @@ import { usePortalInfoQuery } from '../queries'
 
 const { t } = useI18n()
 const route = useRoute()
+const mobileMenuOpen = ref(false)
 const token = computed(() => String(route.params.token || ''))
 
 const { data: portalInfo, isPending, isError, refetch } = usePortalInfoQuery(token)
 
 const isUnlocked = ref(false)
-
 const isPasswordProtected = computed(() => portalInfo.value?.is_password_protected ?? false)
 const showChallengeModal = computed(() => isPasswordProtected.value && !isUnlocked.value)
 
@@ -37,145 +45,188 @@ watch(
 function handleUnlocked() {
   isUnlocked.value = true
 }
+
+function closeMobileMenu() {
+  mobileMenuOpen.value = false
+}
+
+const navItems = computed(() => {
+  const tkn = token.value
+  return [
+    {
+      name: 'proposals',
+      path: `/portal/${tkn}`,
+      label: t('portal.nav.proposals', 'Proposals'),
+      icon: FileText,
+      active: route.name === 'portal-proposals' || route.name === 'portal-proposal-view',
+    },
+    {
+      name: 'projects',
+      path: `/portal/${tkn}/projects`,
+      label: t('portal.nav.projects', 'Projects'),
+      icon: FolderKanban,
+      active: route.name === 'portal-projects' || route.name === 'portal-project-detail',
+    },
+  ]
+})
 </script>
 
 <template>
-  <div class="bg-canvas text-ink flex min-h-screen flex-col font-sans">
-    <!-- Top VIP Client Portal Header Bar -->
-    <header
-      class="border-border bg-canvas-elevated/90 shadow-soft sticky top-0 z-30 border-b backdrop-blur-md"
+  <div class="relative flex h-screen w-full overflow-hidden bg-canvas text-ink font-sans">
+    <!-- Blueprint background grid -->
+    <div class="blueprint-grid pointer-events-none fixed inset-0 opacity-40" aria-hidden="true" />
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div
+      v-if="mobileMenuOpen"
+      class="fixed inset-0 z-40 bg-overlay backdrop-blur-sm md:hidden"
+      @click="closeMobileMenu"
+    />
+
+    <!-- Left Sidebar (Desktop + Mobile Drawer) -->
+    <aside
+      class="fixed inset-y-0 start-0 z-50 flex w-64 flex-col border-e border-border bg-canvas-elevated shadow-soft transition-transform duration-200 md:static md:translate-x-0"
+      :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
     >
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="relative flex h-16 items-center justify-between gap-4">
-          <!-- Left: Studio Logo & Back Button (Close Together) -->
-          <div class="flex items-center gap-2.5 shrink-0 z-10">
-            <AppLogo class="text-accent h-8 w-auto shrink-0" />
+      <!-- Sidebar Header / Branding -->
+      <div class="flex h-16 items-center justify-between px-5 border-b border-border/60">
+        <AppLogo :to="`/portal/${token}`" subtitle="VIP Client Portal" @click="closeMobileMenu" />
 
-            <RouterLink
-              v-if="route.name === 'portal-proposal-view'"
-              :to="`/portal/${token}`"
-              class="border-border bg-canvas text-ink hover:bg-canvas-muted flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-colors"
-            >
-              <ArrowLeft class="text-accent h-3.5 w-3.5" />
-              <span class="hidden sm:inline">{{ t('portal.nav.backToProposals', 'Back to Proposals') }}</span>
-            </RouterLink>
-          </div>
+        <!-- Close Mobile Drawer Button -->
+        <button
+          type="button"
+          class="rounded-lg p-1.5 text-muted hover:bg-canvas-muted hover:text-ink md:hidden ms-auto"
+          @click="closeMobileMenu"
+        >
+          <X class="h-5 w-5" />
+        </button>
+      </div>
 
-          <!-- Center: Company Name & Studio Branding (Centered) -->
-          <div class="absolute left-1/2 z-0 max-w-[45%] -translate-x-1/2 text-center sm:max-w-[50%]">
-            <h1 class="font-display text-ink truncate text-sm font-bold">
+      <!-- Navigation Links -->
+      <nav class="flex-1 space-y-1 p-4 overflow-y-auto" aria-label="Client Portal Navigation">
+        <RouterLink
+          v-for="item in navItems"
+          :key="item.name"
+          :to="item.path"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+          :class="[
+            item.active
+              ? 'bg-accent/15 text-accent font-semibold shadow-sm'
+              : 'text-ink-soft hover:bg-canvas-muted hover:text-ink',
+          ]"
+          @click="closeMobileMenu"
+        >
+          <component :is="item.icon" class="h-4 w-4 shrink-0" />
+          <span>{{ item.label }}</span>
+        </RouterLink>
+
+        <!-- Disabled Contracts Nav Link -->
+        <div
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted/50 cursor-not-allowed"
+        >
+          <ScrollText class="h-4 w-4 shrink-0" />
+          <span>{{ t('portal.nav.contracts', 'Contracts') }}</span>
+          <span class="ms-auto bg-canvas-muted text-muted rounded px-1.5 py-0.5 text-[9px] font-bold uppercase">
+            {{ t('common.labels.soon', 'Soon') }}
+          </span>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
+        <div class="truncate">
+          <p class="font-semibold text-ink truncate">
+            {{ portalInfo?.company_name || portalInfo?.client_name || 'Client Portal' }}
+          </p>
+          <p class="text-[11px] text-muted truncate">
+            {{ portalInfo?.freelancer_name ? `${portalInfo.freelancer_name} Studio` : 'Winlance Portal' }}
+          </p>
+        </div>
+        <ThemeToggle />
+      </div>
+    </aside>
+
+    <!-- Main Right Content Viewport -->
+    <div class="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
+      <!-- Top Header Bar -->
+      <header class="flex h-16 items-center justify-between border-b border-border bg-canvas-elevated px-4 md:px-8 gap-3">
+        <div class="flex items-center gap-3">
+          <!-- Mobile Menu Toggle Button -->
+          <button
+            type="button"
+            class="rounded-lg p-2 text-muted hover:bg-canvas-muted hover:text-ink md:hidden"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+          >
+            <Menu class="h-5 w-5" />
+          </button>
+
+          <!-- Header Title / Info -->
+          <div>
+            <h1 class="font-display text-sm font-bold text-ink">
               {{ portalInfo?.company_name || portalInfo?.client_name || t('portal.nav.defaultClientPortal', 'Client Portal') }}
             </h1>
-            <p class="text-muted truncate text-[11px]">
-              {{
-                portalInfo?.freelancer_name
-                  ? `${portalInfo.freelancer_name} ${t('portal.nav.studio', 'Studio')}`
-                  : t('portal.nav.defaultFreelancerPortal', 'Freelancer Portal')
-              }}
+            <p class="text-xs text-muted">
+              {{ portalInfo?.freelancer_name ? `${portalInfo.freelancer_name} Studio` : '' }}
             </p>
           </div>
+        </div>
 
-          <!-- Right Controls: Lock Status, Theme Toggle -->
-          <div class="flex items-center gap-2.5 shrink-0 z-10">
-            <div
-              v-if="isPasswordProtected"
-              class="hidden items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 sm:flex dark:text-emerald-400"
-            >
-              <Lock class="h-3 w-3" />
-              <span class="hidden md:inline">{{ t('portal.nav.passcodeProtected', 'Passcode Protected') }}</span>
-            </div>
+        <!-- Right Header Actions: Passcode Lock Badge & Theme Toggle -->
+        <div class="flex items-center gap-2.5 ms-auto">
+          <div
+            v-if="isPasswordProtected"
+            class="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
+          >
+            <Lock class="h-3 w-3" />
+            <span class="hidden sm:inline">{{ t('portal.nav.passcodeProtected', 'Passcode Protected') }}</span>
+          </div>
 
+          <div class="hidden sm:block">
             <ThemeToggle />
           </div>
         </div>
+      </header>
 
-        <!-- Navigation Tabs Bar -->
-        <div
-          v-if="!showChallengeModal && portalInfo"
-          class="border-border/60 flex items-center gap-1 border-t pt-1 text-xs"
-        >
-          <RouterLink
-            :to="`/portal/${token}`"
-            class="flex items-center gap-2 border-b-2 px-3 py-2.5 font-semibold transition-colors"
-            :class="
-              route.name === 'portal-proposals' || route.name === 'portal-proposal-view'
-                ? 'border-accent text-accent'
-                : 'text-muted hover:text-ink border-transparent'
-            "
-          >
-            <FileText class="h-4 w-4" />
-            <span>{{ t('portal.nav.proposals', 'Proposals') }}</span>
-          </RouterLink>
-
-          <!-- Projects Tab -->
-          <RouterLink
-            :to="`/portal/${token}/projects`"
-            class="flex items-center gap-2 border-b-2 px-3 py-2.5 font-semibold transition-colors"
-            :class="
-              route.name === 'portal-projects' || route.name === 'portal-project-detail'
-                ? 'border-accent text-accent'
-                : 'text-muted hover:text-ink border-transparent'
-            "
-          >
-            <FolderKanban class="h-4 w-4" />
-            <span>{{ t('portal.nav.projects', 'Projects') }}</span>
-          </RouterLink>
-
-          <div
-            class="text-muted/60 flex cursor-not-allowed items-center gap-2 border-b-2 border-transparent px-3 py-2.5 font-medium"
-          >
-            <ScrollText class="h-4 w-4" />
-            <span>{{ t('portal.nav.contracts', 'Contracts') }}</span>
-            <span
-              class="bg-canvas-muted text-muted rounded px-1.5 py-0.5 text-[9px] font-bold uppercase"
-              >{{ t('common.labels.soon', 'Soon') }}</span
-            >
-          </div>
+      <!-- Router Content Viewport -->
+      <main class="flex-1 overflow-y-auto p-6 md:p-8">
+        <!-- Loading State -->
+        <div v-if="isPending" class="space-y-6">
+          <Skeleton class="h-12 w-1/3 rounded-xl" />
+          <Skeleton class="h-[500px] w-full rounded-2xl" />
         </div>
-      </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-      <!-- Loading State -->
-      <div v-if="isPending" class="space-y-6">
-        <Skeleton class="h-12 w-1/3 rounded-xl" />
-        <Skeleton class="h-[500px] w-full rounded-2xl" />
-      </div>
+        <!-- Error State -->
+        <ErrorState
+          v-else-if="isError"
+          class="mt-12"
+          :title="t('portal.errors.notFoundTitle', 'Portal Not Found')"
+          :message="t('portal.errors.notFoundMessage', 'This client portal link is invalid or has expired.')"
+          :retry-label="t('common.actions.retry', 'Try again')"
+          @retry="refetch()"
+        />
 
-      <!-- Error State -->
-      <ErrorState
-        v-else-if="isError"
-        class="mt-12"
-        :title="t('portal.errors.notFoundTitle', 'Portal Not Found')"
-        :message="t('portal.errors.notFoundMessage', 'This client portal link is invalid or has expired.')"
-        :retry-label="t('common.actions.retry', 'Try again')"
-        @retry="refetch()"
-      />
+        <!-- Passcode Challenge Lock Screen -->
+        <PasscodeChallengeModal
+          v-else-if="showChallengeModal && portalInfo"
+          :token="token"
+          :client-name="portalInfo.client_name"
+          :company-name="portalInfo.company_name"
+          :freelancer-name="portalInfo.freelancer_name"
+          @unlocked="handleUnlocked"
+        />
 
-      <!-- Passcode Challenge Lock Screen -->
-      <PasscodeChallengeModal
-        v-else-if="showChallengeModal && portalInfo"
-        :token="token"
-        :client-name="portalInfo.client_name"
-        :company-name="portalInfo.company_name"
-        :freelancer-name="portalInfo.freelancer_name"
-        @unlocked="handleUnlocked"
-      />
+        <!-- Portal View Page Content -->
+        <RouterView v-else />
+      </main>
 
-      <!-- Portal View Page Content -->
-      <RouterView v-else />
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-border bg-canvas-elevated text-muted border-t py-6 text-center text-xs">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4">
+      <!-- Footer -->
+      <footer class="border-t border-border bg-canvas-elevated py-4 px-6 text-center text-xs text-muted flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <Sparkles class="text-accent h-3.5 w-3.5" />
+          <Sparkles class="h-3.5 w-3.5 text-accent" />
           <span>{{ t('common.footer.poweredBy', 'Powered by') }} <strong>Winlance</strong></span>
         </div>
         <p>© 2026 {{ portalInfo?.freelancer_name || 'Winlance' }}. {{ t('common.footer.rightsReserved', 'All rights reserved.') }}</p>
-      </div>
-    </footer>
+      </footer>
+    </div>
   </div>
 </template>

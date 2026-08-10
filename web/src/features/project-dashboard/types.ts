@@ -73,6 +73,7 @@ export interface Project {
   due_date?: string | null
   budget?: number | string | null
   currency: string
+  portal_token?: string
   requirements?: ProjectRequirement[]
   milestones?: ProjectMilestone[]
   files?: ProjectFileItem[]

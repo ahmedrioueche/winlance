@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import type { Proposal } from '@/features/proposals/types'
 
-import type { PortalInfo, SuggestEditsPayload } from './types'
+import type { PortalInfo, PortalProject, SuggestEditsPayload } from './types'
 
 function getPasscodeHeader(token: string) {
   const passcode = sessionStorage.getItem(`winlance_portal_passcode_${token}`) || ''
@@ -56,6 +56,37 @@ export async function acceptPortalProposal(token: string, proposalId: string) {
   const headers = getPasscodeHeader(token)
   const { data } = await apiClient.post<Proposal>(
     `/portal/${token}/proposals/${proposalId}/accept/`,
+    {},
+    { headers },
+  )
+  return data
+}
+
+export async function fetchPortalProjects(token: string) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.get<PortalProject[]>(`/portal/${token}/projects/`, {
+    headers,
+  })
+  return data
+}
+
+export async function fetchPortalProject(token: string, projectId: string) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.get<PortalProject>(
+    `/portal/${token}/projects/${projectId}/`,
+    { headers },
+  )
+  return data
+}
+
+export async function approvePortalTask(
+  token: string,
+  projectId: string,
+  taskId: string,
+) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.patch<{ id: string; title: string; status: string; detail: string }>(
+    `/portal/${token}/projects/${projectId}/tasks/${taskId}/approve/`,
     {},
     { headers },
   )

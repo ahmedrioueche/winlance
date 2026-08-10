@@ -155,6 +155,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     milestones = MilestoneSerializer(many=True, read_only=True)
     reports = ProjectReportSerializer(many=True, read_only=True)
     files = ProjectFileSerializer(many=True, read_only=True)
+    portal_token = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -174,6 +175,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "due_date",
             "budget",
             "currency",
+            "portal_token",
             "tasks",
             "requirements",
             "milestones",
@@ -183,6 +185,24 @@ class ProjectSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "freelancer", "created_at", "updated_at"]
+
+    def get_portal_token(self, obj):
+        from django.db.models import Q
+        from apps.clients.models import Client
+
+        filters = Q()
+        if obj.client_email:
+            filters |= Q(email__iexact=obj.client_email)
+        if obj.client_name:
+            filters |= Q(name__iexact=obj.client_name) | Q(company_name__iexact=obj.client_name)
+
+        if filters:
+            c = Client.objects.filter(freelancer=obj.freelancer).filter(filters).first()
+            if c:
+                return str(c.portal_token)
+
+        c = Client.objects.filter(freelancer=obj.freelancer).first()
+        return str(c.portal_token) if c else ""
 
     def validate_lead(self, lead):
         if lead is None:

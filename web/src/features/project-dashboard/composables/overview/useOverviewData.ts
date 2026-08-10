@@ -22,7 +22,10 @@ export function useOverviewData(projectId: Ref<string>) {
   }
 
   function handleCopyPortalLink() {
-    const shareUrl = `${window.location.origin}/portal`
+    const token = project.value?.portal_token
+    const shareUrl = token
+      ? `${window.location.origin}/portal/${token}/projects/${projectId.value}`
+      : `${window.location.origin}/portal`
     void navigator.clipboard.writeText(shareUrl)
     toast.success('Client portal link copied to clipboard!')
   }

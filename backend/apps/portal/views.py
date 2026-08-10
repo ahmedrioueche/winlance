@@ -3,9 +3,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from django.db.models import Q
 from apps.clients.models import Client
+from apps.projects.models import Project, Task
 from apps.proposals.models import Proposal, ProposalVersion
 from apps.proposals.serializers import ProposalSerializer
+from apps.portal.serializers import (
+    PortalProjectDetailSerializer,
+    PortalProjectListSerializer,
+)
 
 
 def _get_client_by_token(token_str):
@@ -171,3 +177,94 @@ def portal_accept_proposal(request, token, proposal_id):
 
     serializer = ProposalSerializer(proposal, context={"request": request})
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def portal_projects_list(request, token):
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Exclude internal DRAFT projects
+    qs = Project.objects.filter(
+        freelancer=client.freelancer
+    ).exclude(
+        status=Project.Status.DRAFT
+    )
+
+    # Prefer projects directly matching client email or client name/company
+    matching_projects = qs.filter(
+        Q(client_email__iexact=client.email)
+        | Q(client_name__iexact=client.name)
+        | Q(client_name__iexact=client.company_name)
+    ).prefetch_related("milestones")
+
+    projects = matching_projects if matching_projects.exists() else qs.prefetch_related("milestones")
+
+    serializer = PortalProjectListSerializer(projects, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def portal_project_detail(request, token, project_id):
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    project = Project.objects.filter(
+        id=project_id, freelancer=client.freelancer
+    ).exclude(
+        status=Project.Status.DRAFT
+    ).prefetch_related("milestones", "requirements", "files", "reports").first()
+
+    if not project:
+        return Response({"detail": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = PortalProjectDetailSerializer(project)
+    return Response(serializer.data)
+
+
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def portal_approve_task(request, token, project_id, task_id):
+    """Allow a portal client to mark a task as DONE — only from IN_REVIEW status."""
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    task = Task.objects.filter(
+        id=task_id,
+        project_id=project_id,
+        project__freelancer=client.freelancer,
+    ).first()
+
+    if not task:
+        return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if task.status != Task.Status.IN_REVIEW:
+        return Response(
+            {"detail": "Only tasks with status 'In Review' can be approved."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    task.status = Task.Status.DONE
+    task.save(update_fields=["status", "updated_at"])
+
+    return Response({
+        "id": str(task.id),
+        "title": task.title,
+        "status": task.status,
+        "detail": "Task approved and marked as Done.",
+    })
+

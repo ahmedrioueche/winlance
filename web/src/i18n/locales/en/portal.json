@@ -21,7 +21,7 @@
     "verifiedSuccess": "Portal passcode verified!"
   },
   "proposals": {
-    "title": "Proposals & Offers",
+    "title": "Proposals",
     "subtitle": "Review, suggest revisions, and accept proposed project offers",
     "emptyTitle": "No Proposals Published Yet",
     "emptyMessage": "Your freelancer has not published any proposals or project offers for review yet.",
@@ -77,13 +77,45 @@
     "freelancerAuthor": "{name} (Freelancer)"
   },
   "projects": {
-    "title": "Projects & Milestones",
+    "title": "Projects",
     "subtitle": "Active project progress and deliverable tracking",
-    "milestoneProgress": "Milestones Progress",
+    "nav": {
+      "overview": "Overview",
+      "tasks": "Tasks",
+      "milestones": "Milestones",
+      "files": "Shared Files",
+      "reports": "Status Reports",
+      "requirements": "Requirements"
+    },
+    "milestoneProgress": "Milestone Completion",
+    "milestonesCompleted": "Milestones Done",
     "complete": "{percent}% Complete",
     "delivered": "Delivered",
     "inProgress": "In Progress",
-    "upcoming": "Upcoming"
+    "upcoming": "Upcoming",
+    "viewWorkspace": "View Workspace",
+    "backToProjects": "Back to Projects",
+    "emptyTitle": "No Active Projects",
+    "emptyDescription": "There are no active project workspaces linked to your client account at this time.",
+    "errorTitle": "Failed to load projects",
+    "errorMessage": "An error occurred while loading projects for your workspace.",
+    "detailErrorTitle": "Failed to load project details",
+    "detailErrorMessage": "We could not load details for this project. It may have been archived or removed.",
+    "defaultSummary": "Project workspace overview, milestone deliverables, and status updates.",
+    "tabs": {
+      "milestones": "Milestones",
+      "files": "Shared Files",
+      "reports": "Status Reports",
+      "scope": "Scope & Requirements"
+    },
+    "noMilestonesTitle": "No Milestones Set",
+    "noMilestonesDescription": "No project milestones have been created for this workspace yet.",
+    "noFilesTitle": "No Shared Files",
+    "noFilesDescription": "No deliverables or attachments have been shared for this project yet.",
+    "noReportsTitle": "No Status Reports",
+    "noReportsDescription": "No client status updates or progress reports have been published yet.",
+    "noScopeTitle": "No Requirements Defined",
+    "noScopeDescription": "No specific project requirements or scope items have been listed."
   },
   "errors": {
     "notFoundTitle": "Portal Not Found",
