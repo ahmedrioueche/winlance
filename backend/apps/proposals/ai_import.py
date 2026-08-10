@@ -130,3 +130,78 @@ def smart_import_proposal_text(raw_text: str) -> dict:
         logger.warning("Gemini AI smart import failed (%s). Using fallback parser.", exc)
 
     return parse_raw_proposal_fallback(raw_text)
+
+
+def generate_proposal_section_text(section_type: str, title: str, milestones: list) -> str:
+    """
+    Generates tailored text for Section 1 (Executive Summary) or Section 3 (Scope Terms)
+    based on the proposal title and configured milestone deliverables using Gemini AI.
+    """
+    api_key = (
+        getattr(settings, "GEMINI_API_KEY", "")
+        or getattr(settings, "GOOGLE_API_KEY", "")
+        or os.environ.get("GEMINI_API_KEY", "")
+        or os.environ.get("GOOGLE_API_KEY", "")
+    )
+
+    milestone_summary = json.dumps(milestones, indent=2)
+
+    if section_type == "summary":
+        prompt = (
+            f"Write a professional, compelling 2-paragraph Executive Summary for a freelance project proposal.\n"
+            f"Project Title: {title}\n"
+            f"Milestones & Scope Breakdown:\n{milestone_summary}\n\n"
+            "Requirements: Focus on value delivery, client goals, and project execution overview. Do not include markdown headers or greetings."
+        )
+        fallback = (
+            f"This proposal outlines the strategic execution for {title or 'the project'}. "
+            "Our approach is structured across key milestone phases to ensure quality, transparency, and timely delivery."
+        )
+    else:
+        prompt = (
+            f"Write professional Scope Terms, Revision Policy, Payment Schedule, and Next Steps for a freelance project proposal.\n"
+            f"Project Title: {title}\n"
+            f"Milestones & Scope Breakdown:\n{milestone_summary}\n\n"
+            "Requirements: Include standard milestone-based payment terms, 2 rounds of included revisions, client sign-off rules, and immediate next steps upon proposal acceptance. Format using Markdown bullet points."
+        )
+        fallback = (
+            "### Terms & Conditions\n"
+            "- **Payment Terms**: Milestone sign-off releases funds per defined phase.\n"
+            "- **Revisions**: Up to 2 rounds of design and code revisions included per milestone phase.\n"
+            "- **Out of Scope**: Any features not explicitly detailed in the milestone checklist will be handled via a change order.\n"
+            "- **Next Steps**: Upon proposal acceptance, a kick-off call will be scheduled to confirm timeline and initial assets."
+        )
+
+    if not api_key:
+        return fallback
+
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 800},
+        }
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+
+        with urllib.request.urlopen(req, timeout=12) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
+            generated_text = (
+                res_data.get("candidates", [{}])[0]
+                .get("content", {})
+                .get("parts", [{}])[0]
+                .get("text", "")
+                .strip()
+            )
+            if generated_text:
+                return generated_text
+
+    except Exception as exc:
+        logger.warning("Gemini AI section generation failed (%s). Using fallback text.", exc)
+
+    return fallback

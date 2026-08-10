@@ -1,4 +1,5 @@
 import { computed, ref, watch, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/shared/toast/useToast'
 import {
@@ -24,6 +25,7 @@ function normalizeNum(val: number | string | null | undefined): number {
 export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<string>) {
   const router = useRouter()
   const toast = useToast()
+  const { t } = useI18n()
 
   const { data: proposal, isPending: queryIsPending, isError, refetch } = useProposalQuery(proposalId)
   const isPending = computed(() => proposalId.value !== 'new' && queryIsPending.value)
@@ -280,7 +282,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     if (!proposalId.value) return
     try {
       const res = await createProjectMutation.mutateAsync(proposalId.value)
-      toast.success('Project workspace created successfully!')
+      toast.success(t('proposals.editor.projectCreated', 'Project workspace created successfully!'))
       void router.push(`/app/projects/${res.project_id}/overview`)
     } catch (error) {
       toast.errorFromUnknown(error)
@@ -291,7 +293,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     if (confirmDeleteText.value.trim() !== 'DELETE' || !proposalId.value) return
     try {
       await deleteProposalMutation.mutateAsync(proposalId.value)
-      toast.success('Proposal deleted successfully.')
+      toast.success(t('proposals.editor.deleted', 'Proposal deleted successfully.'))
       deleteModalOpen.value = false
       if (clientId.value) {
         void router.push(`/app/clients/${clientId.value}/proposals`)
@@ -303,11 +305,17 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     }
   }
 
+  const portalShareUrl = computed(() => {
+    if (!proposal.value?.portal_token) return ''
+    return `${window.location.origin}/portal/${proposal.value.portal_token}`
+  })
+
   return {
     proposal,
     isPending,
     isError,
     refetch,
+    portalShareUrl,
     title,
     summary,
     body,

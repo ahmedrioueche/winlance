@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Trash2 } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 import { BaseButton, BaseInput, BaseModal } from '@/shared/components/base'
 
 interface Props {
@@ -15,24 +16,26 @@ const emit = defineEmits<{
   close: []
   confirm: []
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <BaseModal
     :open="open"
-    title="Delete Proposal"
+    :title="t('proposals.editor.versions.deleteModalTitle', 'Delete Proposal')"
     @close="emit('close')"
   >
     <div class="space-y-4 text-xs">
       <p class="text-muted leading-relaxed">
-        Are you sure you want to delete this proposal? This action is permanent and cannot be undone.
+        {{ t('proposals.editor.versions.deleteModalText', 'Are you sure you want to delete this proposal? This action is permanent and cannot be undone.') }}
       </p>
       <p class="font-semibold text-ink">
-        To confirm deletion, type <span class="text-red-500 font-mono font-bold">DELETE</span> in capital letters below:
+        {{ t('proposals.editor.versions.deleteConfirmPrompt', 'To confirm deletion, type DELETE in capital letters below:') }}
       </p>
       <BaseInput
         :model-value="confirmText"
-        label="Confirmation"
+        :label="t('proposals.editor.versions.deleteConfirmationLabel', 'Confirmation')"
         placeholder="DELETE"
         @update:model-value="emit('update:confirmText', $event)"
       />
@@ -40,7 +43,7 @@ const emit = defineEmits<{
 
     <template #footer>
       <BaseButton variant="secondary" size="sm" @click="emit('close')">
-        Cancel
+        {{ t('common.actions.cancel', 'Cancel') }}
       </BaseButton>
       <BaseButton
         variant="secondary"
@@ -51,7 +54,7 @@ const emit = defineEmits<{
         @click="emit('confirm')"
       >
         <Trash2 class="h-3.5 w-3.5" />
-        <span>Delete Proposal</span>
+        <span>{{ t('proposals.editor.deleteProposal', 'Delete Proposal') }}</span>
       </BaseButton>
     </template>
   </BaseModal>

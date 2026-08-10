@@ -2,6 +2,7 @@
 import { BaseButton, BaseInput } from '@/shared/components/base'
 import { CheckSquare, Info, Plus, Sparkles, Trash2 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export interface ProposalMilestoneItem {
   id?: string
@@ -29,6 +30,8 @@ const emit = defineEmits<{
   'update:milestones': [items: ProposalMilestoneItem[]]
 }>()
 
+const { t } = useI18n()
+
 const localMilestones = computed({
   get: () => props.milestones,
   set: (val) => emit('update:milestones', val),
@@ -46,7 +49,7 @@ function setMilestonesCount(targetCount: number) {
     for (let i = 0; i < toAdd; i++) {
       const nextOrder = updated.length + 1
       updated.push({
-        title: `Milestone ${nextOrder}: `,
+        title: t('proposals.editor.milestones.milestoneTitlePlaceholder', { num: nextOrder }),
         description: '',
         amount: 0,
         percentage: 0,
@@ -65,7 +68,7 @@ function addMilestone() {
   const updated = [
     ...localMilestones.value,
     {
-      title: `Milestone ${nextOrder}: `,
+      title: t('proposals.editor.milestones.milestoneTitlePlaceholder', { num: nextOrder }),
       description: '',
       amount: 0,
       percentage: 0,
@@ -123,12 +126,12 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
           </div>
           <div class="flex min-w-0 flex-wrap items-center gap-2">
             <h3 class="font-display text-ink truncate text-base font-bold">
-              Milestones &amp; Deliverables Breakdown
+              {{ t('proposals.editor.milestones.title', 'Milestones & Deliverables Breakdown') }}
             </h3>
             <!-- Info Tooltip Icon -->
             <span
               class="text-muted hover:text-accent hover:bg-accent/10 flex h-5 w-5 shrink-0 cursor-help items-center justify-center rounded-full transition-colors"
-              title="Structure your proposal into milestone phases. When accepted, these auto-generate project milestones &amp; tasks in your project workspace!"
+              :title="t('proposals.editor.milestones.tooltip', 'Structure your proposal into milestone phases. When accepted, these auto-generate project milestones & tasks in your project workspace!')"
             >
               <Info class="h-3.5 w-3.5" />
             </span>
@@ -137,7 +140,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
               v-if="milestoneSum > 0"
               class="ms-1 shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400"
             >
-              Sum: ${{ milestoneSum.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+              {{ t('proposals.editor.milestones.sum', 'Sum:') }} ${{ milestoneSum.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
             </span>
           </div>
         </div>
@@ -146,7 +149,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
       <!-- Milestone Count Quick Selector + Add Button (Placed side-by-side) -->
       <div v-if="!isViewingPast" class="flex flex-wrap items-center justify-between gap-3 pt-1">
         <div class="flex items-center gap-2">
-          <span class="text-ink text-xs font-semibold">Number of Milestones:</span>
+          <span class="text-ink text-xs font-semibold">{{ t('proposals.editor.milestones.countLabel', 'Number of Milestones:') }}</span>
           <div
             class="bg-canvas border-border flex items-center gap-1 rounded-xl border p-1 text-xs"
           >
@@ -168,16 +171,16 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
               v-if="localMilestones.length > 5"
               type="button"
               class="bg-accent text-accent-contrast h-7 rounded-lg px-2 text-xs font-bold shadow-sm"
-              title="More than 5 milestones active"
+              :title="t('proposals.editor.milestones.activeCount', { count: localMilestones.length })"
             >
-              {{ localMilestones.length }} Active
+              {{ t('proposals.editor.milestones.activeCount', { count: localMilestones.length }) }}
             </button>
           </div>
         </div>
 
         <BaseButton size="sm" variant="secondary" @click="addMilestone">
           <Plus class="h-3.5 w-3.5" />
-          <span>Add </span>
+          <span>{{ t('proposals.editor.milestones.add', 'Add Milestone') }}</span>
         </BaseButton>
       </div>
     </div>
@@ -189,15 +192,14 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
     >
       <CheckSquare class="text-muted/50 h-8 w-8" />
       <div class="space-y-1">
-        <p class="text-ink text-sm font-semibold">No Milestones Defined Yet</p>
+        <p class="text-ink text-sm font-semibold">{{ t('proposals.editor.milestones.emptyTitle', 'No Milestones Defined Yet') }}</p>
         <p class="text-muted max-w-sm text-xs">
-          Break this proposal into clear milestone phases so your client knows exactly what
-          deliverables to expect.
+          {{ t('proposals.editor.milestones.emptyText', 'Break this proposal into clear milestone phases so your client knows exactly what deliverables to expect.') }}
         </p>
       </div>
       <BaseButton v-if="!isViewingPast" size="sm" @click="addMilestone">
         <Plus class="h-3.5 w-3.5" />
-        <span>Create First Milestone</span>
+        <span>{{ t('proposals.editor.milestones.createFirst', 'Create First Milestone') }}</span>
       </BaseButton>
     </div>
 
@@ -213,8 +215,8 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
           <div class="flex-1 space-y-3">
             <BaseInput
               v-model="m.title"
-              label="Milestone Title"
-              placeholder="e.g. Milestone 1: Discovery & UX Wireframes"
+              :label="t('proposals.editor.milestones.milestoneTitleLabel', 'Milestone Title')"
+              :placeholder="t('proposals.editor.milestones.milestoneTitlePlaceholder', { num: mIdx + 1 })"
               :disabled="isViewingPast"
             />
           </div>
@@ -223,7 +225,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
             v-if="!isViewingPast"
             type="button"
             class="text-muted hover:bg-canvas-muted mt-6 rounded-lg p-1.5 transition-colors hover:text-red-500"
-            title="Remove Milestone"
+            :title="t('proposals.editor.milestones.removeMilestone', 'Remove Milestone')"
             @click="removeMilestone(mIdx)"
           >
             <Trash2 class="h-4 w-4" />
@@ -235,19 +237,21 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
           <div class="sm:col-span-2">
             <BaseInput
               v-model="m.description"
-              label="Phase Description"
-              placeholder="Describe deliverables and outcomes for this phase..."
+              :label="t('proposals.editor.milestones.phaseDescriptionLabel', 'Phase Description')"
+              :placeholder="t('proposals.editor.milestones.phaseDescriptionPlaceholder', 'Describe deliverables and outcomes for this phase...')"
               :disabled="isViewingPast"
             />
           </div>
 
-          <div>
-            <label class="text-ink mb-1.5 block text-xs font-semibold">Phase Budget ($)</label>
+          <div class="space-y-1.5">
+            <label class="block text-sm font-medium text-ink">
+              {{ t('proposals.editor.milestones.phaseBudgetLabel', 'Phase Budget ($)') }}
+            </label>
             <input
               :value="m.amount"
               type="number"
               step="100"
-              class="border-border bg-canvas text-ink placeholder:text-muted focus:border-accent w-full rounded-xl border px-3 py-2 text-xs font-bold focus:outline-none"
+              class="w-full rounded-md border border-border bg-canvas px-3 py-2 text-sm font-bold text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-ring/30 disabled:opacity-60"
               placeholder="0.00"
               :disabled="isViewingPast"
               @input="m.amount = Number(($event.target as HTMLInputElement).value)"
@@ -259,7 +263,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
         <div class="border-border/60 space-y-2 border-t pt-2">
           <div class="flex items-center justify-between">
             <span class="text-muted text-xs font-semibold tracking-wider uppercase">
-              Deliverables &amp; Task Checklist
+              {{ t('proposals.editor.milestones.deliverablesTitle', 'Deliverables & Task Checklist') }}
             </span>
             <button
               v-if="!isViewingPast"
@@ -268,7 +272,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
               @click="addDeliverable(mIdx)"
             >
               <Plus class="h-3 w-3" />
-              <span>Add Task Item</span>
+              <span>{{ t('proposals.editor.milestones.addTaskItem', 'Add Task Item') }}</span>
             </button>
           </div>
 
@@ -283,7 +287,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
                 :value="del"
                 type="text"
                 class="border-border bg-canvas-elevated text-ink placeholder:text-muted/60 focus:border-accent flex-1 rounded-lg border px-3 py-1.5 text-xs focus:outline-none"
-                placeholder="e.g. High-fidelity Figma wireframes"
+                :placeholder="t('proposals.editor.milestones.deliverablePlaceholder', 'e.g. High-fidelity Figma wireframes')"
                 :readonly="isViewingPast"
                 @input="
                   updateDeliverableText(mIdx, dIdx, ($event.target as HTMLInputElement).value)

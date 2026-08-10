@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { BaseButton, BaseInput, BaseModal } from '@/shared/components/base'
 
 interface Props {
@@ -15,32 +16,34 @@ const emit = defineEmits<{
   confirm: []
   skip: []
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <BaseModal
     :open="open"
-    title="Save New Version"
+    :title="t('proposals.editor.versions.saveModalTitle', 'Save New Version')"
     @close="emit('skip')"
   >
     <div class="space-y-4">
       <p class="text-sm text-muted leading-relaxed">
-        Your changes have been saved. Name this version to keep it in your history.
+        {{ t('proposals.editor.versions.saveModalText', 'Your changes have been saved. Name this version to keep it in your history.') }}
       </p>
       <BaseInput
         :model-value="versionName"
-        label="What changed?"
-        placeholder="e.g. Updated scope & pricing"
+        :label="t('proposals.editor.versions.whatChanged', 'What changed?')"
+        :placeholder="t('proposals.editor.versions.whatChangedPlaceholder', 'e.g. Updated scope & pricing')"
         @update:model-value="emit('update:versionName', $event)"
       />
     </div>
 
     <template #footer>
       <BaseButton variant="secondary" size="sm" @click="emit('skip')">
-        Skip — content saved
+        {{ t('proposals.editor.versions.skipBtn', 'Skip — content saved') }}
       </BaseButton>
       <BaseButton size="sm" :loading="isPending" @click="emit('confirm')">
-        Save Version
+        {{ t('proposals.editor.versions.saveVersionBtn', 'Save Version') }}
       </BaseButton>
     </template>
   </BaseModal>

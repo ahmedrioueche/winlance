@@ -151,3 +151,14 @@ class ProposalViewSet(viewsets.ModelViewSet):
         parsed_data = smart_import_proposal_text(raw_text)
         return Response(parsed_data)
 
+    @action(detail=False, methods=["post"], url_path="generate-section")
+    def generate_section(self, request):
+        section_type = request.data.get("section", "summary")
+        title = request.data.get("title", "")
+        milestones = request.data.get("milestones", [])
+
+        from .ai_import import generate_proposal_section_text
+        text = generate_proposal_section_text(section_type, title, milestones)
+        return Response({"text": text})
+
+

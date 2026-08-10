@@ -34,7 +34,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { d } = useI18n()
+const { t, d } = useI18n()
 
 function formatDate(dateStr?: string): string {
   if (!dateStr) return ''
@@ -48,7 +48,7 @@ function formatDate(dateStr?: string): string {
 function formatAuthor(ver: ProposalVersion): string {
   const name = ver.created_by_name || ver.created_by_role
   if (ver.created_by_role === 'client' && ver.created_by_name) {
-    return `${ver.created_by_name} (Client)`
+    return `${ver.created_by_name} (${t('proposals.editor.versions.client', 'Client')})`
   }
   return name
 }
@@ -62,9 +62,9 @@ function formatAuthor(ver: ProposalVersion): string {
         <GitCompare class="h-5 w-5 text-accent" />
         <div>
           <h2 class="font-display text-base font-bold text-ink">
-            Comparing: v{{ comparingVersion.version_number }}
+            {{ t('proposals.editor.versions.comparingTitle', { num: comparingVersion.version_number }) }}
             <span class="text-muted font-normal">({{ comparingVersion.change_summary }})</span>
-            vs {{ compareRightLabel }}
+            {{ t('proposals.editor.versions.vs', 'vs') }} {{ compareRightLabel }}
           </h2>
           <p class="text-xs text-muted">
             Base: {{ formatAuthor(comparingVersion) }} · {{ formatDate(comparingVersion.created_at) }}
@@ -73,7 +73,7 @@ function formatAuthor(ver: ProposalVersion): string {
       </div>
       <BaseButton variant="secondary" size="sm" @click="emit('close')">
         <X class="h-3.5 w-3.5" />
-        <span>Close Comparison</span>
+        <span>{{ t('proposals.editor.versions.closeComparison', 'Close Comparison') }}</span>
       </BaseButton>
     </div>
 
@@ -84,7 +84,7 @@ function formatAuthor(ver: ProposalVersion): string {
     >
       <!-- Price Diff Pill -->
       <div v-if="hasAmountDiff" class="flex items-center gap-2">
-        <span class="font-semibold text-muted">Estimated Amount Diff:</span>
+        <span class="font-semibold text-muted">{{ t('proposals.editor.versions.estimatedDiff', 'Estimated Amount Diff:') }}</span>
         <div class="flex items-center gap-1.5 font-bold">
           <span class="text-ink">${{ leftAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} {{ leftCurrency }}</span>
           <span class="text-muted">➔</span>
@@ -100,7 +100,7 @@ function formatAuthor(ver: ProposalVersion): string {
 
       <!-- Title Diff Pill -->
       <div v-if="hasTitleDiff" class="flex items-center gap-2">
-        <span class="font-semibold text-muted">Title Changed:</span>
+        <span class="font-semibold text-muted">{{ t('proposals.editor.versions.titleChanged', 'Title Changed:') }}</span>
         <span class="line-through text-muted">{{ leftTitle }}</span>
         <span class="text-muted">➔</span>
         <span class="font-bold text-ink">{{ compareRightTitle }}</span>
@@ -138,7 +138,7 @@ function formatAuthor(ver: ProposalVersion): string {
         <div class="flex h-14 items-center justify-between gap-3 border-b border-border bg-canvas-muted px-5">
           <div class="flex items-center gap-2 min-w-0">
             <Globe class="h-4 w-4 text-accent shrink-0" />
-            <span class="text-xs font-semibold text-muted shrink-0">Compare against:</span>
+            <span class="text-xs font-semibold text-muted shrink-0">{{ t('proposals.editor.versions.compareAgainst', 'Compare against:') }}</span>
           </div>
           <div class="w-64 shrink-0">
             <BaseSelect

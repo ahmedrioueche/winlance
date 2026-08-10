@@ -90,3 +90,11 @@ export function useSmartImportProposalMutation() {
   })
 }
 
+export function useGenerateProposalSectionMutation() {
+  return useMutation({
+    mutationFn: (payload: { section: 'summary' | 'terms'; title: string; milestones: any[] }) =>
+      api.generateProposalSection(payload),
+  })
+}
+
+

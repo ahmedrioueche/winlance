@@ -67,12 +67,12 @@ const statusOptions = computed<SelectOption[]>(() => {
     { value: 'DRAFT', label: t('proposals.status.DRAFT', 'Draft'), disabled: postPublish },
     { value: 'READY', label: t('proposals.status.READY', 'Ready'), disabled: postPublish },
     { value: 'SENT', label: t('proposals.status.SENT', 'Sent') },
-    { value: 'UNDER_REVIEW', label: 'Under Review' },
-    { value: 'CHANGES_REQUESTED', label: 'Changes Requested' },
+    { value: 'UNDER_REVIEW', label: t('proposals.status.UNDER_REVIEW', 'Under Review') },
+    { value: 'CHANGES_REQUESTED', label: t('proposals.status.CHANGES_REQUESTED', 'Changes Requested') },
     { value: 'ACCEPTED', label: t('proposals.status.ACCEPTED', 'Accepted') },
     { value: 'REJECTED', label: t('proposals.status.REJECTED', 'Rejected') },
-    { value: 'EXPIRED', label: 'Expired' },
-    { value: 'WITHDRAWN', label: 'Withdrawn' },
+    { value: 'EXPIRED', label: t('proposals.status.EXPIRED', 'Expired') },
+    { value: 'WITHDRAWN', label: t('proposals.status.WITHDRAWN', 'Withdrawn') },
   ]
 })
 
@@ -80,7 +80,7 @@ function handleCopyShareLink() {
   if (!props.portalShareUrl) return
   void navigator.clipboard.writeText(props.portalShareUrl)
   isCopied.value = true
-  toast.success('Client Portal proposal share link copied!')
+  toast.success(t('proposals.editor.linkCopied', 'Client Portal proposal share link copied!'))
   setTimeout(() => {
     isCopied.value = false
   }, 2500)
@@ -100,13 +100,14 @@ const backLink = computed(() => {
       <RouterLink
         :to="backLink"
         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-canvas hover:bg-canvas-muted text-ink transition-colors"
+        :title="t('proposals.editor.back', 'Back to proposals')"
       >
         <ArrowLeft class="h-4 w-4" />
       </RouterLink>
 
       <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
         <h1 class="font-display text-lg font-bold text-ink truncate max-w-xs sm:max-w-md">
-          {{ title || 'Untitled Proposal' }}
+          {{ title || t('proposals.editor.untitled', 'Untitled Proposal') }}
         </h1>
 
         <div class="w-44 shrink-0">
@@ -128,13 +129,13 @@ const backLink = computed(() => {
         v-if="autoSaveStatus !== 'idle' && !isViewingPast"
         class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-xs shrink-0"
       >
-        <span v-if="autoSaveStatus === 'saving'" title="Auto-saving...">
+        <span v-if="autoSaveStatus === 'saving'" :title="t('common.saving', 'Auto-saving...')">
           <Loader2 class="h-4 w-4 animate-spin text-accent" />
         </span>
-        <span v-else-if="autoSaveStatus === 'saved'" title="Auto-saved">
+        <span v-else-if="autoSaveStatus === 'saved'" :title="t('common.saved', 'Auto-saved')">
           <Check class="h-4 w-4 text-emerald-500" />
         </span>
-        <span v-else-if="autoSaveStatus === 'unsaved'" title="Unsaved changes">
+        <span v-else-if="autoSaveStatus === 'unsaved'" :title="t('common.unsaved', 'Unsaved changes')">
           <Clock class="h-4 w-4 text-amber-500" />
         </span>
       </div>
@@ -143,7 +144,7 @@ const backLink = computed(() => {
       <button
         type="button"
         class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-muted hover:bg-canvas-muted hover:text-accent transition-colors"
-        title="Copy share link"
+        :title="t('proposals.editor.copyLink', 'Copy share link')"
         @click="handleCopyShareLink"
       >
         <Check v-if="isCopied" class="h-4 w-4 text-accent" />
@@ -154,7 +155,7 @@ const backLink = computed(() => {
       <button
         type="button"
         class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-muted hover:bg-canvas-muted hover:text-red-500 transition-colors"
-        title="Delete proposal"
+        :title="t('proposals.editor.deleteProposal', 'Delete proposal')"
         @click="emit('openDeleteModal')"
       >
         <Trash2 class="h-4 w-4" />
@@ -169,7 +170,7 @@ const backLink = computed(() => {
         @click="emit('openSmartImportModal')"
       >
         <Wand2 class="h-3.5 w-3.5" />
-        <span>✨ AI Import</span>
+        <span>{{ t('proposals.editor.aiImport', '✨ AI Import') }}</span>
       </BaseButton>
 
       <!-- History Drawer Toggle Button (Only if versions exist) -->
@@ -180,7 +181,7 @@ const backLink = computed(() => {
         @click="emit('toggleVersionDrawer')"
       >
         <History class="h-3.5 w-3.5 text-accent" />
-        <span>History</span>
+        <span>{{ t('proposals.editor.history', 'History') }}</span>
         <span class="rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-accent ms-1">
           {{ versionsCount }}
         </span>
@@ -206,7 +207,7 @@ const backLink = computed(() => {
         @click="emit('openProject', proposal.project_id!)"
       >
         <Folder class="h-3.5 w-3.5 text-accent" />
-        <span>Open Project Workspace</span>
+        <span>{{ t('proposals.editor.openProjectWorkspace', 'Open Project Workspace') }}</span>
       </BaseButton>
 
       <!-- Create Project Button -->
@@ -217,7 +218,7 @@ const backLink = computed(() => {
         @click="emit('createProject')"
       >
         <FolderPlus class="h-3.5 w-3.5" />
-        <span>Create Project</span>
+        <span>{{ t('proposals.editor.createProject', 'Create Project') }}</span>
       </BaseButton>
 
       <!-- Publish Button -->
@@ -229,7 +230,7 @@ const backLink = computed(() => {
         @click="emit('publish')"
       >
         <Send class="h-3.5 w-3.5" />
-        <span>Publish</span>
+        <span>{{ t('proposals.editor.publishBtn', 'Publish') }}</span>
       </BaseButton>
     </div>
   </div>

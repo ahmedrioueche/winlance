@@ -58,6 +58,7 @@ export type Proposal = {
   currency: string
   status: ProposalStatus | string
   generation_task_id: string
+  portal_token?: string
   versions?: ProposalVersion[]
   milestones?: ProposalMilestone[]
   created_at: string

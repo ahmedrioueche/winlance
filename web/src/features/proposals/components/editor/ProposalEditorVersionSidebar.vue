@@ -20,7 +20,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { d } = useI18n()
+const { t, d } = useI18n()
 
 const versionSearch = ref('')
 const versionRoleFilter = ref<'all' | 'freelancer' | 'client'>('all')
@@ -70,7 +70,7 @@ function formatDate(dateStr?: string): string {
 function formatAuthor(ver: ProposalVersion): string {
   const name = ver.created_by_name || ver.created_by_role
   if (ver.created_by_role === 'client' && ver.created_by_name) {
-    return `${ver.created_by_name} (Client)`
+    return `${ver.created_by_name} (${t('proposals.editor.versions.client', 'Client')})`
   }
   return name
 }
@@ -82,7 +82,7 @@ function formatAuthor(ver: ProposalVersion): string {
     <div class="flex items-center justify-between border-b border-border/60 pb-3">
       <span class="font-display text-sm font-bold text-ink flex items-center gap-1.5">
         <History class="h-4 w-4 text-accent" />
-        Version History
+        {{ t('proposals.editor.versions.title', 'Version History') }}
         <span v-if="versions.length > 0" class="text-muted font-normal">({{ versions.length }})</span>
       </span>
       <button
@@ -101,7 +101,7 @@ function formatAuthor(ver: ProposalVersion): string {
         <input
           v-model="versionSearch"
           type="text"
-          placeholder="Search versions..."
+          :placeholder="t('proposals.editor.versions.searchPlaceholder', 'Search versions...')"
           class="w-full rounded-lg border border-border bg-canvas pl-8 pr-3 py-1 text-xs text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none"
         />
       </div>
@@ -113,7 +113,7 @@ function formatAuthor(ver: ProposalVersion): string {
           :class="versionRoleFilter === 'all' ? 'bg-accent text-accent-contrast font-semibold' : 'text-muted hover:text-ink'"
           @click="versionRoleFilter = 'all'"
         >
-          All ({{ versions.length }})
+          {{ t('proposals.editor.versions.all', { count: versions.length }) }}
         </button>
         <button
           type="button"
@@ -121,7 +121,7 @@ function formatAuthor(ver: ProposalVersion): string {
           :class="versionRoleFilter === 'freelancer' ? 'bg-accent text-accent-contrast font-semibold' : 'text-muted hover:text-ink'"
           @click="versionRoleFilter = 'freelancer'"
         >
-          Freelancer
+          {{ t('proposals.editor.versions.freelancer', 'Freelancer') }}
         </button>
         <button
           type="button"
@@ -129,7 +129,7 @@ function formatAuthor(ver: ProposalVersion): string {
           :class="versionRoleFilter === 'client' ? 'bg-purple-600 text-white font-semibold' : 'text-muted hover:text-ink'"
           @click="versionRoleFilter = 'client'"
         >
-          Client
+          {{ t('proposals.editor.versions.client', 'Client') }}
         </button>
       </div>
     </div>
@@ -139,9 +139,9 @@ function formatAuthor(ver: ProposalVersion): string {
       v-if="versions.length === 0"
       class="rounded-lg border border-border bg-canvas p-5 text-center space-y-1"
     >
-      <p class="text-sm font-medium text-muted">No versions yet</p>
+      <p class="text-sm font-medium text-muted">{{ t('proposals.editor.versions.noVersions', 'No versions yet') }}</p>
       <p class="text-xs text-muted/70 leading-relaxed">
-        Versions are created when you publish or save changes to a published proposal.
+        {{ t('proposals.editor.versions.noVersionsHint', 'Versions are created when you publish or save changes to a published proposal.') }}
       </p>
     </div>
 
@@ -149,7 +149,7 @@ function formatAuthor(ver: ProposalVersion): string {
       v-else-if="filteredVersions.length === 0"
       class="rounded-lg border border-border bg-canvas p-4 text-center text-xs text-muted"
     >
-      No matching versions found.
+      {{ t('proposals.editor.versions.noMatching', 'No matching versions found.') }}
     </div>
 
     <!-- Version Cards -->
@@ -172,13 +172,13 @@ function formatAuthor(ver: ProposalVersion): string {
               v-if="viewingVersionId === ver.id"
               class="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-white uppercase"
             >
-              Viewing
+              {{ t('proposals.editor.versions.viewingPill', 'Viewing') }}
             </span>
             <span
               v-else-if="ver.version_number === versions[0]?.version_number"
               class="text-[10px] font-normal text-muted"
             >
-              (latest)
+              {{ t('proposals.editor.versions.latestPill', '(latest)') }}
             </span>
           </div>
           <span
@@ -205,7 +205,7 @@ function formatAuthor(ver: ProposalVersion): string {
             @click="emit('view', ver)"
           >
             <Eye class="h-3 w-3" />
-            <span>View</span>
+            <span>{{ t('proposals.editor.versions.view', 'View') }}</span>
           </button>
           <button
             type="button"
@@ -213,7 +213,7 @@ function formatAuthor(ver: ProposalVersion): string {
             @click="emit('compare', ver)"
           >
             <GitCompare class="h-3 w-3" />
-            <span>Compare</span>
+            <span>{{ t('proposals.editor.versions.compare', 'Compare') }}</span>
           </button>
         </div>
       </div>
@@ -225,7 +225,7 @@ function formatAuthor(ver: ProposalVersion): string {
           class="text-xs font-semibold text-accent hover:underline flex items-center justify-center gap-1 mx-auto"
           @click="showAllVersions = true"
         >
-          <span>Show older versions ({{ versions.length - 5 }} remaining)</span>
+          <span>{{ t('proposals.editor.versions.showOlder', { count: versions.length - 5 }) }}</span>
           <ChevronDown class="h-3.5 w-3.5" />
         </button>
       </div>

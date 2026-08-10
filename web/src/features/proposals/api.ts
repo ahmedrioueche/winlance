@@ -80,3 +80,9 @@ export async function smartImportProposal(raw_text: string) {
   return data
 }
 
+export async function generateProposalSection(payload: { section: 'summary' | 'terms'; title: string; milestones: any[] }) {
+  const { data } = await apiClient.post<{ text: string }>('/proposals/generate-section/', payload)
+  return data
+}
+
+

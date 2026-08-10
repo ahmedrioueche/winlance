@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import { ErrorState, Skeleton } from '@/shared/components/base'
-import { useClientQuery } from '@/features/client-dashboard/queries'
 import { useProposalComparison } from '../../composables/editor/useProposalComparison'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
 import type { ProposalVersion, SmartImportResult } from '../../types'
@@ -16,26 +16,27 @@ import ProposalEditorHeader from '../editor/ProposalEditorHeader.vue'
 import ProposalEditorMilestonesSection from '../editor/ProposalEditorMilestonesSection.vue'
 import ProposalEditorReadonlyBanner from '../editor/ProposalEditorReadonlyBanner.vue'
 import ProposalEditorVersionSidebar from '../editor/ProposalEditorVersionSidebar.vue'
+import ProposalOverviewCard from '../editor/ProposalOverviewCard.vue'
 import ProposalSmartImportModal from '../editor/ProposalSmartImportModal.vue'
 import ProposalUnsavedChangesModal from '../editor/ProposalUnsavedChangesModal.vue'
 import ProposalVersionSaveModal from '../editor/ProposalVersionSaveModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const proposalId = computed(() => String(route.params.proposalId || route.params.id || ''))
 const clientId = computed(() => String(route.query.client_id || route.params.id || ''))
 
-const { data: client } = useClientQuery(clientId)
-
-const smartImportModalOpen = ref(false)
 const versionDrawerOpen = ref(false)
+const smartImportModalOpen = ref(false)
 
 const {
   proposal,
   isPending,
   isError,
   refetch,
+  portalShareUrl,
   title,
   summary,
   body,
@@ -144,49 +145,41 @@ function handleSmartImported(result: SmartImportResult) {
     milestones.value = result.milestones
   }
 }
-
-const portalShareUrl = computed(() => {
-  if (client.value?.portal_token && proposalId.value) {
-    return `${window.location.origin}/portal/${client.value.portal_token}/proposals/${proposalId.value}`
-  }
-  return `${window.location.origin}/app/clients/${clientId.value}/proposals/${proposalId.value}`
-})
 </script>
 
 <template>
-  <div class="min-h-screen space-y-6 relative">
-    <!-- ═══ FULL-WIDTH DIFF COMPARISON MODE ═══ -->
-    <template v-if="isComparing && comparingVersion">
-      <ProposalEditorDiffView
-        v-model:compare-target-id="compareTargetId"
-        :comparing-version="comparingVersion"
-        :compare-target-options="compareTargetOptions"
-        :compare-right-label="compareRightLabel"
-        :compare-right-title="compareRightTitle"
-        :compare-right-amount="compareRightAmount"
-        :compare-right-currency="compareRightCurrency"
-        :left-amount="leftAmount"
-        :left-currency="leftCurrency"
-        :left-title="leftTitle"
-        :amount-diff="amountDiff"
-        :has-amount-diff="hasAmountDiff"
-        :has-title-diff="hasTitleDiff"
-        :diff-lines="diffLines"
-        @close="handleCloseComparison"
-      />
-    </template>
+  <div class="space-y-6 min-h-screen pb-16">
+    <!-- Readonly Version Banner (Visible when viewing past version) -->
+    <ProposalEditorReadonlyBanner
+      v-if="viewingVersion && isViewingPast"
+      :version="viewingVersion"
+      @restore="handleRestore"
+      @back-to-latest="handleBackToLatest"
+    />
 
-    <!-- ═══ NORMAL EDITOR MODE ═══ -->
+    <!-- Comparison View (replaces main layout when comparing versions) -->
+    <ProposalEditorDiffView
+      v-if="isComparing && comparingVersion"
+      v-model:compare-target-id="compareTargetId"
+      :comparing-version="comparingVersion"
+      :compare-target-options="compareTargetOptions"
+      :compare-right-label="compareRightLabel"
+      :compare-right-title="compareRightTitle"
+      :compare-right-amount="compareRightAmount"
+      :compare-right-currency="compareRightCurrency"
+      :left-amount="leftAmount"
+      :left-currency="leftCurrency"
+      :left-title="leftTitle"
+      :amount-diff="amountDiff"
+      :has-amount-diff="hasAmountDiff"
+      :has-title-diff="hasTitleDiff"
+      :diff-lines="diffLines"
+      @close="handleCloseComparison"
+    />
+
+    <!-- Main Workspace Layout (When NOT comparing) -->
     <template v-else>
-      <!-- ─── Read-Only Version Banner ─── -->
-      <ProposalEditorReadonlyBanner
-        v-if="isViewingPast && viewingVersion"
-        :version="viewingVersion"
-        @restore="handleRestore"
-        @back-to-latest="handleBackToLatest"
-      />
-
-      <!-- ─── Header Control Bar ─── -->
+      <!-- Top Action Header -->
       <ProposalEditorHeader
         v-model:current-status="currentStatus"
         :proposal="proposal"
@@ -211,46 +204,62 @@ const portalShareUrl = computed(() => {
         @toggle-version-drawer="versionDrawerOpen = !versionDrawerOpen"
       />
 
-      <!-- ─── Loading ─── -->
-      <div v-if="isPending" class="space-y-6">
-        <Skeleton class="h-[600px] w-full rounded-2xl" />
+      <!-- Loading State Skeleton -->
+      <div v-if="isPending" class="grid grid-cols-1 gap-6 lg:grid-cols-12 w-full items-start">
+        <!-- Left Column Skeleton (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <Skeleton class="h-24 w-full rounded-2xl" />
+          <Skeleton class="h-[520px] w-full rounded-2xl" />
+        </div>
+        <!-- Right Column Skeleton (5 cols) -->
+        <div class="lg:col-span-5 space-y-6">
+          <Skeleton class="h-[630px] w-full rounded-2xl" />
+        </div>
       </div>
 
-      <!-- ─── Error ─── -->
+      <!-- Error State -->
       <ErrorState
         v-else-if="isError"
         class="mt-6"
-        title="Failed to load proposal editor"
-        retry-label="Try again"
+        :title="t('proposals.editor.errorTitle', 'Failed to load proposal editor')"
+        :retry-label="t('common.actions.retry', 'Try again')"
         @retry="refetch()"
       />
 
-      <!-- ─── Side-by-Side 2-Column Grid Layout ─── -->
+      <!-- Primary Milestones (Left - 7 cols) & Summary/Terms (Right - 5 cols) Layout -->
       <div v-else class="relative">
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 w-full items-start">
-          <!-- Left Column (50%): Document Copy (Summary & Terms) -->
-          <div class="space-y-6">
-            <ProposalEditorDocumentCanvas
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 w-full items-start">
+          <!-- Left Column (7 cols): Proposal Title, Total Budget & Milestones Breakdown (PRIMARY) -->
+          <div class="lg:col-span-7 space-y-6">
+            <!-- Dedicated Proposal Title & Total Budget Card -->
+            <ProposalOverviewCard
               v-model:title="title"
-              v-model:summary="summary"
               v-model:amount="amount"
               v-model:currency="currency"
-              v-model:body="body"
               :is-viewing-past="isViewingPast"
             />
-          </div>
 
-          <!-- Right Column (50%): Structured Milestone Breakdown -->
-          <div class="space-y-6">
+            <!-- Main Milestones & Deliverables Breakdown Card -->
             <ProposalEditorMilestonesSection
               v-model:milestones="milestones"
               :total-proposal-amount="Number(amount)"
               :is-viewing-past="isViewingPast"
             />
           </div>
+
+          <!-- Right Column (5 cols): Document Copy (Executive Summary & Terms) -->
+          <div class="lg:col-span-5 space-y-6">
+            <ProposalEditorDocumentCanvas
+              v-model:summary="summary"
+              v-model:body="body"
+              :title="title"
+              :is-viewing-past="isViewingPast"
+              :milestones="milestones"
+            />
+          </div>
         </div>
 
-        <!-- 📜 Collapsible Version History Slide-Over Drawer -->
+        <!-- Collapsible Version History Slide-Over Drawer -->
         <Transition
           enter-active-class="transition ease-out duration-200"
           enter-from-class="opacity-0 translate-x-4"
@@ -260,8 +269,8 @@ const portalShareUrl = computed(() => {
           leave-to-class="opacity-0 translate-x-4"
         >
           <div
-            v-if="versionDrawerOpen && versions.length > 0"
-            class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-canvas-elevated p-6 shadow-lift border-l border-border flex flex-col justify-between"
+            v-if="versionDrawerOpen"
+            class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-canvas p-6 shadow-2xl border-l border-border overflow-y-auto"
           >
             <ProposalEditorVersionSidebar
               :versions="versions"
@@ -272,17 +281,10 @@ const portalShareUrl = computed(() => {
             />
           </div>
         </Transition>
-
-        <!-- Backdrop overlay when drawer is open -->
-        <div
-          v-if="versionDrawerOpen && versions.length > 0"
-          class="fixed inset-0 z-40 bg-ink/20 backdrop-blur-xs"
-          @click="versionDrawerOpen = false"
-        />
       </div>
     </template>
 
-    <!-- ═══ MODALS ═══ -->
+    <!-- Modals -->
     <ProposalSmartImportModal
       :open="smartImportModalOpen"
       @close="smartImportModalOpen = false"
