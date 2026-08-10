@@ -5,11 +5,13 @@ import {
   Clock,
   Folder,
   FolderPlus,
+  History,
   Link2,
   Loader2,
   Save,
   Send,
   Trash2,
+  Wand2,
 } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -28,6 +30,7 @@ interface Props {
   proposalId: string
   isViewingPast: boolean
   hasVersions: boolean
+  versionsCount?: number
   isSaving: boolean
   isCreatingProject: boolean
   isPublishing: boolean
@@ -45,6 +48,8 @@ const emit = defineEmits<{
   createProject: []
   openProject: [projectId: string]
   openDeleteModal: []
+  openSmartImportModal: []
+  toggleVersionDrawer: []
 }>()
 
 const { t } = useI18n()
@@ -154,6 +159,32 @@ const backLink = computed(() => {
       >
         <Trash2 class="h-4 w-4" />
       </button>
+
+      <!-- Smart AI Import Button -->
+      <BaseButton
+        variant="secondary"
+        size="sm"
+        :disabled="isViewingPast"
+        class="border-accent/30 bg-accent/5 text-accent hover:bg-accent/10"
+        @click="emit('openSmartImportModal')"
+      >
+        <Wand2 class="h-3.5 w-3.5" />
+        <span>✨ AI Import</span>
+      </BaseButton>
+
+      <!-- History Drawer Toggle Button (Only if versions exist) -->
+      <BaseButton
+        v-if="versionsCount && versionsCount > 0"
+        variant="secondary"
+        size="sm"
+        @click="emit('toggleVersionDrawer')"
+      >
+        <History class="h-3.5 w-3.5 text-accent" />
+        <span>History</span>
+        <span class="rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-accent ms-1">
+          {{ versionsCount }}
+        </span>
+      </BaseButton>
 
       <!-- Save Button -->
       <BaseButton

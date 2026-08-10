@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.leads.models import Lead
 
-from .models import Proposal, ProposalTemplate, ProposalVersion
+from .models import Proposal, ProposalMilestone, ProposalTemplate, ProposalVersion
 from .services import create_proposal_from_lead
 
 
@@ -41,8 +41,28 @@ class ProposalVersionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "proposal", "version_number", "created_at"]
 
 
+class ProposalMilestoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProposalMilestone
+        fields = [
+            "id",
+            "proposal",
+            "title",
+            "description",
+            "amount",
+            "percentage",
+            "due_date",
+            "order",
+            "deliverables",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "proposal", "created_at", "updated_at"]
+
+
 class ProposalSerializer(serializers.ModelSerializer):
     versions = ProposalVersionSerializer(many=True, read_only=True)
+    milestones = ProposalMilestoneSerializer(many=True, required=False)
 
     class Meta:
         model = Proposal
@@ -61,6 +81,7 @@ class ProposalSerializer(serializers.ModelSerializer):
             "status",
             "generation_task_id",
             "versions",
+            "milestones",
             "created_at",
             "updated_at",
         ]
@@ -71,6 +92,30 @@ class ProposalSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def update(self, instance, validated_data):
+        milestones_data = validated_data.pop("milestones", None)
+        instance = super().update(instance, validated_data)
+
+        if milestones_data is not None:
+            instance.milestones.all().delete()
+            to_create = [
+                ProposalMilestone(
+                    proposal=instance,
+                    title=m.get("title", ""),
+                    description=m.get("description", ""),
+                    amount=m.get("amount", 0),
+                    percentage=m.get("percentage", 0),
+                    due_date=m.get("due_date"),
+                    order=m.get("order", idx + 1),
+                    deliverables=m.get("deliverables", []),
+                )
+                for idx, m in enumerate(milestones_data)
+            ]
+            if to_create:
+                ProposalMilestone.objects.bulk_create(to_create)
+
+        return instance
 
     def validate_lead(self, lead):
         if lead is None:

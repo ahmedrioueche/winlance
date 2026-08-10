@@ -42,6 +42,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const body = ref('')
   const currentStatus = ref('DRAFT')
   const targetProjectName = ref('')
+  const milestones = ref<import('../../types').ProposalMilestone[]>([])
 
   // UI Version States
   const viewingVersion = ref<ProposalVersion | null>(null)
@@ -83,11 +84,13 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         const incomingAmount = val.amount ? Number(val.amount) : 0
 
         title.value = incomingTitle
+        summary.value = val.summary || ''
         amount.value = incomingAmount
         currency.value = val.currency || 'USD'
         body.value = incomingBody
         currentStatus.value = val.status || 'DRAFT'
         targetProjectName.value = val.target_project_name || ''
+        milestones.value = val.milestones || []
         lastSaved.value = {
           title: incomingTitle,
           body: incomingBody,
@@ -134,11 +137,13 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     await updateProposal.mutateAsync({
       id: proposalId.value,
       title: title.value.trim(),
+      summary: summary.value.trim(),
       amount: Number(amount.value),
       currency: currency.value,
       body: body.value,
       status: currentStatus.value,
       target_project_name: targetProjectName.value.trim(),
+      milestones: milestones.value,
     })
     lastSaved.value = {
       title: title.value.trim(),
@@ -310,6 +315,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     currency,
     currentStatus,
     targetProjectName,
+    milestones,
     viewingVersion,
     isViewingPast,
     isDirty,

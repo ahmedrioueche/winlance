@@ -140,3 +140,14 @@ class ProposalViewSet(viewsets.ModelViewSet):
         proposal = self.get_object()
         mark_proposal_sent(proposal)
         return Response(ProposalSerializer(proposal, context={"request": request}).data)
+
+    @action(detail=False, methods=["post"], url_path="smart-import")
+    def smart_import(self, request):
+        raw_text = request.data.get("raw_text", "").strip()
+        if not raw_text:
+            return Response({"detail": "raw_text is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        from .ai_import import smart_import_proposal_text
+        parsed_data = smart_import_proposal_text(raw_text)
+        return Response(parsed_data)
+

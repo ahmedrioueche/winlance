@@ -83,3 +83,10 @@ export function useDeleteProposalMutation() {
 export function useCreateProjectFromProposalMutation() {
   return useInvalidateMutation(api.createProjectFromProposal)
 }
+
+export function useSmartImportProposalMutation() {
+  return useMutation({
+    mutationFn: (raw_text: string) => api.smartImportProposal(raw_text),
+  })
+}
+

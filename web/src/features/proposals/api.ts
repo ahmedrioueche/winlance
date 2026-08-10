@@ -74,3 +74,9 @@ export async function createProjectFromProposal(id: string) {
   const { data } = await apiClient.post<{ project_id: string; title: string }>(`/proposals/${id}/create-project/`)
   return data
 }
+
+export async function smartImportProposal(raw_text: string) {
+  const { data } = await apiClient.post<import('./types').SmartImportResult>('/proposals/smart-import/', { raw_text })
+  return data
+}
+

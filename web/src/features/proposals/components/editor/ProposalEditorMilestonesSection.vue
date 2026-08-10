@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { CheckSquare, Plus, Sparkles, Trash2 } from 'lucide-vue-next'
-import { computed } from 'vue'
 import { BaseButton, BaseInput } from '@/shared/components/base'
+import { CheckSquare, Info, Plus, Sparkles, Trash2 } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 export interface ProposalMilestoneItem {
   id?: string
@@ -33,6 +33,32 @@ const localMilestones = computed({
   get: () => props.milestones,
   set: (val) => emit('update:milestones', val),
 })
+
+const milestoneSum = computed(() => {
+  return localMilestones.value.reduce((acc, m) => acc + (Number(m.amount) || 0), 0)
+})
+
+function setMilestonesCount(targetCount: number) {
+  const currentCount = localMilestones.value.length
+  if (targetCount > currentCount) {
+    const toAdd = targetCount - currentCount
+    const updated = [...localMilestones.value]
+    for (let i = 0; i < toAdd; i++) {
+      const nextOrder = updated.length + 1
+      updated.push({
+        title: `Milestone ${nextOrder}: `,
+        description: '',
+        amount: 0,
+        percentage: 0,
+        due_date: null,
+        deliverables: [''],
+      })
+    }
+    emit('update:milestones', updated)
+  } else if (targetCount < currentCount) {
+    emit('update:milestones', localMilestones.value.slice(0, targetCount))
+  }
+}
 
 function addMilestone() {
   const nextOrder = localMilestones.value.length + 1
@@ -84,51 +110,92 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
 </script>
 
 <template>
-  <div class="rounded-2xl border border-border bg-canvas-elevated p-6 sm:p-8 shadow-soft space-y-6">
+  <div class="border-border bg-canvas-elevated shadow-soft space-y-6 rounded-2xl border p-6 sm:p-8">
     <!-- Header -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
-      <div class="flex items-center gap-2.5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent">
-          <Sparkles class="h-5 w-5" />
-        </div>
-        <div>
-          <h3 class="font-display text-base font-bold text-ink">
-            Milestones &amp; Deliverables Breakdown
-          </h3>
-          <p class="text-xs text-muted">
-            Structure your proposal into milestone phases. When accepted, these auto-generate project milestones &amp; tasks!
-          </p>
+    <div class="border-border/60 space-y-3 border-b pb-4">
+      <!-- Top Row: Icon + Title + Info Tooltip + Budget Sum Badge -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-2.5">
+          <div
+            class="bg-accent/10 text-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+          >
+            <Sparkles class="h-5 w-5" />
+          </div>
+          <div class="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 class="font-display text-ink truncate text-base font-bold">
+              Milestones &amp; Deliverables Breakdown
+            </h3>
+            <!-- Info Tooltip Icon -->
+            <span
+              class="text-muted hover:text-accent hover:bg-accent/10 flex h-5 w-5 shrink-0 cursor-help items-center justify-center rounded-full transition-colors"
+              title="Structure your proposal into milestone phases. When accepted, these auto-generate project milestones &amp; tasks in your project workspace!"
+            >
+              <Info class="h-3.5 w-3.5" />
+            </span>
+
+            <span
+              v-if="milestoneSum > 0"
+              class="ms-1 shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400"
+            >
+              Sum: ${{ milestoneSum.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <BaseButton
-        v-if="!isViewingPast"
-        size="sm"
-        variant="secondary"
-        @click="addMilestone"
-      >
-        <Plus class="h-3.5 w-3.5" />
-        <span>Add Milestone</span>
-      </BaseButton>
+      <!-- Milestone Count Quick Selector + Add Button (Placed side-by-side) -->
+      <div v-if="!isViewingPast" class="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <div class="flex items-center gap-2">
+          <span class="text-ink text-xs font-semibold">Number of Milestones:</span>
+          <div
+            class="bg-canvas border-border flex items-center gap-1 rounded-xl border p-1 text-xs"
+          >
+            <button
+              v-for="cnt in [1, 2, 3, 4, 5]"
+              :key="cnt"
+              type="button"
+              class="h-7 w-7 rounded-lg font-bold transition-all"
+              :class="
+                localMilestones.length === cnt
+                  ? 'bg-accent text-accent-contrast shadow-sm'
+                  : 'text-muted hover:text-ink'
+              "
+              @click="setMilestonesCount(cnt)"
+            >
+              {{ cnt }}
+            </button>
+            <button
+              v-if="localMilestones.length > 5"
+              type="button"
+              class="bg-accent text-accent-contrast h-7 rounded-lg px-2 text-xs font-bold shadow-sm"
+              title="More than 5 milestones active"
+            >
+              {{ localMilestones.length }} Active
+            </button>
+          </div>
+        </div>
+
+        <BaseButton size="sm" variant="secondary" @click="addMilestone">
+          <Plus class="h-3.5 w-3.5" />
+          <span>Add </span>
+        </BaseButton>
+      </div>
     </div>
 
     <!-- Empty State -->
     <div
       v-if="localMilestones.length === 0"
-      class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-canvas p-8 text-center space-y-3"
+      class="border-border/80 bg-canvas flex flex-col items-center justify-center space-y-3 rounded-xl border border-dashed p-8 text-center"
     >
-      <CheckSquare class="h-8 w-8 text-muted/50" />
+      <CheckSquare class="text-muted/50 h-8 w-8" />
       <div class="space-y-1">
-        <p class="text-sm font-semibold text-ink">No Milestones Defined Yet</p>
-        <p class="text-xs text-muted max-w-sm">
-          Break this proposal into clear milestone phases so your client knows exactly what deliverables to expect.
+        <p class="text-ink text-sm font-semibold">No Milestones Defined Yet</p>
+        <p class="text-muted max-w-sm text-xs">
+          Break this proposal into clear milestone phases so your client knows exactly what
+          deliverables to expect.
         </p>
       </div>
-      <BaseButton
-        v-if="!isViewingPast"
-        size="sm"
-        @click="addMilestone"
-      >
+      <BaseButton v-if="!isViewingPast" size="sm" @click="addMilestone">
         <Plus class="h-3.5 w-3.5" />
         <span>Create First Milestone</span>
       </BaseButton>
@@ -139,7 +206,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
       <div
         v-for="(m, mIdx) in localMilestones"
         :key="m.id || mIdx"
-        class="rounded-xl border border-border bg-canvas p-5 shadow-xs space-y-4 relative group"
+        class="border-border bg-canvas group relative space-y-4 rounded-xl border p-5 shadow-xs"
       >
         <!-- Milestone Header Controls -->
         <div class="flex items-start justify-between gap-4">
@@ -155,7 +222,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
           <button
             v-if="!isViewingPast"
             type="button"
-            class="p-1.5 text-muted hover:text-red-500 transition-colors rounded-lg hover:bg-canvas-muted mt-6"
+            class="text-muted hover:bg-canvas-muted mt-6 rounded-lg p-1.5 transition-colors hover:text-red-500"
             title="Remove Milestone"
             @click="removeMilestone(mIdx)"
           >
@@ -175,12 +242,12 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
           </div>
 
           <div>
-            <label class="mb-1.5 block text-xs font-semibold text-ink">Phase Budget ($)</label>
+            <label class="text-ink mb-1.5 block text-xs font-semibold">Phase Budget ($)</label>
             <input
               :value="m.amount"
               type="number"
               step="100"
-              class="w-full rounded-xl border border-border bg-canvas px-3 py-2 text-xs font-bold text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+              class="border-border bg-canvas text-ink placeholder:text-muted focus:border-accent w-full rounded-xl border px-3 py-2 text-xs font-bold focus:outline-none"
               placeholder="0.00"
               :disabled="isViewingPast"
               @input="m.amount = Number(($event.target as HTMLInputElement).value)"
@@ -189,15 +256,15 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
         </div>
 
         <!-- Deliverable Sub-Tasks List -->
-        <div class="space-y-2 pt-2 border-t border-border/60">
+        <div class="border-border/60 space-y-2 border-t pt-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-muted uppercase tracking-wider">
+            <span class="text-muted text-xs font-semibold tracking-wider uppercase">
               Deliverables &amp; Task Checklist
             </span>
             <button
               v-if="!isViewingPast"
               type="button"
-              class="text-xs font-semibold text-accent hover:underline flex items-center gap-1"
+              class="text-accent flex items-center gap-1 text-xs font-semibold hover:underline"
               @click="addDeliverable(mIdx)"
             >
               <Plus class="h-3 w-3" />
@@ -211,19 +278,21 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
               :key="dIdx"
               class="flex items-center gap-2"
             >
-              <CheckSquare class="h-4 w-4 text-accent shrink-0" />
+              <CheckSquare class="text-accent h-4 w-4 shrink-0" />
               <input
                 :value="del"
                 type="text"
-                class="flex-1 rounded-lg border border-border bg-canvas-elevated px-3 py-1.5 text-xs text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none"
+                class="border-border bg-canvas-elevated text-ink placeholder:text-muted/60 focus:border-accent flex-1 rounded-lg border px-3 py-1.5 text-xs focus:outline-none"
                 placeholder="e.g. High-fidelity Figma wireframes"
                 :readonly="isViewingPast"
-                @input="updateDeliverableText(mIdx, dIdx, ($event.target as HTMLInputElement).value)"
+                @input="
+                  updateDeliverableText(mIdx, dIdx, ($event.target as HTMLInputElement).value)
+                "
               />
               <button
                 v-if="!isViewingPast"
                 type="button"
-                class="p-1 text-muted hover:text-red-500 transition-colors"
+                class="text-muted p-1 transition-colors hover:text-red-500"
                 @click="removeDeliverable(mIdx, dIdx)"
               >
                 <Trash2 class="h-3.5 w-3.5" />

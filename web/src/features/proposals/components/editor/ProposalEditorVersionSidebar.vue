@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown, Eye, GitCompare, History, Search } from '@lucide/vue'
+import { ChevronDown, Eye, GitCompare, History, Search, X } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ProposalVersion } from '../../types'
@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   view: [ver: ProposalVersion]
   compare: [ver: ProposalVersion]
+  close: []
 }>()
 
 const { d } = useI18n()
@@ -78,12 +79,19 @@ function formatAuthor(ver: ProposalVersion): string {
 <template>
   <div class="rounded-xl border border-border bg-canvas-elevated p-4 shadow-soft space-y-4">
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between border-b border-border/60 pb-3">
       <span class="font-display text-sm font-bold text-ink flex items-center gap-1.5">
         <History class="h-4 w-4 text-accent" />
-        Versions
+        Version History
         <span v-if="versions.length > 0" class="text-muted font-normal">({{ versions.length }})</span>
       </span>
+      <button
+        type="button"
+        class="rounded-lg p-1 text-muted hover:bg-canvas-muted hover:text-ink transition-colors"
+        @click="emit('close')"
+      >
+        <X class="h-4 w-4" />
+      </button>
     </div>
 
     <!-- Search & Filter Controls (Only rendered if versions.length > 5) -->

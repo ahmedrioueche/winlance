@@ -6,15 +6,17 @@ import { ErrorState, Skeleton } from '@/shared/components/base'
 import { useClientQuery } from '@/features/client-dashboard/queries'
 import { useProposalComparison } from '../../composables/editor/useProposalComparison'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
+import type { ProposalVersion, SmartImportResult } from '../../types'
 
 // Sub-components
 import ProposalDeleteModal from '../editor/ProposalDeleteModal.vue'
 import ProposalEditorDiffView from '../editor/ProposalEditorDiffView.vue'
 import ProposalEditorDocumentCanvas from '../editor/ProposalEditorDocumentCanvas.vue'
 import ProposalEditorHeader from '../editor/ProposalEditorHeader.vue'
-import ProposalEditorMilestonesSection, { type ProposalMilestoneItem } from '../editor/ProposalEditorMilestonesSection.vue'
+import ProposalEditorMilestonesSection from '../editor/ProposalEditorMilestonesSection.vue'
 import ProposalEditorReadonlyBanner from '../editor/ProposalEditorReadonlyBanner.vue'
 import ProposalEditorVersionSidebar from '../editor/ProposalEditorVersionSidebar.vue'
+import ProposalSmartImportModal from '../editor/ProposalSmartImportModal.vue'
 import ProposalUnsavedChangesModal from '../editor/ProposalUnsavedChangesModal.vue'
 import ProposalVersionSaveModal from '../editor/ProposalVersionSaveModal.vue'
 
@@ -26,16 +28,21 @@ const clientId = computed(() => String(route.query.client_id || route.params.id 
 
 const { data: client } = useClientQuery(clientId)
 
+const smartImportModalOpen = ref(false)
+const versionDrawerOpen = ref(false)
+
 const {
   proposal,
   isPending,
   isError,
   refetch,
   title,
+  summary,
   body,
   amount,
   currency,
   currentStatus,
+  milestones,
   viewingVersion,
   isViewingPast,
   autoSaveStatus,
@@ -56,7 +63,7 @@ const {
   handleVersionSkip,
   handlePublish,
   handleStatusChange,
-  handleViewVersion,
+  handleViewVersion: rawHandleViewVersion,
   handleSaveAndView,
   handleDiscardAndView,
   handleRestore,
@@ -81,7 +88,7 @@ const {
   hasAmountDiff,
   hasTitleDiff,
   diffLines,
-  handleCompare,
+  handleCompare: rawHandleCompare,
   handleCloseComparison,
 } = useProposalComparison(
   proposal,
@@ -92,8 +99,15 @@ const {
   currency,
 )
 
-// Milestones state
-const milestones = ref<ProposalMilestoneItem[]>([])
+function handleViewVersion(ver: ProposalVersion) {
+  rawHandleViewVersion(ver)
+  versionDrawerOpen.value = false
+}
+
+function handleCompare(ver: ProposalVersion) {
+  rawHandleCompare(ver)
+  versionDrawerOpen.value = false
+}
 
 onMounted(async () => {
   if (proposalId.value === 'new') {
@@ -120,6 +134,17 @@ onMounted(async () => {
   }
 })
 
+function handleSmartImported(result: SmartImportResult) {
+  if (result.title) title.value = result.title
+  if (result.summary) summary.value = result.summary
+  if (result.body) body.value = result.body
+  if (result.amount) amount.value = result.amount
+  if (result.currency) currency.value = result.currency
+  if (result.milestones && result.milestones.length > 0) {
+    milestones.value = result.milestones
+  }
+}
+
 const portalShareUrl = computed(() => {
   if (client.value?.portal_token && proposalId.value) {
     return `${window.location.origin}/portal/${client.value.portal_token}/proposals/${proposalId.value}`
@@ -129,7 +154,7 @@ const portalShareUrl = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen space-y-6">
+  <div class="min-h-screen space-y-6 relative">
     <!-- ═══ FULL-WIDTH DIFF COMPARISON MODE ═══ -->
     <template v-if="isComparing && comparingVersion">
       <ProposalEditorDiffView
@@ -170,6 +195,7 @@ const portalShareUrl = computed(() => {
         :proposal-id="proposalId"
         :is-viewing-past="isViewingPast"
         :has-versions="hasVersions"
+        :versions-count="versions.length"
         :is-saving="updateProposal.isPending.value"
         :is-creating-project="createProjectMutation.isPending.value"
         :is-publishing="createVersion.isPending.value"
@@ -181,6 +207,8 @@ const portalShareUrl = computed(() => {
         @create-project="handleCreateProject"
         @open-project="router.push(`/app/projects/${$event}/overview`)"
         @open-delete-modal="deleteModalOpen = true"
+        @open-smart-import-modal="smartImportModalOpen = true"
+        @toggle-version-drawer="versionDrawerOpen = !versionDrawerOpen"
       />
 
       <!-- ─── Loading ─── -->
@@ -197,39 +225,70 @@ const portalShareUrl = computed(() => {
         @retry="refetch()"
       />
 
-      <!-- ─── Main Editor + Sidebar ─── -->
-      <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <!-- Document Canvas & Milestones (8 cols) -->
-        <div class="lg:col-span-8 space-y-6">
-          <ProposalEditorDocumentCanvas
-            v-model:title="title"
-            v-model:amount="amount"
-            v-model:currency="currency"
-            v-model:body="body"
-            :is-viewing-past="isViewingPast"
-          />
+      <!-- ─── Side-by-Side 2-Column Grid Layout ─── -->
+      <div v-else class="relative">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 w-full items-start">
+          <!-- Left Column (50%): Document Copy (Summary & Terms) -->
+          <div class="space-y-6">
+            <ProposalEditorDocumentCanvas
+              v-model:title="title"
+              v-model:summary="summary"
+              v-model:amount="amount"
+              v-model:currency="currency"
+              v-model:body="body"
+              :is-viewing-past="isViewingPast"
+            />
+          </div>
 
-          <!-- Milestone Breakdown Section -->
-          <ProposalEditorMilestonesSection
-            v-model:milestones="milestones"
-            :total-proposal-amount="Number(amount)"
-            :is-viewing-past="isViewingPast"
-          />
+          <!-- Right Column (50%): Structured Milestone Breakdown -->
+          <div class="space-y-6">
+            <ProposalEditorMilestonesSection
+              v-model:milestones="milestones"
+              :total-proposal-amount="Number(amount)"
+              :is-viewing-past="isViewingPast"
+            />
+          </div>
         </div>
 
-        <!-- Sidebar: Version Browser (4 cols) -->
-        <div class="lg:col-span-4">
-          <ProposalEditorVersionSidebar
-            :versions="versions"
-            :viewing-version-id="viewingVersion?.id"
-            @view="handleViewVersion"
-            @compare="handleCompare"
-          />
-        </div>
+        <!-- 📜 Collapsible Version History Slide-Over Drawer -->
+        <Transition
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="opacity-0 translate-x-4"
+          enter-to-class="opacity-100 translate-x-0"
+          leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-x-0"
+          leave-to-class="opacity-0 translate-x-4"
+        >
+          <div
+            v-if="versionDrawerOpen && versions.length > 0"
+            class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-canvas-elevated p-6 shadow-lift border-l border-border flex flex-col justify-between"
+          >
+            <ProposalEditorVersionSidebar
+              :versions="versions"
+              :viewing-version-id="viewingVersion?.id"
+              @view="handleViewVersion"
+              @compare="handleCompare"
+              @close="versionDrawerOpen = false"
+            />
+          </div>
+        </Transition>
+
+        <!-- Backdrop overlay when drawer is open -->
+        <div
+          v-if="versionDrawerOpen && versions.length > 0"
+          class="fixed inset-0 z-40 bg-ink/20 backdrop-blur-xs"
+          @click="versionDrawerOpen = false"
+        />
       </div>
     </template>
 
     <!-- ═══ MODALS ═══ -->
+    <ProposalSmartImportModal
+      :open="smartImportModalOpen"
+      @close="smartImportModalOpen = false"
+      @imported="handleSmartImported"
+    />
+
     <ProposalVersionSaveModal
       v-model:version-name="versionName"
       :open="versionModalOpen"
