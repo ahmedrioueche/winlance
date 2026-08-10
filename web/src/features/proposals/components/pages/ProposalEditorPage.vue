@@ -1,23 +1,99 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
 import { ErrorState, Skeleton } from '@/shared/components/base'
 import { useClientQuery } from '@/features/client-dashboard/queries'
-import { useCreateProposalMutation } from '../../queries'
+import { useProposalComparison } from '../../composables/editor/useProposalComparison'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
-import { useProposalSaveActions } from '../../composables/editor/useProposalSaveActions'
+
+// Sub-components
 import ProposalDeleteModal from '../editor/ProposalDeleteModal.vue'
-import ProposalEditorClientSection from '../editor/ProposalEditorClientSection.vue'
+import ProposalEditorDiffView from '../editor/ProposalEditorDiffView.vue'
+import ProposalEditorDocumentCanvas from '../editor/ProposalEditorDocumentCanvas.vue'
 import ProposalEditorHeader from '../editor/ProposalEditorHeader.vue'
-import ProposalEditorScopeSection from '../editor/ProposalEditorScopeSection.vue'
-import ProposalEditorTotalsCard from '../editor/ProposalEditorTotalsCard.vue'
+import ProposalEditorMilestonesSection, { type ProposalMilestoneItem } from '../editor/ProposalEditorMilestonesSection.vue'
+import ProposalEditorReadonlyBanner from '../editor/ProposalEditorReadonlyBanner.vue'
+import ProposalEditorVersionSidebar from '../editor/ProposalEditorVersionSidebar.vue'
+import ProposalUnsavedChangesModal from '../editor/ProposalUnsavedChangesModal.vue'
+import ProposalVersionSaveModal from '../editor/ProposalVersionSaveModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+
 const proposalId = computed(() => String(route.params.proposalId || route.params.id || ''))
 const clientId = computed(() => String(route.query.client_id || route.params.id || ''))
 
-const createProposalMutation = useCreateProposalMutation()
+const { data: client } = useClientQuery(clientId)
+
+const {
+  proposal,
+  isPending,
+  isError,
+  refetch,
+  title,
+  body,
+  amount,
+  currency,
+  currentStatus,
+  viewingVersion,
+  isViewingPast,
+  autoSaveStatus,
+  versionModalOpen,
+  versionName,
+  confirmDialogOpen,
+  deleteModalOpen,
+  confirmDeleteText,
+  versions,
+  hasVersions,
+  updateProposal,
+  createVersion,
+  deleteProposalMutation,
+  createProjectMutation,
+  createProposalMutation,
+  handleSave,
+  handleVersionConfirm,
+  handleVersionSkip,
+  handlePublish,
+  handleStatusChange,
+  handleViewVersion,
+  handleSaveAndView,
+  handleDiscardAndView,
+  handleRestore,
+  handleBackToLatest,
+  handleCreateProject,
+  handleConfirmDelete,
+} = useProposalEditorState(proposalId, clientId)
+
+const {
+  comparingVersion,
+  compareTargetId,
+  isComparing,
+  compareTargetOptions,
+  compareRightLabel,
+  compareRightTitle,
+  compareRightAmount,
+  compareRightCurrency,
+  leftAmount,
+  leftCurrency,
+  leftTitle,
+  amountDiff,
+  hasAmountDiff,
+  hasTitleDiff,
+  diffLines,
+  handleCompare,
+  handleCloseComparison,
+} = useProposalComparison(
+  proposal,
+  versions,
+  title,
+  body,
+  amount,
+  currency,
+)
+
+// Milestones state
+const milestones = ref<ProposalMilestoneItem[]>([])
 
 onMounted(async () => {
   if (proposalId.value === 'new') {
@@ -44,82 +120,138 @@ onMounted(async () => {
   }
 })
 
-const { data: client } = useClientQuery(clientId)
-
-const {
-  proposal,
-  isPending,
-  isError,
-  refetch,
-  title,
-  summary,
-  amount,
-  currency,
-  targetProjectName,
-  isSaving,
-  handleSaveProposal,
-  handlePublishProposal,
-} = useProposalEditorState(proposalId)
-
-const {
-  isDeleteModalOpen,
-  confirmDeleteText,
-  isDeleteConfirmed,
-  isDeleting,
-  isCreatingProject,
-  handleOpenDeleteModal,
-  handleConfirmDeleteProposal,
-  handleCreateProjectWorkspace,
-} = useProposalSaveActions(proposalId, clientId)
+const portalShareUrl = computed(() => {
+  if (client.value?.portal_token && proposalId.value) {
+    return `${window.location.origin}/portal/${client.value.portal_token}/proposals/${proposalId.value}`
+  }
+  return `${window.location.origin}/app/clients/${clientId.value}/proposals/${proposalId.value}`
+})
 </script>
 
 <template>
-  <div v-if="isPending" class="space-y-6">
-    <Skeleton class="h-24 w-full rounded-2xl" />
-    <Skeleton class="h-48 w-full rounded-2xl" />
-    <Skeleton class="h-96 w-full rounded-2xl" />
-  </div>
+  <div class="min-h-screen space-y-6">
+    <!-- ═══ FULL-WIDTH DIFF COMPARISON MODE ═══ -->
+    <template v-if="isComparing && comparingVersion">
+      <ProposalEditorDiffView
+        v-model:compare-target-id="compareTargetId"
+        :comparing-version="comparingVersion"
+        :compare-target-options="compareTargetOptions"
+        :compare-right-label="compareRightLabel"
+        :compare-right-title="compareRightTitle"
+        :compare-right-amount="compareRightAmount"
+        :compare-right-currency="compareRightCurrency"
+        :left-amount="leftAmount"
+        :left-currency="leftCurrency"
+        :left-title="leftTitle"
+        :amount-diff="amountDiff"
+        :has-amount-diff="hasAmountDiff"
+        :has-title-diff="hasTitleDiff"
+        :diff-lines="diffLines"
+        @close="handleCloseComparison"
+      />
+    </template>
 
-  <ErrorState
-    v-else-if="isError"
-    title="Failed to load proposal editor"
-    retry-label="Try again"
-    @retry="refetch()"
-  />
+    <!-- ═══ NORMAL EDITOR MODE ═══ -->
+    <template v-else>
+      <!-- ─── Read-Only Version Banner ─── -->
+      <ProposalEditorReadonlyBanner
+        v-if="isViewingPast && viewingVersion"
+        :version="viewingVersion"
+        @restore="handleRestore"
+        @back-to-latest="handleBackToLatest"
+      />
 
-  <section v-else class="space-y-6">
-    <ProposalEditorHeader
-      :proposal="proposal"
-      :is-saving="isSaving"
-      :is-creating-project="isCreatingProject"
-      @save="handleSaveProposal"
-      @publish="handlePublishProposal"
-      @create-project="handleCreateProjectWorkspace"
-      @delete="handleOpenDeleteModal"
+      <!-- ─── Header Control Bar ─── -->
+      <ProposalEditorHeader
+        v-model:current-status="currentStatus"
+        :proposal="proposal"
+        :title="title"
+        :client-id="clientId"
+        :proposal-id="proposalId"
+        :is-viewing-past="isViewingPast"
+        :has-versions="hasVersions"
+        :is-saving="updateProposal.isPending.value"
+        :is-creating-project="createProjectMutation.isPending.value"
+        :is-publishing="createVersion.isPending.value"
+        :auto-save-status="autoSaveStatus"
+        :portal-share-url="portalShareUrl"
+        @status-change="handleStatusChange"
+        @save="handleSave"
+        @publish="handlePublish"
+        @create-project="handleCreateProject"
+        @open-project="router.push(`/app/projects/${$event}/overview`)"
+        @open-delete-modal="deleteModalOpen = true"
+      />
+
+      <!-- ─── Loading ─── -->
+      <div v-if="isPending" class="space-y-6">
+        <Skeleton class="h-[600px] w-full rounded-2xl" />
+      </div>
+
+      <!-- ─── Error ─── -->
+      <ErrorState
+        v-else-if="isError"
+        class="mt-6"
+        title="Failed to load proposal editor"
+        retry-label="Try again"
+        @retry="refetch()"
+      />
+
+      <!-- ─── Main Editor + Sidebar ─── -->
+      <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <!-- Document Canvas & Milestones (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          <ProposalEditorDocumentCanvas
+            v-model:title="title"
+            v-model:amount="amount"
+            v-model:currency="currency"
+            v-model:body="body"
+            :is-viewing-past="isViewingPast"
+          />
+
+          <!-- Milestone Breakdown Section -->
+          <ProposalEditorMilestonesSection
+            v-model:milestones="milestones"
+            :total-proposal-amount="Number(amount)"
+            :is-viewing-past="isViewingPast"
+          />
+        </div>
+
+        <!-- Sidebar: Version Browser (4 cols) -->
+        <div class="lg:col-span-4">
+          <ProposalEditorVersionSidebar
+            :versions="versions"
+            :viewing-version-id="viewingVersion?.id"
+            @view="handleViewVersion"
+            @compare="handleCompare"
+          />
+        </div>
+      </div>
+    </template>
+
+    <!-- ═══ MODALS ═══ -->
+    <ProposalVersionSaveModal
+      v-model:version-name="versionName"
+      :open="versionModalOpen"
+      :is-pending="createVersion.isPending.value"
+      @confirm="handleVersionConfirm"
+      @skip="handleVersionSkip"
     />
 
-    <ProposalEditorClientSection :client="client" />
-
-    <ProposalEditorScopeSection
-      v-model:title="title"
-      v-model:target-project-name="targetProjectName"
-      v-model:summary="summary"
+    <ProposalUnsavedChangesModal
+      :open="confirmDialogOpen"
+      :is-pending="updateProposal.isPending.value"
+      @close="confirmDialogOpen = false"
+      @discard-and-view="handleDiscardAndView"
+      @save-and-view="handleSaveAndView"
     />
 
-    <ProposalEditorTotalsCard
-      v-model:amount="amount"
-      v-model:currency="currency"
-    />
-
-    <!-- Delete Modal -->
     <ProposalDeleteModal
       v-model:confirm-text="confirmDeleteText"
-      :open="isDeleteModalOpen"
-      :proposal-title="proposal?.title || ''"
-      :is-deleting="isDeleting"
-      :is-confirmed="isDeleteConfirmed"
-      @close="isDeleteModalOpen = false"
-      @confirm="handleConfirmDeleteProposal(proposal?.title || '')"
+      :open="deleteModalOpen"
+      :is-deleting="deleteProposalMutation.isPending.value"
+      @close="deleteModalOpen = false"
+      @confirm="handleConfirmDelete"
     />
-  </section>
+  </div>
 </template>

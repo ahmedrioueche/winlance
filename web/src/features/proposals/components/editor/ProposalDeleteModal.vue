@@ -1,68 +1,57 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { AlertTriangle, Trash2 } from 'lucide-vue-next'
+import { Trash2 } from '@lucide/vue'
 import { BaseButton, BaseInput, BaseModal } from '@/shared/components/base'
 
 interface Props {
   open: boolean
-  proposalTitle: string
+  confirmText: string
   isDeleting: boolean
-  isConfirmed: boolean
 }
 
 defineProps<Props>()
 
 const emit = defineEmits<{
+  'update:confirmText': [val: string]
   close: []
   confirm: []
 }>()
-
-const confirmText = defineModel<string>('confirmText', { default: '' })
-
-const { t } = useI18n()
 </script>
 
 <template>
   <BaseModal
     :open="open"
-    title="Delete Proposal Document"
+    title="Delete Proposal"
     @close="emit('close')"
   >
     <div class="space-y-4 text-xs">
-      <div class="rounded-xl border border-error/30 bg-error/10 p-3.5 text-error flex items-start gap-3">
-        <AlertTriangle class="h-5 w-5 shrink-0 mt-0.5" />
-        <div>
-          <h4 class="font-bold text-sm">Destructive Action</h4>
-          <p class="mt-0.5 leading-relaxed">
-            {{ t('proposals.editor.deletePrompt', { title: proposalTitle }) }}
-          </p>
-        </div>
-      </div>
-
-      <div class="space-y-2 pt-2">
-        <BaseInput
-          v-model="confirmText"
-          label='Type "DELETE" to confirm'
-          placeholder="DELETE"
-          required
-        />
-      </div>
+      <p class="text-muted leading-relaxed">
+        Are you sure you want to delete this proposal? This action is permanent and cannot be undone.
+      </p>
+      <p class="font-semibold text-ink">
+        To confirm deletion, type <span class="text-red-500 font-mono font-bold">DELETE</span> in capital letters below:
+      </p>
+      <BaseInput
+        :model-value="confirmText"
+        label="Confirmation"
+        placeholder="DELETE"
+        @update:model-value="emit('update:confirmText', $event)"
+      />
     </div>
 
     <template #footer>
       <BaseButton variant="secondary" size="sm" @click="emit('close')">
-        {{ t('actions.cancel') }}
+        Cancel
       </BaseButton>
       <BaseButton
-        variant="primary"
-        class="!bg-red-600 !text-white hover:!bg-red-700"
+        variant="secondary"
         size="sm"
-        :disabled="!isConfirmed"
+        class="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20"
+        :disabled="confirmText.trim() !== 'DELETE'"
         :loading="isDeleting"
         @click="emit('confirm')"
       >
-        <Trash2 class="h-4 w-4" />
-        <span>Permanently Delete Proposal</span>
+        <Trash2 class="h-3.5 w-3.5" />
+        <span>Delete Proposal</span>
       </BaseButton>
     </template>
   </BaseModal>
