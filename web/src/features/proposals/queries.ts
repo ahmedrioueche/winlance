@@ -22,6 +22,7 @@ export function useProposalQuery(id: MaybeRefOrGetter<string>) {
   return useQuery({
     queryKey: computed(() => proposalKeys.detail(toValue(id))),
     queryFn: () => api.fetchProposal(toValue(id)),
+    enabled: computed(() => Boolean(toValue(id) && toValue(id) !== 'new')),
   })
 }
 

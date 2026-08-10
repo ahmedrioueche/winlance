@@ -26,7 +26,18 @@
     "project": "Linked project",
     "noProject": "No project linked",
     "generating": "Generation in progress. This page will refresh when ready.",
-    "cancelGeneration": "Cancel generation"
+    "cancelGeneration": "Cancel generation",
+    "clientSectionTitle": "Client Details",
+    "scopeSectionTitle": "Scope & Project Setup",
+    "titleLabel": "Proposal Title",
+    "titlePlaceholder": "e.g. E-Commerce Platform Proposal",
+    "targetProjectNameLabel": "Target Workspace Project Title",
+    "targetProjectNamePlaceholder": "e.g. Acme Corp Web App",
+    "summaryLabel": "Scope Overview & Deliverables Summary",
+    "summaryPlaceholder": "Describe project scope, core features, and milestones...",
+    "totalsTitle": "Pricing & Budget Allocation",
+    "currencyLabel": "Currency",
+    "publishBtn": "Send Proposal"
   },
   "messages": {
     "created": "Proposal created",

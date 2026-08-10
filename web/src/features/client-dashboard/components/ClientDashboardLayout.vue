@@ -42,14 +42,14 @@ const navItems = computed(() => {
   const id = clientId.value
   const base = `/app/clients/${id}`
   return [
-    { path: `${base}/overview`, labelKey: 'common.clients.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
-    { path: `${base}/projects`, labelKey: 'common.clients.nav.projects', defaultLabel: 'Projects', icon: Folder },
-    { path: `${base}/proposals`, labelKey: 'common.clients.nav.proposals', defaultLabel: 'Proposals', icon: FileText },
-    { path: `${base}/contracts`, labelKey: 'common.clients.nav.contracts', defaultLabel: 'Contracts', icon: FileSignature },
-    { path: `${base}/invoices`, labelKey: 'common.clients.nav.invoices', defaultLabel: 'Invoices', icon: CreditCard },
-    { path: `${base}/notes`, labelKey: 'common.clients.nav.notes', defaultLabel: 'Notes', icon: StickyNote },
-    { path: `${base}/files`, labelKey: 'common.clients.nav.files', defaultLabel: 'Files', icon: Files },
-    { path: `${base}/activity`, labelKey: 'common.clients.nav.activity', defaultLabel: 'Activity', icon: Activity },
+    { path: `${base}/overview`, labelKey: 'clients.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
+    { path: `${base}/projects`, labelKey: 'clients.nav.projects', defaultLabel: 'Projects', icon: Folder },
+    { path: `${base}/proposals`, labelKey: 'clients.nav.proposals', defaultLabel: 'Proposals', icon: FileText },
+    { path: `${base}/contracts`, labelKey: 'clients.nav.contracts', defaultLabel: 'Contracts', icon: FileSignature },
+    { path: `${base}/invoices`, labelKey: 'clients.nav.invoices', defaultLabel: 'Invoices', icon: CreditCard },
+    { path: `${base}/notes`, labelKey: 'clients.nav.notes', defaultLabel: 'Notes', icon: StickyNote },
+    { path: `${base}/files`, labelKey: 'clients.nav.files', defaultLabel: 'Files', icon: Files },
+    { path: `${base}/activity`, labelKey: 'clients.nav.activity', defaultLabel: 'Activity', icon: Activity },
   ]
 })
 

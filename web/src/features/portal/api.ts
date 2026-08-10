@@ -92,3 +92,18 @@ export async function approvePortalTask(
   )
   return data
 }
+
+export async function approvePortalMilestone(
+  token: string,
+  projectId: string,
+  milestoneId: string,
+) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.post<{ id: string; title: string; status: string; detail: string }>(
+    `/portal/${token}/projects/${projectId}/milestones/${milestoneId}/approve/`,
+    {},
+    { headers },
+  )
+  return data
+}
+

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from django.db.models import Q
 from apps.clients.models import Client
-from apps.projects.models import Project, Task
+from apps.projects.models import Milestone, Project, Task
 from apps.proposals.models import Proposal, ProposalVersion
 from apps.proposals.serializers import ProposalSerializer
 from apps.portal.serializers import (
@@ -267,4 +267,47 @@ def portal_approve_task(request, token, project_id, task_id):
         "status": task.status,
         "detail": "Task approved and marked as Done.",
     })
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def portal_approve_milestone(request, token, project_id, milestone_id):
+    """Allow a portal client to formally approve/sign-off on a milestone."""
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    milestone = Milestone.objects.filter(
+        id=milestone_id,
+        project_id=project_id,
+        project__freelancer=client.freelancer,
+    ).first()
+
+    if not milestone:
+        return Response({"detail": "Milestone not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    milestone.status = Milestone.Status.DONE
+    milestone.progress_percent = 100
+    milestone.save(update_fields=["status", "progress_percent", "updated_at"])
+
+    # Auto-activate next pending milestone
+    next_milestone = Milestone.objects.filter(
+        project_id=project_id,
+        status=Milestone.Status.PENDING,
+    ).order_by("order", "created_at").first()
+
+    if next_milestone:
+        next_milestone.status = Milestone.Status.IN_PROGRESS
+        next_milestone.save(update_fields=["status", "updated_at"])
+
+    return Response({
+        "id": str(milestone.id),
+        "title": milestone.title,
+        "status": milestone.status,
+        "detail": "Milestone signed off and accepted successfully.",
+    })
+
 

@@ -1,10 +1,12 @@
-import { ref, watch, type Ref } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 import { useToast } from '@/shared/toast/useToast'
 import { useProposalQuery, useUpdateProposalMutation } from '../../queries'
 
 export function useProposalEditorState(proposalId: Ref<string>) {
   const toast = useToast()
-  const { data: proposal, isPending, isError, refetch } = useProposalQuery(proposalId)
+  const { data: proposal, isPending: queryIsPending, isError, refetch } = useProposalQuery(proposalId)
+
+  const isPending = computed(() => proposalId.value !== 'new' && queryIsPending.value)
   const updateProposalMutation = useUpdateProposalMutation()
 
   const title = ref('')

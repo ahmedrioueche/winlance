@@ -73,11 +73,11 @@ class ClientSerializer(serializers.ModelSerializer):
         qs = Proposal.objects.filter(user=obj.freelancer)
         filters = Q()
         if obj.email:
-            filters |= Q(lead__email__iexact=obj.email)
+            filters |= Q(lead__contacts__email__iexact=obj.email)
         if obj.name:
-            filters |= Q(lead__name__iexact=obj.name)
+            filters |= Q(lead__title__icontains=obj.name) | Q(lead__contacts__first_name__icontains=obj.name)
         if obj.company_name:
-            filters |= Q(lead__company_name__iexact=obj.company_name)
+            filters |= Q(lead__company__name__iexact=obj.company_name)
 
         if not filters:
             return []

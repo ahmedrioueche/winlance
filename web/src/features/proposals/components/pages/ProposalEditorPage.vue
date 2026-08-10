@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ErrorState, Skeleton } from '@/shared/components/base'
 import { useClientQuery } from '@/features/client-dashboard/queries'
+import { useCreateProposalMutation } from '../../queries'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
 import { useProposalSaveActions } from '../../composables/editor/useProposalSaveActions'
 import ProposalDeleteModal from '../editor/ProposalDeleteModal.vue'
@@ -12,8 +13,36 @@ import ProposalEditorScopeSection from '../editor/ProposalEditorScopeSection.vue
 import ProposalEditorTotalsCard from '../editor/ProposalEditorTotalsCard.vue'
 
 const route = useRoute()
+const router = useRouter()
 const proposalId = computed(() => String(route.params.proposalId || route.params.id || ''))
-const clientId = computed(() => String(route.params.id || ''))
+const clientId = computed(() => String(route.query.client_id || route.params.id || ''))
+
+const createProposalMutation = useCreateProposalMutation()
+
+onMounted(async () => {
+  if (proposalId.value === 'new') {
+    try {
+      const newProp = await createProposalMutation.mutateAsync({
+        title: 'New Proposal',
+        summary: '',
+        amount: 0,
+        currency: 'USD',
+        status: 'DRAFT',
+      })
+      if (route.path.includes('/app/clients/')) {
+        const pathClientId = route.params.id || clientId.value
+        void router.replace({
+          name: 'client-workspace-proposal-editor',
+          params: { id: pathClientId, proposalId: newProp.id },
+        })
+      } else {
+        void router.replace({ name: 'proposal-detail', params: { id: newProp.id } })
+      }
+    } catch {
+      // error handled by mutation toast
+    }
+  }
+})
 
 const { data: client } = useClientQuery(clientId)
 

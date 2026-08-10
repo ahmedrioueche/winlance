@@ -91,6 +91,13 @@ class Task(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="tasks",
     )
+    milestone = models.ForeignKey(
+        "Milestone",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
     status = models.CharField(
@@ -155,6 +162,7 @@ class Milestone(TimeStampedModel):
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
         IN_PROGRESS = "IN_PROGRESS", "In Progress"
+        READY_FOR_SIGNOFF = "READY_FOR_SIGNOFF", "Ready for Sign-off"
         DONE = "DONE", "Done"
         BLOCKED = "BLOCKED", "Blocked"
 

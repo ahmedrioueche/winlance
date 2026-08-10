@@ -18,7 +18,7 @@ export function useClientProposalsData(clientId: Ref<string>) {
   })
 
   function handleCreateProposal() {
-    void router.push('/app/proposals/new')
+    void router.push(`/app/clients/${clientId.value}/proposals/new`)
   }
 
   return {

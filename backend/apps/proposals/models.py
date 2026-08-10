@@ -113,3 +113,25 @@ class ProposalVersion(TimeStampedModel):
 
     def __str__(self):
         return f"{self.proposal.title} v{self.version_number}"
+
+
+class ProposalMilestone(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    proposal = models.ForeignKey(
+        Proposal,
+        on_delete=models.CASCADE,
+        related_name="milestones",
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    percentage = models.PositiveSmallIntegerField(default=0)
+    due_date = models.DateField(null=True, blank=True)
+    order = models.PositiveIntegerField(default=0, db_index=True)
+    deliverables = models.JSONField(default=list, blank=True, help_text="List of task title strings")
+
+    class Meta(TimeStampedModel.Meta):
+        ordering = ["order", "created_at"]
+
+    def __str__(self):
+        return f"{self.proposal.title} - {self.title}"

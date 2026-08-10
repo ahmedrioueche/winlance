@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { ChevronDown } from 'lucide-vue-next'
 import { BaseButton } from '@/shared/components/base'
+import { ChevronDown } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 import type { ProjectTask, TaskStatus } from '../../types'
 import ProjectTasksBoardColumn from './ProjectTasksBoardColumn.vue'
 
@@ -32,7 +32,7 @@ const { t } = useI18n()
 
 <template>
   <div class="space-y-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
       <ProjectTasksBoardColumn
         :title="t('projects.tasks.statuses.todo')"
         status="TODO"
@@ -91,7 +91,9 @@ const { t } = useI18n()
         @click="emit('fetchNextPage')"
       >
         <ChevronDown class="h-4 w-4" />
-        <span>{{ t('projects.tasks.showMoreTasks', { current: tasksCount, total: totalCount }) }}</span>
+        <span>{{
+          t('projects.tasks.showMoreTasks', { current: tasksCount, total: totalCount })
+        }}</span>
       </BaseButton>
     </div>
   </div>

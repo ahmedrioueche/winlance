@@ -126,7 +126,11 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
             contract.project_id = project.id
             contract.save(update_fields=["project_id", "updated_at"])
 
-    # Extract and generate tasks if project currently has no tasks
+    # First, copy structured proposal milestones if present
+    if not project.milestones.exists() and proposal.milestones.exists():
+        copy_proposal_milestones_to_project(proposal, project)
+
+    # Extract and generate tasks fallback if project currently has no tasks
     if not project.tasks.exists():
         extracted_tasks = extract_tasks_from_proposal(
             title=proposal.title,
@@ -151,6 +155,48 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
             Task.objects.bulk_create(tasks_to_create)
 
     return project
+
+
+def copy_proposal_milestones_to_project(proposal, project):
+    """
+    Copies ProposalMilestone records from proposal into actual Milestone and Task records in project.
+    Sets first milestone to IN_PROGRESS and remaining to PENDING.
+    """
+    if not proposal.milestones.exists():
+        return False
+
+    proposal_milestones = proposal.milestones.all().order_by("order", "created_at")
+    for idx, p_m in enumerate(proposal_milestones):
+        m_status = Milestone.Status.IN_PROGRESS if idx == 0 else Milestone.Status.PENDING
+        milestone = Milestone.objects.create(
+            project=project,
+            title=p_m.title,
+            description=p_m.description,
+            status=m_status,
+            due_date=p_m.due_date,
+            order=p_m.order or (idx + 1),
+        )
+
+        deliverables = p_m.deliverables or []
+        if isinstance(deliverables, list):
+            tasks_to_create = []
+            for t_idx, d_item in enumerate(deliverables):
+                title_str = d_item if isinstance(d_item, str) else d_item.get("title", "")
+                if title_str.strip():
+                    tasks_to_create.append(
+                        Task(
+                            project=project,
+                            milestone=milestone,
+                            title=title_str.strip(),
+                            order=t_idx + 1,
+                            source_proposal=proposal,
+                            status=Task.Status.TODO,
+                        )
+                    )
+            if tasks_to_create:
+                Task.objects.bulk_create(tasks_to_create)
+    return True
+
 
 
 def reorder_project_tasks(project, task_id_orders):
@@ -288,6 +334,16 @@ def build_dashboard(project, *, for_client=False):
             "export_content": c.export_content if not for_client else c.export_content,
         }
 
+    # Evaluate milestone readiness
+    milestones_updated = []
+    for m in milestones:
+        m_tasks = [t for t in tasks if t.milestone_id == m.id]
+        if m_tasks and m.status in {Milestone.Status.PENDING, Milestone.Status.IN_PROGRESS}:
+            if all(t.status == Task.Status.DONE for t in m_tasks):
+                m.status = Milestone.Status.READY_FOR_SIGNOFF
+                m.save(update_fields=["status", "updated_at"])
+                milestones_updated.append(m)
+
     done = sum(1 for m in milestones if m.status == Milestone.Status.DONE)
     total = len(milestones)
     progress = int((done / total) * 100) if total else 0
@@ -309,6 +365,7 @@ def build_dashboard(project, *, for_client=False):
         "tasks": [
             {
                 "id": str(t.id),
+                "milestone_id": str(t.milestone_id) if t.milestone_id else None,
                 "title": t.title,
                 "description": t.description,
                 "status": t.status,

@@ -21,6 +21,23 @@ export const i18n = createI18n({
   legacy: false,
   locale: appConfig.defaultLocale,
   fallbackLocale: 'en',
+  datetimeFormats: {
+    en: {
+      short: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+      long: {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+      },
+    },
+  },
   messages: {
     en: {
       common: enCommon,

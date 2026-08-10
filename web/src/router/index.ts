@@ -7,6 +7,11 @@ import { projectDashboardRoutes } from '@/features/project-dashboard'
 import { homeRoutes } from '@/features/home'
 import { analyticsRoutes } from '@/features/analytics'
 import { portalRoutes } from '@/features/portal'
+import { proposalsRoutes } from '@/features/proposals'
+import { contractsRoutes } from '@/features/contracts'
+import { leadsRoutes } from '@/features/leads'
+import { outreachRoutes } from '@/features/outreach'
+import { aiCoachRoutes } from '@/features/ai-coach'
 import { logger } from '@/shared/utils/logger'
 
 import { registerAuthGuard } from './guards'
@@ -21,6 +26,11 @@ const router = createRouter({
     ...projectDashboardRoutes,
     ...analyticsRoutes,
     ...portalRoutes,
+    ...proposalsRoutes,
+    ...contractsRoutes,
+    ...leadsRoutes,
+    ...outreachRoutes,
+    ...aiCoachRoutes,
     {
       path: '/error',
       name: 'app-error',

@@ -119,3 +119,24 @@ export function useApprovePortalTaskMutation() {
     },
   })
 }
+
+export function useApprovePortalMilestoneMutation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      token,
+      projectId,
+      milestoneId,
+    }: {
+      token: string
+      projectId: string
+      milestoneId: string
+    }) => api.approvePortalMilestone(token, projectId, milestoneId),
+    onSuccess: async (_, { token, projectId }) => {
+      await qc.invalidateQueries({
+        queryKey: portalKeys.projectDetail(token, projectId),
+      })
+    },
+  })
+}
+

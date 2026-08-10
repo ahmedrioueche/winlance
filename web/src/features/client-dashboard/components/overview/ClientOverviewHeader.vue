@@ -34,7 +34,7 @@ const { t } = useI18n()
         <Globe class="h-3.5 w-3.5 text-accent" />
         <span>{{ t('clients.clientPortalLink') }}</span>
       </BaseButton>
-      <BaseButton size="sm" @click="$router.push(`/app/proposals/new?client_id=${clientId}`)">
+      <BaseButton size="sm" @click="$router.push(`/app/clients/${clientId}/proposals/new`)">
         <Plus class="h-3.5 w-3.5" />
         <span>Create Proposal</span>
       </BaseButton>
