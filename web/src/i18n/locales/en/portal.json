@@ -11,6 +11,10 @@
     "projects": "Projects",
     "contracts": "Contracts"
   },
+  "downloadPdf": "Download PDF",
+  "signProposal": "Sign & Accept Proposal",
+  "title": "Project Proposal Offer",
+  "subtitle": "Review proposal details, milestone phases, and accept online",
   "passcode": {
     "title": "Passcode Protected Portal",
     "description": "Enter the secure passcode provided by your freelancer to access your VIP portal.",

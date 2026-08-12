@@ -154,3 +154,84 @@ def mark_proposal_sent(proposal):
     proposal.status = Proposal.Status.SENT
     proposal.save(update_fields=["status", "updated_at"])
     return proposal
+
+
+def send_proposal_email(proposal, recipients, custom_message="", portal_url=""):
+    """
+    Dispatches a styled HTML email to multiple recipient email addresses
+    with a direct call-to-action button linking to the client portal proposal.
+    """
+    from django.core.mail import EmailMultiAlternatives
+    from django.utils.html import strip_tags
+
+    if isinstance(recipients, str):
+        recipients = [e.strip() for e in recipients.replace(";", ",").split(",") if e.strip()]
+    else:
+        recipients = [str(e).strip() for e in recipients if str(e).strip()]
+
+    if not recipients:
+        raise ValidationError({"recipients": "At least one valid recipient email is required."})
+
+    freelancer_name = proposal.user.get_full_name() or proposal.user.username or "Your Freelancer"
+    portal_link = portal_url or f"http://localhost:5173/portal/proposals/{proposal.id}"
+    formatted_amount = f"{float(proposal.amount):,.2f} {proposal.currency}" if proposal.amount else ""
+
+    subject = f"New Proposal: {proposal.title} — {freelancer_name}"
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f7; color: #1a1a2e; margin: 0; padding: 24px; }}
+    .email-card {{ max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }}
+    .header {{ background: #4f46e5; padding: 32px 28px; text-align: center; color: #ffffff; }}
+    .header h1 {{ margin: 0; font-size: 22px; font-weight: 700; font-family: inherit; }}
+    .header p {{ margin: 6px 0 0; font-size: 13px; opacity: 0.9; }}
+    .body {{ padding: 32px 28px; }}
+    .title {{ font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 12px; }}
+    .amount-badge {{ display: inline-block; background: #e0e7ff; color: #3730a3; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; margin-bottom: 20px; }}
+    .custom-note {{ background: #f9fafb; border-left: 4px solid #4f46e5; padding: 14px 18px; border-radius: 6px; font-size: 13px; color: #374151; margin-bottom: 24px; line-height: 1.6; white-space: pre-wrap; }}
+    .summary {{ font-size: 13px; color: #4b5563; line-height: 1.6; margin-bottom: 28px; }}
+    .cta-container {{ text-align: center; margin: 32px 0 16px; }}
+    .cta-button {{ display: inline-block; background: #4f46e5; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 14px 28px; border-radius: 10px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3); }}
+    .footer {{ border-top: 1px solid #f3f4f6; padding: 20px 28px; text-align: center; font-size: 11px; color: #9ca3af; }}
+  </style>
+</head>
+<body>
+  <div class="email-card">
+    <div class="header">
+      <h1>Project Proposal Offered</h1>
+      <p>Prepared by {freelancer_name}</p>
+    </div>
+    <div class="body">
+      <h2 class="title">{proposal.title}</h2>
+      {f'<div class="amount-badge">Total Investment: {formatted_amount}</div>' if formatted_amount else ''}
+      {f'<div class="custom-note"><strong>Note from {freelancer_name}:</strong><br>{custom_message}</div>' if custom_message and custom_message.strip() else ''}
+      {f'<div class="summary"><strong>Executive Summary:</strong><br>{proposal.summary}</div>' if proposal.summary and proposal.summary.strip() else ''}
+      <div class="cta-container">
+        <a href="{portal_link}" class="cta-button">View Interactive Proposal &rarr;</a>
+      </div>
+    </div>
+    <div class="footer">
+      Sent securely via Winlance &middot; Click the button above to view, review milestones, or accept the proposal online.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    text_content = strip_tags(html_content)
+
+    email_msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=None,
+        to=recipients,
+    )
+    email_msg.attach_alternative(html_content, "text/html")
+    email_msg.send(fail_silently=False)
+
+    proposal.status = Proposal.Status.SENT
+    proposal.save(update_fields=["status", "updated_at"])
+    return proposal
+

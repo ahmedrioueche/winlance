@@ -7,6 +7,7 @@ import type { Proposal } from '@/features/proposals/types'
 interface Props {
   proposal?: Proposal
   isAccepted: boolean
+  isExportingPdf?: boolean
 }
 
 defineProps<Props>()
@@ -39,14 +40,14 @@ const { t } = useI18n()
     </div>
 
     <div class="flex flex-wrap items-center gap-2.5">
-      <BaseButton variant="secondary" size="sm" @click="emit('downloadPdf')">
+      <BaseButton variant="secondary" size="sm" :loading="isExportingPdf" @click="emit('downloadPdf')">
         <Download class="h-3.5 w-3.5" />
-        <span>{{ t('portal.downloadPdf') }}</span>
+        <span>{{ t('portal.downloadPdf', 'Download PDF') }}</span>
       </BaseButton>
 
       <BaseButton v-if="!isAccepted" size="sm" @click="emit('signProposal')">
         <FileCheck class="h-4 w-4" />
-        <span>{{ t('portal.signProposal') }}</span>
+        <span>{{ t('portal.signProposal', 'Sign & Accept Proposal') }}</span>
       </BaseButton>
 
       <div v-else class="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">

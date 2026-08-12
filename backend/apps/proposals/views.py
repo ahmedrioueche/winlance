@@ -141,6 +141,17 @@ class ProposalViewSet(viewsets.ModelViewSet):
         mark_proposal_sent(proposal)
         return Response(ProposalSerializer(proposal, context={"request": request}).data)
 
+    @action(detail=True, methods=["post"], url_path="send-email")
+    def send_email(self, request, pk=None):
+        proposal = self.get_object()
+        recipients = request.data.get("recipients", [])
+        custom_message = request.data.get("custom_message", "")
+        portal_url = request.data.get("portal_url", "")
+
+        from .services import send_proposal_email
+        send_proposal_email(proposal, recipients, custom_message=custom_message, portal_url=portal_url)
+        return Response(ProposalSerializer(proposal, context={"request": request}).data)
+
     @action(detail=False, methods=["post"], url_path="smart-import")
     def smart_import(self, request):
         raw_text = request.data.get("raw_text", "").strip()

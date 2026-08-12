@@ -44,11 +44,25 @@ function useInvalidateMutation<TVars, TData>(fn: (vars: TVars) => Promise<TData>
 }
 
 export function useCreateProposalFromLeadMutation() {
-  return useInvalidateMutation(api.createProposalFromLead)
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: api.createProposalFromLead,
+    onSuccess: async (newProp) => {
+      qc.setQueryData(proposalKeys.detail(newProp.id), newProp)
+      await qc.invalidateQueries({ queryKey: proposalKeys.all })
+    },
+  })
 }
 
 export function useCreateProposalMutation() {
-  return useInvalidateMutation((payload: Partial<Proposal>) => api.createProposal(payload))
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Partial<Proposal>) => api.createProposal(payload),
+    onSuccess: async (newProp) => {
+      qc.setQueryData(proposalKeys.detail(newProp.id), newProp)
+      await qc.invalidateQueries({ queryKey: proposalKeys.all })
+    },
+  })
 }
 
 export function useCreateProposalVersionMutation() {
@@ -68,6 +82,13 @@ export function useCancelProposalGenerationMutation() {
 
 export function useSendProposalMutation() {
   return useInvalidateMutation(api.sendProposal)
+}
+
+export function useSendProposalEmailMutation() {
+  return useInvalidateMutation(
+    ({ id, ...payload }: { id: string; recipients: string[]; custom_message?: string; portal_url?: string }) =>
+      api.sendProposalEmail(id, payload),
+  )
 }
 
 export function useUpdateProposalMutation() {

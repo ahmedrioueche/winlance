@@ -100,9 +100,9 @@ def portal_proposal_detail(request, token, proposal_id):
 
     proposal = Proposal.objects.filter(
         id=proposal_id, user=client.freelancer
-    ).select_related("lead", "template").prefetch_related("versions").first()
+    ).select_related("lead", "template").prefetch_related("versions", "milestones").first()
 
-    if not proposal or proposal.status == Proposal.Status.DRAFT:
+    if not proposal:
         return Response({"detail": "Proposal not found."}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = ProposalSerializer(proposal, context={"request": request})

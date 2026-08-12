@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -18,6 +18,7 @@ import ProposalEditorMilestonesSection from '../editor/ProposalEditorMilestonesS
 import ProposalEditorReadonlyBanner from '../editor/ProposalEditorReadonlyBanner.vue'
 import ProposalEditorVersionSidebar from '../editor/ProposalEditorVersionSidebar.vue'
 import ProposalOverviewCard from '../editor/ProposalOverviewCard.vue'
+import ProposalSendModal from '../editor/ProposalSendModal.vue'
 import ProposalSmartImportModal from '../editor/ProposalSmartImportModal.vue'
 import ProposalUnsavedChangesModal from '../editor/ProposalUnsavedChangesModal.vue'
 import ProposalVersionSaveModal from '../editor/ProposalVersionSaveModal.vue'
@@ -53,6 +54,9 @@ const {
   confirmDialogOpen,
   deleteModalOpen,
   confirmDeleteText,
+  sendModalOpen,
+  clientEmail,
+  sendEmailMutation,
   versions,
   hasVersions,
   updateProposal,
@@ -60,10 +64,14 @@ const {
   deleteProposalMutation,
   createProjectMutation,
   createProposalMutation,
+  saveContent,
   handleSave,
   handleVersionConfirm,
   handleVersionSkip,
   handlePublish,
+  handleSendEmail,
+  handleCopyLinkAndMarkSent,
+  handleMarkReady,
   handleStatusChange,
   handleViewVersion: rawHandleViewVersion,
   handleSaveAndView,
@@ -111,30 +119,7 @@ function handleCompare(ver: ProposalVersion) {
   versionDrawerOpen.value = false
 }
 
-onMounted(async () => {
-  if (proposalId.value === 'new') {
-    try {
-      const newProp = await createProposalMutation.mutateAsync({
-        title: 'New Proposal',
-        summary: '',
-        amount: 0,
-        currency: 'USD',
-        status: 'DRAFT',
-      })
-      if (route.path.includes('/app/clients/')) {
-        const pathClientId = route.params.id || clientId.value
-        void router.replace({
-          name: 'client-workspace-proposal-editor',
-          params: { id: pathClientId, proposalId: newProp.id },
-        })
-      } else {
-        void router.replace({ name: 'proposal-detail', params: { id: newProp.id } })
-      }
-    } catch {
-      // error handled by mutation toast
-    }
-  }
-})
+
 
 function handleSmartImported(result: SmartImportResult) {
   if (result.title) title.value = result.title
@@ -330,6 +315,18 @@ function handleExportPdf() {
       :is-deleting="deleteProposalMutation.isPending.value"
       @close="deleteModalOpen = false"
       @confirm="handleConfirmDelete"
+    />
+
+    <ProposalSendModal
+      :open="sendModalOpen"
+      :default-email="clientEmail"
+      :portal-share-url="portalShareUrl"
+      :is-sending-email="sendEmailMutation.isPending.value"
+      :is-updating-status="updateProposal.isPending.value"
+      @close="sendModalOpen = false"
+      @send-email="handleSendEmail"
+      @copy-link-and-mark-sent="handleCopyLinkAndMarkSent"
+      @mark-ready="handleMarkReady"
     />
   </div>
 </template>

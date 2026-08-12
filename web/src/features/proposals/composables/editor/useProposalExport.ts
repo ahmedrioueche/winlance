@@ -67,17 +67,18 @@ function buildHtml(data: ProposalExportData): string {
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #1a1a2e;
-    background: #fff;
-    line-height: 1.6;
-    font-size: 13px;
+  .page, .page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
   .page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1a1a2e;
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 13px;
     max-width: 800px;
     margin: 0 auto;
     padding: 48px 40px;
@@ -330,7 +331,7 @@ function buildHtml(data: ProposalExportData): string {
   }
 </style>
 </head>
-<body>
+<body style="margin: 0; padding: 0; background: #ffffff;">
 <div class="page">
   <!-- Header -->
   <div class="header">
@@ -416,21 +417,35 @@ export function useProposalExport() {
 
   async function exportPdf(data: ProposalExportData) {
     isExporting.value = true
+    let iframe: HTMLIFrameElement | null = null
     try {
       const html2pdf = (await import('html2pdf.js')).default
-
       const html = buildHtml(data)
 
-      // Create a temporary container to render the HTML
-      const container = document.createElement('div')
-      container.innerHTML = html
-      // Extract just the body content for html2pdf
-      const pageContent = container.querySelector('.page') || container
-      document.body.appendChild(container)
-      container.style.position = 'fixed'
-      container.style.left = '-9999px'
-      container.style.top = '0'
-      container.style.width = '800px'
+      // Create an isolated hidden iframe to render the PDF HTML without affecting host DOM styles
+      iframe = document.createElement('iframe')
+      iframe.style.position = 'fixed'
+      iframe.style.left = '-9999px'
+      iframe.style.top = '0'
+      iframe.style.width = '800px'
+      iframe.style.height = '1000px'
+      iframe.style.border = 'none'
+      iframe.style.visibility = 'hidden'
+      document.body.appendChild(iframe)
+
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+      if (!iframeDoc) {
+        throw new Error('Failed to access iframe document')
+      }
+
+      iframeDoc.open()
+      iframeDoc.write(html)
+      iframeDoc.close()
+
+      // Allow fonts and layout to render inside iframe
+      await new Promise(resolve => setTimeout(resolve, 250))
+
+      const pageContent = iframeDoc.querySelector('.page') || iframeDoc.body
 
       const filename = `${(data.title || 'proposal').replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').toLowerCase()}.pdf`
 
@@ -443,6 +458,7 @@ export function useProposalExport() {
             scale: 2,
             useCORS: true,
             letterRendering: true,
+            windowWidth: 800,
           },
           jsPDF: {
             unit: 'mm',
@@ -453,9 +469,10 @@ export function useProposalExport() {
         })
         .from(pageContent)
         .save()
-
-      document.body.removeChild(container)
     } finally {
+      if (iframe && iframe.parentNode) {
+        iframe.parentNode.removeChild(iframe)
+      }
       isExporting.value = false
     }
   }

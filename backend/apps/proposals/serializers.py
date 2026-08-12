@@ -63,6 +63,7 @@ class ProposalMilestoneSerializer(serializers.ModelSerializer):
 class ProposalSerializer(serializers.ModelSerializer):
     versions = ProposalVersionSerializer(many=True, read_only=True)
     milestones = ProposalMilestoneSerializer(many=True, required=False)
+    portal_token = serializers.SerializerMethodField()
 
     class Meta:
         model = Proposal
@@ -80,6 +81,7 @@ class ProposalSerializer(serializers.ModelSerializer):
             "currency",
             "status",
             "generation_task_id",
+            "portal_token",
             "versions",
             "milestones",
             "created_at",
@@ -89,9 +91,37 @@ class ProposalSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "generation_task_id",
+            "portal_token",
             "created_at",
             "updated_at",
         ]
+
+    def get_portal_token(self, obj):
+        from apps.clients.models import Client
+        client = Client.objects.filter(freelancer=obj.user).first()
+        return str(client.portal_token) if client else ""
+
+    def create(self, validated_data):
+        milestones_data = validated_data.pop("milestones", None)
+        instance = super().create(validated_data)
+
+        if milestones_data:
+            to_create = [
+                ProposalMilestone(
+                    proposal=instance,
+                    title=m.get("title", ""),
+                    description=m.get("description", ""),
+                    amount=m.get("amount", 0),
+                    percentage=m.get("percentage", 0),
+                    due_date=m.get("due_date"),
+                    order=m.get("order", idx + 1),
+                    deliverables=m.get("deliverables", []),
+                )
+                for idx, m in enumerate(milestones_data)
+            ]
+            ProposalMilestone.objects.bulk_create(to_create)
+
+        return instance
 
     def update(self, instance, validated_data):
         milestones_data = validated_data.pop("milestones", None)

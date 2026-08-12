@@ -59,6 +59,11 @@ export async function sendProposal(id: string) {
   return data
 }
 
+export async function sendProposalEmail(id: string, payload: { recipients: string[]; custom_message?: string; portal_url?: string }) {
+  const { data } = await apiClient.post<Proposal>(`/proposals/${id}/send-email/`, payload)
+  return data
+}
+
 export async function fetchProposalTemplates() {
   const { data } = await apiClient.get<ProposalTemplate[] | PaginatedResponse<ProposalTemplate>>(
     '/proposal-templates/',

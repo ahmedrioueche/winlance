@@ -79,14 +79,32 @@ const statusOptions = computed<SelectOption[]>(() => {
   ]
 })
 
-function handleCopyShareLink() {
-  if (!props.portalShareUrl) return
-  void navigator.clipboard.writeText(props.portalShareUrl)
-  isCopied.value = true
-  toast.success(t('proposals.editor.linkCopied', 'Client Portal proposal share link copied!'))
-  setTimeout(() => {
-    isCopied.value = false
-  }, 2500)
+async function handleCopyShareLink() {
+  const urlToCopy = props.portalShareUrl || `${window.location.origin}/portal/proposals/${props.proposalId}`
+  if (!urlToCopy || props.proposalId === 'new') return
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(urlToCopy)
+    } else {
+      const textArea = document.createElement('textarea')
+      textArea.value = urlToCopy
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-9999px'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    }
+    isCopied.value = true
+    toast.success(t('proposals.editor.linkCopied', 'Client Portal proposal share link copied!'))
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2500)
+  } catch (err) {
+    toast.errorFromUnknown(err)
+  }
 }
 
 const backLink = computed(() => {

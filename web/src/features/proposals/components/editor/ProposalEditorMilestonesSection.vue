@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { BaseButton, BaseInput } from '@/shared/components/base'
+import { BaseButton, BaseInput, BaseModal } from '@/shared/components/base'
 import { CheckSquare, Info, Plus, Sparkles, Trash2 } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export interface ProposalMilestoneItem {
@@ -40,6 +40,67 @@ const localMilestones = computed({
 const milestoneSum = computed(() => {
   return localMilestones.value.reduce((acc, m) => acc + (Number(m.amount) || 0), 0)
 })
+
+const confirmModalOpen = ref(false)
+const pendingDelete = ref<{
+  type: 'milestone' | 'deliverable' | 'milestoneCount'
+  mIdx: number
+  dIdx?: number
+  targetCount?: number
+  title?: string
+} | null>(null)
+
+function promptRemoveMilestone(index: number) {
+  const m = localMilestones.value[index]
+  const milestoneTitle = m?.title || t('proposals.editor.milestones.milestoneTitlePlaceholder', { num: index + 1 })
+  pendingDelete.value = {
+    type: 'milestone',
+    mIdx: index,
+    title: milestoneTitle,
+  }
+  confirmModalOpen.value = true
+}
+
+function promptRemoveDeliverable(mIdx: number, dIdx: number) {
+  const m = localMilestones.value[mIdx]
+  const dText = m?.deliverables?.[dIdx] || ''
+  pendingDelete.value = {
+    type: 'deliverable',
+    mIdx,
+    dIdx,
+    title: dText.trim() ? `"${dText.trim()}"` : t('proposals.editor.milestones.deliverableItem', 'this task item'),
+  }
+  confirmModalOpen.value = true
+}
+
+function promptSetMilestonesCount(targetCount: number) {
+  const currentCount = localMilestones.value.length
+  if (targetCount >= currentCount) {
+    setMilestonesCount(targetCount)
+  } else {
+    pendingDelete.value = {
+      type: 'milestoneCount',
+      mIdx: -1,
+      targetCount,
+    }
+    confirmModalOpen.value = true
+  }
+}
+
+function handleConfirmDelete() {
+  if (!pendingDelete.value) return
+
+  if (pendingDelete.value.type === 'milestone') {
+    removeMilestone(pendingDelete.value.mIdx)
+  } else if (pendingDelete.value.type === 'deliverable' && pendingDelete.value.dIdx !== undefined) {
+    removeDeliverable(pendingDelete.value.mIdx, pendingDelete.value.dIdx)
+  } else if (pendingDelete.value.type === 'milestoneCount' && pendingDelete.value.targetCount !== undefined) {
+    setMilestonesCount(pendingDelete.value.targetCount)
+  }
+
+  confirmModalOpen.value = false
+  pendingDelete.value = null
+}
 
 function setMilestonesCount(targetCount: number) {
   const currentCount = localMilestones.value.length
@@ -163,7 +224,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
                   ? 'bg-accent text-accent-contrast shadow-sm'
                   : 'text-muted hover:text-ink'
               "
-              @click="setMilestonesCount(cnt)"
+              @click="promptSetMilestonesCount(cnt)"
             >
               {{ cnt }}
             </button>
@@ -226,7 +287,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
             type="button"
             class="text-muted hover:bg-canvas-muted mt-6 rounded-lg p-1.5 transition-colors hover:text-red-500"
             :title="t('proposals.editor.milestones.removeMilestone', 'Remove Milestone')"
-            @click="removeMilestone(mIdx)"
+            @click="promptRemoveMilestone(mIdx)"
           >
             <Trash2 class="h-4 w-4" />
           </button>
@@ -297,7 +358,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
                 v-if="!isViewingPast"
                 type="button"
                 class="text-muted p-1 transition-colors hover:text-red-500"
-                @click="removeDeliverable(mIdx, dIdx)"
+                @click="promptRemoveDeliverable(mIdx, dIdx)"
               >
                 <Trash2 class="h-3.5 w-3.5" />
               </button>
@@ -306,5 +367,47 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal (No input field) -->
+    <BaseModal
+      :open="confirmModalOpen"
+      :title="
+        pendingDelete?.type === 'deliverable'
+          ? t('proposals.editor.milestones.deleteDeliverableTitle', 'Delete Task Item')
+          : t('proposals.editor.milestones.deleteMilestoneTitle', 'Delete Milestone')
+      "
+      @close="confirmModalOpen = false"
+    >
+      <div class="space-y-3 text-xs">
+        <p class="text-muted leading-relaxed">
+          <template v-if="pendingDelete?.type === 'deliverable'">
+            {{ t('proposals.editor.milestones.deleteDeliverableConfirm', 'Are you sure you want to delete this task item? This action cannot be undone.') }}
+          </template>
+          <template v-else-if="pendingDelete?.type === 'milestoneCount'">
+            {{ t('proposals.editor.milestones.deleteCountConfirm', 'Reducing the milestone count will remove trailing milestone(s). Are you sure you want to proceed?') }}
+          </template>
+          <template v-else>
+            {{ t('proposals.editor.milestones.deleteMilestoneConfirm', 'Are you sure you want to delete this milestone and all its deliverables? This action cannot be undone.') }}
+          </template>
+        </p>
+        <p v-if="pendingDelete?.title" class="font-semibold text-ink bg-canvas-muted p-2.5 rounded-lg border border-border">
+          {{ pendingDelete.title }}
+        </p>
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" size="sm" @click="confirmModalOpen = false">
+          {{ t('common.actions.cancel', 'Cancel') }}
+        </BaseButton>
+        <BaseButton
+          size="sm"
+          class="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20"
+          @click="handleConfirmDelete"
+        >
+          <Trash2 class="h-3.5 w-3.5" />
+          <span>{{ t('common.actions.delete', 'Delete') }}</span>
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>

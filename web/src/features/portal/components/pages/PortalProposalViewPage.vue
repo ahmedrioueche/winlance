@@ -5,7 +5,8 @@ import { ErrorState, Skeleton } from '@/shared/components/base'
 import { usePortalProposalView } from '../../composables/proposals/usePortalProposalView'
 import { usePortalAcceptanceModal } from '../../composables/proposals/usePortalAcceptanceModal'
 import PortalProposalAcceptanceModal from '../proposals/PortalProposalAcceptanceModal.vue'
-import PortalProposalSummaryCard from '../proposals/PortalProposalSummaryCard.vue'
+import PortalProposalDocumentView from '../proposals/PortalProposalDocumentView.vue'
+import PortalProposalStickyBar from '../proposals/PortalProposalStickyBar.vue'
 import PortalProposalViewHeader from '../proposals/PortalProposalViewHeader.vue'
 
 const route = useRoute()
@@ -19,6 +20,7 @@ const {
   refetch,
   isAccepted,
   isAcceptModalOpen,
+  isExportingPdf,
   handleOpenAcceptModal,
   handleDownloadPdf,
 } = usePortalProposalView(token, proposalId)
@@ -47,15 +49,29 @@ const {
     @retry="refetch()"
   />
 
-  <section v-else class="space-y-6">
+  <section v-else class="space-y-6 pb-16">
+    <!-- Header -->
     <PortalProposalViewHeader
       :proposal="proposal"
       :is-accepted="isAccepted"
+      :is-exporting-pdf="isExportingPdf"
       @sign-proposal="handleOpenAcceptModal"
       @download-pdf="handleDownloadPdf"
     />
 
-    <PortalProposalSummaryCard :proposal="proposal" />
+    <!-- Unified Executive Document Flow -->
+    <PortalProposalDocumentView
+      :proposal="proposal"
+      :is-accepted="isAccepted"
+      @sign-proposal="handleOpenAcceptModal"
+    />
+
+    <!-- Floating Sticky Quick-Accept Bar -->
+    <PortalProposalStickyBar
+      :proposal="proposal"
+      :is-accepted="isAccepted"
+      @sign-proposal="handleOpenAcceptModal"
+    />
 
     <!-- Acceptance Modal -->
     <PortalProposalAcceptanceModal

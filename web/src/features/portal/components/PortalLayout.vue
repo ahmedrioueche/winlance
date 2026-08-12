@@ -218,15 +218,6 @@ const navItems = computed(() => {
         <!-- Portal View Page Content -->
         <RouterView v-else />
       </main>
-
-      <!-- Footer -->
-      <footer class="border-t border-border bg-canvas-elevated py-4 px-6 text-center text-xs text-muted flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <Sparkles class="h-3.5 w-3.5 text-accent" />
-          <span>{{ t('common.footer.poweredBy', 'Powered by') }} <strong>Winlance</strong></span>
-        </div>
-        <p>© 2026 {{ portalInfo?.freelancer_name || 'Winlance' }}. {{ t('common.footer.rightsReserved', 'All rights reserved.') }}</p>
-      </footer>
     </div>
   </div>
 </template>

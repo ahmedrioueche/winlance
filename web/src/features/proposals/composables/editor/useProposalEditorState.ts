@@ -8,6 +8,7 @@ import {
   useCreateProposalVersionMutation,
   useDeleteProposalMutation,
   useProposalQuery,
+  useSendProposalEmailMutation,
   useUpdateProposalMutation,
 } from '../../queries'
 import type { ProposalVersion } from '../../types'
@@ -28,7 +29,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const { t } = useI18n()
 
   const { data: proposal, isPending: queryIsPending, isError, refetch } = useProposalQuery(proposalId)
-  const isPending = computed(() => proposalId.value !== 'new' && queryIsPending.value)
+  const isPending = computed(() => proposalId.value !== 'new' && queryIsPending.value && !proposal.value)
 
   const updateProposal = useUpdateProposalMutation()
   const createVersion = useCreateProposalVersionMutation()
@@ -64,6 +65,14 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const pendingViewVersion = ref<ProposalVersion | null>(null)
   const deleteModalOpen = ref(false)
   const confirmDeleteText = ref('')
+  const sendModalOpen = ref(false)
+
+  const sendEmailMutation = useSendProposalEmailMutation()
+
+  const clientEmail = computed(() => {
+    const p = proposal.value as any
+    return p?.client_email || p?.lead_email || ''
+  })
 
   const versions = computed(() => proposal.value?.versions ?? [])
   const hasVersions = computed(() => versions.value.length > 0)
@@ -76,11 +85,30 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     return titleChanged || bodyChanged || amountChanged
   })
 
-  // Watch proposal data to populate form
+  // Initialize fresh local state on new proposal, or sync from fetched proposal data
+  watch(
+    proposalId,
+    (id) => {
+      if (id === 'new') {
+        viewingVersion.value = null
+        title.value = ''
+        summary.value = ''
+        amount.value = 0
+        currency.value = 'USD'
+        body.value = ''
+        currentStatus.value = 'DRAFT'
+        targetProjectName.value = ''
+        milestones.value = []
+        lastSaved.value = { title: '', body: '', amount: 0 }
+      }
+    },
+    { immediate: true },
+  )
+
   watch(
     proposal,
     (val) => {
-      if (val && !viewingVersion.value && !isDirty.value) {
+      if (val && proposalId.value !== 'new' && !viewingVersion.value && !isDirty.value) {
         const incomingTitle = val.title || ''
         const incomingBody = val.body || ''
         const incomingAmount = val.amount ? Number(val.amount) : 0
@@ -103,16 +131,28 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     { immediate: true },
   )
 
+  // Auto-compute total budget from individual milestone amounts when milestones are present
+  watch(
+    milestones,
+    (mList) => {
+      if (!isViewingPast.value && mList && mList.length > 0) {
+        const sum = mList.reduce((acc, m) => acc + (Number(m.amount) || 0), 0)
+        amount.value = sum
+      }
+    },
+    { deep: true },
+  )
+
   // Auto-save trigger
   function scheduleAutoSave() {
-    if (isViewingPast.value || !proposalId.value || proposalId.value === 'new') return
+    if (isViewingPast.value || !proposalId.value) return
     if (!isDirty.value) return
 
     autoSaveStatus.value = 'unsaved'
     if (autoSaveTimer) clearTimeout(autoSaveTimer)
 
     autoSaveTimer = setTimeout(async () => {
-      if (!isDirty.value || isViewingPast.value || !proposalId.value || proposalId.value === 'new') return
+      if (!isDirty.value || isViewingPast.value || !proposalId.value) return
       autoSaveStatus.value = 'saving'
       try {
         await saveContent()
@@ -129,28 +169,55 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   }
 
   watch([title, body, amount, currency], () => {
-    if (!isViewingPast.value && proposal.value) {
+    if (!isViewingPast.value) {
       scheduleAutoSave()
     }
   })
 
   async function saveContent() {
-    if (!proposalId.value || proposalId.value === 'new') return
-    await updateProposal.mutateAsync({
-      id: proposalId.value,
-      title: title.value.trim(),
-      summary: summary.value.trim(),
-      amount: Number(amount.value),
-      currency: currency.value,
-      body: body.value,
-      status: currentStatus.value,
-      target_project_name: targetProjectName.value.trim(),
-      milestones: milestones.value,
-    })
-    lastSaved.value = {
-      title: title.value.trim(),
-      body: body.value,
-      amount: Number(amount.value),
+    if (!proposalId.value) return
+    if (proposalId.value === 'new') {
+      const newProp = await createProposalMutation.mutateAsync({
+        title: title.value.trim() || 'New Proposal',
+        summary: summary.value.trim(),
+        amount: Number(amount.value),
+        currency: currency.value,
+        body: body.value,
+        status: currentStatus.value,
+        target_project_name: targetProjectName.value.trim(),
+        milestones: milestones.value,
+      })
+      lastSaved.value = {
+        title: title.value.trim() || 'New Proposal',
+        body: body.value,
+        amount: Number(amount.value),
+      }
+      if (clientId.value) {
+        void router.replace({
+          name: 'client-workspace-proposal-editor',
+          params: { id: clientId.value, proposalId: newProp.id },
+        })
+      } else {
+        void router.replace({ name: 'proposal-detail', params: { id: newProp.id } })
+      }
+      return newProp
+    } else {
+      await updateProposal.mutateAsync({
+        id: proposalId.value,
+        title: title.value.trim(),
+        summary: summary.value.trim(),
+        amount: Number(amount.value),
+        currency: currency.value,
+        body: body.value,
+        status: currentStatus.value,
+        target_project_name: targetProjectName.value.trim(),
+        milestones: milestones.value,
+      })
+      lastSaved.value = {
+        title: title.value.trim(),
+        body: body.value,
+        amount: Number(amount.value),
+      }
     }
   }
 
@@ -192,7 +259,11 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     toast.success('proposals.messages.saved')
   }
 
-  async function handlePublish() {
+  function handlePublish() {
+    sendModalOpen.value = true
+  }
+
+  async function handleSendEmail(payload: { recipients: string[]; customMessage: string }) {
     if (!proposalId.value) return
     try {
       await saveContent()
@@ -201,14 +272,78 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         title: title.value.trim(),
         body: body.value,
         amount: Number(amount.value),
-        change_summary: 'Published version',
+        change_summary: 'Dispatched via email',
+      })
+      await sendEmailMutation.mutateAsync({
+        id: proposalId.value,
+        recipients: payload.recipients,
+        custom_message: payload.customMessage,
+        portal_url: portalShareUrl.value,
+      })
+      currentStatus.value = 'SENT'
+      sendModalOpen.value = false
+      toast.success(t('proposals.messages.sent', 'Proposal dispatched successfully via email!'))
+    } catch (error) {
+      toast.errorFromUnknown(error)
+    }
+  }
+
+  async function handleCopyLinkAndMarkSent() {
+    if (!proposalId.value) return
+    try {
+      const urlToCopy = portalShareUrl.value || `${window.location.origin}/portal/proposals/${proposalId.value}`
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(urlToCopy)
+      } else {
+        const textArea = document.createElement('textarea')
+        textArea.value = urlToCopy
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-9999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      }
+
+      await saveContent()
+      await createVersion.mutateAsync({
+        id: proposalId.value,
+        title: title.value.trim(),
+        body: body.value,
+        amount: Number(amount.value),
+        change_summary: 'Published & shared via portal link',
       })
       currentStatus.value = 'SENT'
       await updateProposal.mutateAsync({
         id: proposalId.value,
         status: 'SENT',
       })
-      toast.success('proposals.messages.sent')
+      sendModalOpen.value = false
+      toast.success(t('proposals.editor.linkCopiedAndSent', 'Client Portal link copied and proposal marked as Sent!'))
+    } catch (error) {
+      toast.errorFromUnknown(error)
+    }
+  }
+
+  async function handleMarkReady() {
+    if (!proposalId.value) return
+    try {
+      await saveContent()
+      await createVersion.mutateAsync({
+        id: proposalId.value,
+        title: title.value.trim(),
+        body: body.value,
+        amount: Number(amount.value),
+        change_summary: 'Marked as Ready',
+      })
+      currentStatus.value = 'READY'
+      await updateProposal.mutateAsync({
+        id: proposalId.value,
+        status: 'READY',
+      })
+      sendModalOpen.value = false
+      toast.success(t('proposals.editor.markedReady', 'Proposal status updated to Ready.'))
     } catch (error) {
       toast.errorFromUnknown(error)
     }
@@ -306,8 +441,12 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   }
 
   const portalShareUrl = computed(() => {
-    if (!proposal.value?.portal_token) return ''
-    return `${window.location.origin}/portal/${proposal.value.portal_token}`
+    if (!proposalId.value || proposalId.value === 'new') return ''
+    const token = proposal.value?.portal_token
+    if (token) {
+      return `${window.location.origin}/portal/${token}/proposals/${proposalId.value}`
+    }
+    return `${window.location.origin}/portal/proposals/${proposalId.value}`
   })
 
   return {
@@ -333,6 +472,9 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     confirmDialogOpen,
     deleteModalOpen,
     confirmDeleteText,
+    sendModalOpen,
+    clientEmail,
+    sendEmailMutation,
     versions,
     hasVersions,
     updateProposal,
@@ -345,6 +487,9 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     handleVersionConfirm,
     handleVersionSkip,
     handlePublish,
+    handleSendEmail,
+    handleCopyLinkAndMarkSent,
+    handleMarkReady,
     handleStatusChange,
     handleViewVersion,
     handleSaveAndView,
