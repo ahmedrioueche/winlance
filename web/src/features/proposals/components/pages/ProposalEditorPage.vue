@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ErrorState, Skeleton } from '@/shared/components/base'
 import { useProposalComparison } from '../../composables/editor/useProposalComparison'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
+import { useProposalExport } from '../../composables/editor/useProposalExport'
 import type { ProposalVersion, SmartImportResult } from '../../types'
 
 // Sub-components
@@ -145,6 +146,20 @@ function handleSmartImported(result: SmartImportResult) {
     milestones.value = result.milestones
   }
 }
+
+const { exportPdf, isExporting } = useProposalExport()
+
+function handleExportPdf() {
+  exportPdf({
+    title: title.value,
+    summary: summary.value,
+    body: body.value,
+    amount: amount.value,
+    currency: currency.value,
+    milestones: milestones.value,
+    createdAt: proposal.value?.created_at,
+  })
+}
 </script>
 
 <template>
@@ -193,6 +208,7 @@ function handleSmartImported(result: SmartImportResult) {
         :is-creating-project="createProjectMutation.isPending.value"
         :is-publishing="createVersion.isPending.value"
         :auto-save-status="autoSaveStatus"
+        :is-exporting="isExporting"
         :portal-share-url="portalShareUrl"
         @status-change="handleStatusChange"
         @save="handleSave"
@@ -202,6 +218,7 @@ function handleSmartImported(result: SmartImportResult) {
         @open-delete-modal="deleteModalOpen = true"
         @open-smart-import-modal="smartImportModalOpen = true"
         @toggle-version-drawer="versionDrawerOpen = !versionDrawerOpen"
+        @export-pdf="handleExportPdf"
       />
 
       <!-- Loading State Skeleton -->

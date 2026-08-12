@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Check,
   Clock,
+  Download,
   Folder,
   FolderPlus,
   History,
@@ -35,6 +36,7 @@ interface Props {
   isCreatingProject: boolean
   isPublishing: boolean
   autoSaveStatus: 'idle' | 'saving' | 'saved' | 'unsaved'
+  isExporting: boolean
   portalShareUrl: string
 }
 
@@ -50,6 +52,7 @@ const emit = defineEmits<{
   openDeleteModal: []
   openSmartImportModal: []
   toggleVersionDrawer: []
+  exportPdf: []
 }>()
 
 const { t } = useI18n()
@@ -149,6 +152,18 @@ const backLink = computed(() => {
       >
         <Check v-if="isCopied" class="h-4 w-4 text-accent" />
         <Link2 v-else class="h-4 w-4" />
+      </button>
+
+      <!-- Export PDF Icon Button -->
+      <button
+        type="button"
+        class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-muted hover:bg-canvas-muted hover:text-accent transition-colors disabled:opacity-50"
+        :title="t('proposals.editor.exportPdf', 'Export as PDF')"
+        :disabled="isExporting"
+        @click="emit('exportPdf')"
+      >
+        <Loader2 v-if="isExporting" class="h-4 w-4 animate-spin text-accent" />
+        <Download v-else class="h-4 w-4" />
       </button>
 
       <!-- Delete Proposal Icon Button -->
