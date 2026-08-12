@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Loader2, Sparkles, Wand2 } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { BaseButton, BaseModal } from '@/shared/components/base'
@@ -12,7 +12,7 @@ interface Props {
   open: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
@@ -24,20 +24,90 @@ const toast = useToast()
 const rawText = ref('')
 const smartImportMutation = useSmartImportProposalMutation()
 
+// Animated processing status messages
+const processingSteps = [
+  'Analyzing your text…',
+  'Extracting project structure…',
+  'Identifying milestones & deliverables…',
+  'Structuring proposal sections…',
+  'Generating executive summary…',
+  'Finalizing proposal breakdown…',
+]
+const currentStepIndex = ref(0)
+let stepInterval: ReturnType<typeof setInterval> | null = null
+
+const currentProcessingStep = computed(() => processingSteps[currentStepIndex.value] || processingSteps[0])
+
+const MAX_CHARS = 15_000
+const charCount = computed(() => rawText.value.length)
+const isLargeInput = computed(() => charCount.value > 3000)
+const isOverLimit = computed(() => charCount.value > MAX_CHARS)
+
+function startProcessingAnimation() {
+  currentStepIndex.value = 0
+  stepInterval = setInterval(() => {
+    if (currentStepIndex.value < processingSteps.length - 1) {
+      currentStepIndex.value++
+    }
+  }, 4000)
+}
+
+function stopProcessingAnimation() {
+  if (stepInterval) {
+    clearInterval(stepInterval)
+    stepInterval = null
+  }
+  currentStepIndex.value = 0
+}
+
+// Clear interval on unmount
+onUnmounted(stopProcessingAnimation)
+
+// Reset animation when modal closes
+watch(() => props.open, (isOpen) => {
+  if (!isOpen) stopProcessingAnimation()
+})
+
 async function handleImport() {
   if (!rawText.value.trim()) {
     toast.info(t('proposals.editor.smartImport.emptyWarning', 'Please paste your client call notes, requirements, or proposal text first.'))
     return
   }
+  if (isOverLimit.value) {
+    toast.errorKey('proposals.editor.smartImport.charLimitError')
+    return
+  }
+
+  startProcessingAnimation()
 
   try {
     const result = await smartImportMutation.mutateAsync(rawText.value.trim())
-    toast.success(t('proposals.editor.smartImport.success', 'Proposal and milestones structured successfully!'))
+
+    // Validate the result has meaningful content
+    const milestonesCount = result.milestones?.length ?? 0
+    if (milestonesCount > 0) {
+      toast.success(
+        t('proposals.editor.smartImport.successDetailed', { count: milestonesCount }),
+      )
+    } else {
+      toast.success(t('proposals.editor.smartImport.success', 'Proposal and milestones structured successfully!'))
+    }
+
     emit('imported', result)
     emit('close')
     rawText.value = ''
-  } catch (err) {
-    toast.errorFromUnknown(err)
+  } catch (err: any) {
+    // Provide more specific error messages
+    const status = err?.response?.status
+    if (status === 408 || err?.code === 'ECONNABORTED') {
+      toast.errorKey('proposals.editor.smartImport.timeoutError')
+    } else if (status === 500) {
+      toast.errorKey('proposals.editor.smartImport.serverError')
+    } else {
+      toast.errorFromUnknown(err)
+    }
+  } finally {
+    stopProcessingAnimation()
   }
 }
 </script>
@@ -59,8 +129,42 @@ async function handleImport() {
         </div>
       </div>
 
-      <div>
-        <label class="mb-1.5 block text-xs font-semibold text-ink">{{ t('proposals.editor.smartImport.inputLabel', 'Raw Notes / Requirements / Proposal Text') }}</label>
+      <!-- Processing Overlay -->
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+      >
+        <div
+          v-if="smartImportMutation.isPending.value"
+          class="flex flex-col items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 p-6 text-center"
+        >
+          <div class="relative">
+            <Loader2 class="h-8 w-8 animate-spin text-accent" />
+            <Sparkles class="absolute -top-1 -right-1 h-3.5 w-3.5 text-accent animate-pulse" />
+          </div>
+          <p class="text-sm font-semibold text-ink transition-all duration-300">
+            {{ currentProcessingStep }}
+          </p>
+          <p v-if="isLargeInput" class="text-xs text-muted">
+            {{ t('proposals.editor.smartImport.largeInputNote', 'Large document detected — this may take up to 30 seconds') }}
+          </p>
+        </div>
+      </Transition>
+
+      <div v-show="!smartImportMutation.isPending.value">
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="block text-xs font-semibold text-ink">{{ t('proposals.editor.smartImport.inputLabel', 'Raw Notes / Requirements / Proposal Text') }}</label>
+          <span
+            class="text-[10px] tabular-nums"
+            :class="isOverLimit ? 'text-red-500 font-semibold' : isLargeInput ? 'text-amber-500' : 'text-muted'"
+          >
+            {{ charCount.toLocaleString() }} / {{ MAX_CHARS.toLocaleString() }} {{ t('proposals.editor.smartImport.chars', 'chars') }}
+          </span>
+        </div>
         <textarea
           v-model="rawText"
           class="w-full min-h-[220px] resize-y rounded-xl border border-border bg-canvas p-4 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
@@ -70,18 +174,18 @@ async function handleImport() {
     </div>
 
     <template #footer>
-      <BaseButton variant="secondary" size="sm" @click="emit('close')">
+      <BaseButton variant="secondary" size="sm" :disabled="smartImportMutation.isPending.value" @click="emit('close')">
         {{ t('common.actions.cancel', 'Cancel') }}
       </BaseButton>
       <BaseButton
         size="sm"
         :loading="smartImportMutation.isPending.value"
-        :disabled="!rawText.trim()"
+        :disabled="!rawText.trim() || isOverLimit || smartImportMutation.isPending.value"
         @click="handleImport"
       >
         <Loader2 v-if="smartImportMutation.isPending.value" class="h-4 w-4 animate-spin" />
         <Wand2 v-else class="h-4 w-4" />
-        <span>{{ t('proposals.editor.smartImport.submitBtn', 'Auto-Structure Proposal') }}</span>
+        <span>{{ smartImportMutation.isPending.value ? t('proposals.editor.smartImport.processing', 'Processing…') : t('proposals.editor.smartImport.submitBtn', 'Auto-Structure Proposal') }}</span>
       </BaseButton>
     </template>
   </BaseModal>

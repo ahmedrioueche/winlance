@@ -44,7 +44,7 @@
     "estimated": "Total Budget:",
     "currencyLabel": "Currency",
     "publishBtn": "Publish",
-    "aiImport": "✨ AI Import",
+    "aiImport": "AI Import",
     "history": "History",
     "copyLink": "Copy share link",
     "linkCopied": "Client Portal proposal share link copied!",
@@ -55,8 +55,8 @@
     "deleted": "Proposal deleted successfully.",
     "section1Title": "Section 1: Executive Summary & Background",
     "section3Title": "Section 3: Scope Terms & Next Steps",
-    "generateSummary": "✨ AI Summary",
-    "generateTerms": "✨ AI Terms",
+    "generateSummary": "AI Summary",
+    "generateTerms": "AI Terms",
     "generatingSummary": "Generating summary...",
     "generatingTerms": "Generating terms...",
     "summaryGenerated": "Executive summary generated!",
@@ -83,7 +83,7 @@
       "removeMilestone": "Remove Milestone"
     },
     "smartImport": {
-      "modalTitle": "✨ Smart AI Proposal Import",
+      "modalTitle": "Smart AI Proposal Import",
       "bannerTitle": "Paste anything below",
       "bannerText": "Paste raw client call notes, WhatsApp messages, RFP bullet points, or an existing proposal draft. Winlance AI will automatically extract the title, executive summary, terms, and structured milestone phases with deliverable checklists!",
       "inputLabel": "Raw Notes / Requirements / Proposal Text",

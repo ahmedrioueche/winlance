@@ -95,7 +95,7 @@ async function generateTermsAI() {
         >
           <Loader2 v-if="isGeneratingSummary" class="h-3.5 w-3.5 animate-spin" />
           <Wand2 v-else class="h-3.5 w-3.5" />
-          <span>{{ t('proposals.editor.generateSummary', '✨ AI Summary') }}</span>
+          <span>{{ t('proposals.editor.generateSummary', 'AI Summary') }}</span>
         </button>
       </div>
       <textarea
@@ -132,7 +132,7 @@ async function generateTermsAI() {
         >
           <Loader2 v-if="isGeneratingTerms" class="h-3.5 w-3.5 animate-spin" />
           <Wand2 v-else class="h-3.5 w-3.5" />
-          <span>{{ t('proposals.editor.generateTerms', '✨ AI Terms') }}</span>
+          <span>{{ t('proposals.editor.generateTerms', 'AI Terms') }}</span>
         </button>
       </div>
       <MarkdownToolbar textarea-id="proposal-terms-textarea" />

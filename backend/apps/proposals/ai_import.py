@@ -58,19 +58,23 @@ def smart_import_proposal_text(raw_text: str) -> dict:
         return parse_raw_proposal_fallback(raw_text)
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
 
         prompt = (
             "You are an expert freelance proposal software assistant. "
-            "Analyze the following raw text (which may be client call notes, project requirements, or an existing proposal draft) "
+            "Analyze the following raw text (which may be client call notes, project requirements, "
+            "an existing proposal draft, or a detailed RFP with milestones/phases) "
             "and convert it into a structured proposal breakdown with sequential milestone phases.\n\n"
             "Raw Text Input:\n"
             f"{raw_text}\n\n"
             "Requirements:\n"
-            "1. Extract an executive title and concise summary.\n"
-            "2. Extract or estimate total budget amount (number) and currency (3-letter code, default USD).\n"
-            "3. Extract or logically group deliverables into 1 to 4 sequential milestone phases (title, description, phase budget amount, and bullet array of deliverables).\n"
-            "4. Put general terms, approach, or next steps in 'body'."
+            "1. Extract an executive title and a concise 2-3 sentence summary of the project.\n"
+            "2. Extract or estimate total budget amount (number) and currency (3-letter code, default USD). If no budget is mentioned, use 0.\n"
+            "3. Extract or logically group deliverables into sequential milestone phases (up to 10 milestones). "
+            "Preserve the original milestone/phase structure from the input if it already has clearly defined phases. "
+            "Each milestone needs: title, description, phase budget amount, and a bullet array of specific deliverables.\n"
+            "4. Put general terms, development approach, client approval process, or next steps in 'body' as Markdown.\n"
+            "5. Be thorough — do not skip or collapse milestones that are clearly distinct in the input."
         )
 
         payload = {
@@ -114,7 +118,7 @@ def smart_import_proposal_text(raw_text: str) -> dict:
             method="POST",
         )
 
-        with urllib.request.urlopen(req, timeout=15) as response:
+        with urllib.request.urlopen(req, timeout=45) as response:
             res_data = json.loads(response.read().decode("utf-8"))
             raw_json = (
                 res_data.get("candidates", [{}])[0]
@@ -124,8 +128,15 @@ def smart_import_proposal_text(raw_text: str) -> dict:
             )
             parsed = json.loads(raw_json)
             if isinstance(parsed, dict) and "title" in parsed:
+                logger.info("Gemini smart import succeeded: title=%s, milestones=%d", parsed.get("title", "")[:50], len(parsed.get("milestones", [])))
                 return parsed
+            else:
+                logger.warning("Gemini returned unexpected structure: %s", str(raw_json)[:200])
 
+    except urllib.error.URLError as exc:
+        logger.warning("Gemini AI smart import network/timeout error (%s). Input length: %d chars. Using fallback parser.", exc, len(raw_text))
+    except json.JSONDecodeError as exc:
+        logger.warning("Gemini AI smart import JSON parse error (%s). Using fallback parser.", exc)
     except Exception as exc:
         logger.warning("Gemini AI smart import failed (%s). Using fallback parser.", exc)
 
@@ -176,7 +187,7 @@ def generate_proposal_section_text(section_type: str, title: str, milestones: li
         return fallback
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.7, "maxOutputTokens": 800},

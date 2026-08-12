@@ -147,6 +147,13 @@ class ProposalViewSet(viewsets.ModelViewSet):
         if not raw_text:
             return Response({"detail": "raw_text is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        MAX_IMPORT_CHARS = 15_000
+        if len(raw_text) > MAX_IMPORT_CHARS:
+            return Response(
+                {"detail": f"Input too long ({len(raw_text):,} chars). Maximum is {MAX_IMPORT_CHARS:,} characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         from .ai_import import smart_import_proposal_text
         parsed_data = smart_import_proposal_text(raw_text)
         return Response(parsed_data)

@@ -78,7 +78,7 @@ def extract_tasks_from_proposal(title: str, summary: str, body: str) -> list[dic
         return parse_markdown_tasks_fallback(title, summary, body)
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
         
         prompt = (
             "Parse the following proposal title, summary, and body into a structured list of actionable project tasks.\n"
