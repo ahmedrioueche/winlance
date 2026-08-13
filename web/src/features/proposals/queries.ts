@@ -61,6 +61,8 @@ export function useCreateProposalMutation() {
     onSuccess: async (newProp) => {
       qc.setQueryData(proposalKeys.detail(newProp.id), newProp)
       await qc.invalidateQueries({ queryKey: proposalKeys.all })
+      await qc.invalidateQueries({ queryKey: ['clients'] })
+      await qc.invalidateQueries({ queryKey: ['client'] })
     },
   })
 }
@@ -92,9 +94,15 @@ export function useSendProposalEmailMutation() {
 }
 
 export function useUpdateProposalMutation() {
-  return useInvalidateMutation(
-    ({ id, ...payload }: { id: string } & ProposalUpdate) => api.updateProposal(id, payload),
-  )
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: string } & ProposalUpdate) => api.updateProposal(id, payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: proposalKeys.all })
+      await qc.invalidateQueries({ queryKey: ['clients'] })
+      await qc.invalidateQueries({ queryKey: ['client'] })
+    },
+  })
 }
 
 export function useDeleteProposalMutation() {

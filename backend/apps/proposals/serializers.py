@@ -70,6 +70,7 @@ class ProposalSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
+            "client",
             "lead",
             "project_id",
             "template",

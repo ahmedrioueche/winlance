@@ -47,6 +47,7 @@ export type ProposalMilestone = {
 
 export type Proposal = {
   id: string
+  client?: string | null
   lead: number | null
   project_id: string | null
   template: string | null
@@ -76,7 +77,7 @@ export type ProposalFromLead = {
 }
 
 export type ProposalUpdate = Partial<
-  Pick<Proposal, 'title' | 'target_project_name' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status' | 'milestones'>
+  Pick<Proposal, 'client' | 'title' | 'target_project_name' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status' | 'milestones'>
 >
 
 export type SmartImportResult = {

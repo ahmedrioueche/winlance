@@ -1,4 +1,4 @@
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/shared/toast/useToast'
@@ -52,7 +52,13 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const isViewingPast = computed(() => viewingVersion.value !== null)
 
   // Last-saved state for dirty detection
-  const lastSaved = ref({ title: '', body: '', amount: 0 as number | string })
+  const lastSaved = ref({
+    title: '',
+    summary: '',
+    body: '',
+    amount: 0 as number | string,
+    milestonesCount: 0,
+  })
 
   // Auto-save state
   const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'unsaved'>('idle')
@@ -80,9 +86,11 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const isDirty = computed(() => {
     if (viewingVersion.value) return false
     const titleChanged = normalizeText(title.value) !== normalizeText(lastSaved.value.title)
+    const summaryChanged = normalizeText(summary.value) !== normalizeText(lastSaved.value.summary)
     const bodyChanged = normalizeText(body.value) !== normalizeText(lastSaved.value.body)
     const amountChanged = normalizeNum(amount.value) !== normalizeNum(lastSaved.value.amount)
-    return titleChanged || bodyChanged || amountChanged
+    const milestonesChanged = (milestones.value?.length || 0) !== (lastSaved.value.milestonesCount || 0)
+    return titleChanged || summaryChanged || bodyChanged || amountChanged || milestonesChanged
   })
 
   // Initialize fresh local state on new proposal, or sync from fetched proposal data
@@ -99,7 +107,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         currentStatus.value = 'DRAFT'
         targetProjectName.value = ''
         milestones.value = []
-        lastSaved.value = { title: '', body: '', amount: 0 }
+        lastSaved.value = { title: '', summary: '', body: '', amount: 0, milestonesCount: 0 }
       }
     },
     { immediate: true },
@@ -110,21 +118,25 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     (val) => {
       if (val && proposalId.value !== 'new' && !viewingVersion.value && !isDirty.value) {
         const incomingTitle = val.title || ''
+        const incomingSummary = val.summary || ''
         const incomingBody = val.body || ''
         const incomingAmount = val.amount ? Number(val.amount) : 0
+        const incomingMilestones = val.milestones || []
 
         title.value = incomingTitle
-        summary.value = val.summary || ''
+        summary.value = incomingSummary
         amount.value = incomingAmount
         currency.value = val.currency || 'USD'
         body.value = incomingBody
         currentStatus.value = val.status || 'DRAFT'
         targetProjectName.value = val.target_project_name || ''
-        milestones.value = val.milestones || []
+        milestones.value = incomingMilestones
         lastSaved.value = {
           title: incomingTitle,
+          summary: incomingSummary,
           body: incomingBody,
           amount: incomingAmount,
+          milestonesCount: incomingMilestones.length,
         }
       }
     },
@@ -146,13 +158,13 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   // Auto-save trigger
   function scheduleAutoSave() {
     if (isViewingPast.value || !proposalId.value) return
-    if (!isDirty.value) return
+    if (!isDirty.value && proposalId.value !== 'new') return
 
     autoSaveStatus.value = 'unsaved'
     if (autoSaveTimer) clearTimeout(autoSaveTimer)
 
     autoSaveTimer = setTimeout(async () => {
-      if (!isDirty.value || isViewingPast.value || !proposalId.value) return
+      if (isViewingPast.value || !proposalId.value) return
       autoSaveStatus.value = 'saving'
       try {
         await saveContent()
@@ -168,17 +180,31 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     }, 1200)
   }
 
-  watch([title, body, amount, currency], () => {
-    if (!isViewingPast.value) {
-      scheduleAutoSave()
-    }
-  })
+  watch(
+    [title, summary, body, amount, currency, targetProjectName, milestones],
+    () => {
+      if (!isViewingPast.value) {
+        scheduleAutoSave()
+      }
+    },
+    { deep: true },
+  )
 
   async function saveContent() {
     if (!proposalId.value) return
     if (proposalId.value === 'new') {
+      const hasContent = Boolean(
+        title.value.trim() ||
+          summary.value.trim() ||
+          body.value.trim() ||
+          Number(amount.value) > 0 ||
+          milestones.value.length > 0,
+      )
+      if (!hasContent) return
+
       const newProp = await createProposalMutation.mutateAsync({
         title: title.value.trim() || 'New Proposal',
+        client: clientId.value || undefined,
         summary: summary.value.trim(),
         amount: Number(amount.value),
         currency: currency.value,
@@ -189,8 +215,10 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
       })
       lastSaved.value = {
         title: title.value.trim() || 'New Proposal',
+        summary: summary.value.trim(),
         body: body.value,
         amount: Number(amount.value),
+        milestonesCount: milestones.value.length,
       }
       if (clientId.value) {
         void router.replace({
@@ -204,6 +232,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     } else {
       await updateProposal.mutateAsync({
         id: proposalId.value,
+        client: clientId.value || undefined,
         title: title.value.trim(),
         summary: summary.value.trim(),
         amount: Number(amount.value),
@@ -215,11 +244,34 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
       })
       lastSaved.value = {
         title: title.value.trim(),
+        summary: summary.value.trim(),
         body: body.value,
         amount: Number(amount.value),
+        milestonesCount: milestones.value.length,
       }
     }
   }
+
+  onBeforeUnmount(() => {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+    if (proposalId.value === 'new') {
+      const hasContent = Boolean(
+        title.value.trim() ||
+          summary.value.trim() ||
+          body.value.trim() ||
+          Number(amount.value) > 0 ||
+          milestones.value.length > 0,
+      )
+      if (hasContent) {
+        void saveContent()
+      }
+    } else if (isDirty.value) {
+      void saveContent()
+    }
+  })
 
   async function handleSave() {
     try {

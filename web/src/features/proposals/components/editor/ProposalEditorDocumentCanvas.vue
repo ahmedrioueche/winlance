@@ -2,7 +2,7 @@
 import MarkdownToolbar from '@/shared/components/markdown/MarkdownToolbar.vue'
 import { useToast } from '@/shared/toast/useToast'
 import { FileText, Loader2, ShieldCheck, Wand2 } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGenerateProposalSectionMutation } from '../../queries'
 import type { ProposalMilestoneItem } from './ProposalEditorMilestonesSection.vue'
@@ -30,6 +30,22 @@ const generateSectionMutation = useGenerateProposalSectionMutation()
 
 const isGeneratingSummary = ref(false)
 const isGeneratingTerms = ref(false)
+
+const milestoneCount = computed(() => props.milestones?.length || 0)
+
+// Dynamic min-height for Executive Summary textarea based on milestone count
+const summaryMinHeight = computed(() => {
+  if (milestoneCount.value <= 1) return '140px'
+  const extra = (milestoneCount.value - 1) * 45
+  return `${Math.min(140 + extra, 420)}px`
+})
+
+// Dynamic min-height for Scope Terms textarea based on milestone count
+const termsMinHeight = computed(() => {
+  if (milestoneCount.value <= 1) return '180px'
+  const extra = (milestoneCount.value - 1) * 55
+  return `${Math.min(180 + extra, 540)}px`
+})
 
 async function generateSummaryAI() {
   isGeneratingSummary.value = true
@@ -100,7 +116,8 @@ async function generateTermsAI() {
       </div>
       <textarea
         :value="summary"
-        class="border-border/80 bg-canvas text-ink placeholder:text-muted/60 focus:border-accent focus:ring-accent/20 min-h-[140px] w-full resize-y rounded-xl border p-3.5 text-xs leading-relaxed focus:ring-1 focus:outline-none"
+        class="border-border/80 bg-canvas text-ink placeholder:text-muted/60 focus:border-accent focus:ring-accent/20 transition-all duration-300 w-full resize-y rounded-xl border p-3.5 text-xs leading-relaxed focus:ring-1 focus:outline-none"
+        :style="{ minHeight: summaryMinHeight }"
         :class="{ 'cursor-default opacity-80': isViewingPast }"
         :readonly="isViewingPast"
         :placeholder="
@@ -139,7 +156,8 @@ async function generateTermsAI() {
       <textarea
         id="proposal-terms-textarea"
         :value="body"
-        class="border-border/80 bg-canvas text-ink placeholder:text-muted/60 focus:border-accent focus:ring-accent/20 min-h-[120px] w-full resize-y rounded-xl border p-3.5 font-mono text-xs leading-relaxed focus:ring-1 focus:outline-none"
+        class="border-border/80 bg-canvas text-ink placeholder:text-muted/60 focus:border-accent focus:ring-accent/20 transition-all duration-300 w-full resize-y rounded-xl border p-3.5 font-mono text-xs leading-relaxed focus:ring-1 focus:outline-none"
+        :style="{ minHeight: termsMinHeight }"
         :class="{ 'cursor-default border-dashed border-amber-500/30 opacity-80': isViewingPast }"
         :readonly="isViewingPast"
         :placeholder="

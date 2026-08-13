@@ -71,16 +71,13 @@ class ClientSerializer(serializers.ModelSerializer):
         from apps.proposals.models import Proposal
 
         qs = Proposal.objects.filter(user=obj.freelancer)
-        filters = Q()
+        filters = Q(client=obj)
         if obj.email:
             filters |= Q(lead__contacts__email__iexact=obj.email)
         if obj.name:
             filters |= Q(lead__title__icontains=obj.name) | Q(lead__contacts__first_name__icontains=obj.name)
         if obj.company_name:
             filters |= Q(lead__company__name__iexact=obj.company_name)
-
-        if not filters:
-            return []
 
         proposals = qs.filter(filters).distinct()
         return [

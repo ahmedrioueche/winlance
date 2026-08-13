@@ -35,7 +35,7 @@ const { t } = useI18n()
         v-for="prop in proposals"
         :key="prop.id"
         class="rounded-xl border border-border/80 bg-canvas p-4 text-xs flex items-center justify-between gap-4 cursor-pointer hover:border-accent/40 transition"
-        @click="$router.push(`/app/proposals/${prop.id}`)"
+        @click="$router.push(`/app/clients/${clientId}/proposals/${prop.id}`)"
       >
         <div class="flex items-center gap-3 truncate">
           <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-500 shrink-0">

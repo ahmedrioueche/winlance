@@ -42,6 +42,9 @@ class ProposalViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
+        client_id = self.request.query_params.get("client") or self.request.query_params.get("client_id")
+        if client_id:
+            queryset = queryset.filter(client_id=client_id)
         lead = self.request.query_params.get("lead")
         if lead:
             queryset = queryset.filter(lead_id=lead)

@@ -46,6 +46,13 @@ class Proposal(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="proposals",
     )
+    client = models.ForeignKey(
+        "clients.Client",
+        on_delete=models.SET_NULL,
+        related_name="proposals",
+        null=True,
+        blank=True,
+    )
     lead = models.ForeignKey(
         "leads.Lead",
         on_delete=models.PROTECT,

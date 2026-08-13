@@ -28,7 +28,12 @@ const router = useRouter()
 const { t } = useI18n()
 
 const proposalId = computed(() => String(route.params.proposalId || route.params.id || ''))
-const clientId = computed(() => String(route.query.client_id || route.params.id || ''))
+const clientId = computed(() => {
+  if (route.name === 'client-workspace-proposal-editor' || route.path.startsWith('/app/clients/')) {
+    return String(route.params.id || '')
+  }
+  return String(route.query.client_id || '')
+})
 
 const versionDrawerOpen = ref(false)
 const smartImportModalOpen = ref(false)
@@ -121,7 +126,7 @@ function handleCompare(ver: ProposalVersion) {
 
 
 
-function handleSmartImported(result: SmartImportResult) {
+async function handleSmartImported(result: SmartImportResult) {
   if (result.title) title.value = result.title
   if (result.summary) summary.value = result.summary
   if (result.body) body.value = result.body
@@ -130,6 +135,7 @@ function handleSmartImported(result: SmartImportResult) {
   if (result.milestones && result.milestones.length > 0) {
     milestones.value = result.milestones
   }
+  await saveContent()
 }
 
 const { exportPdf, isExporting } = useProposalExport()

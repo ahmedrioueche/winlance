@@ -3,7 +3,9 @@ import {
   BarChart2,
   BarChart3,
   ClipboardList,
+  FileSignature,
   Files,
+  FileText,
   Flag,
   Folder,
   LayoutDashboard,
@@ -123,6 +125,8 @@ export function useSidebarLinks(
       { to: '/app', label: t('common.nav.dashboard'), exact: true, icon: LayoutDashboard },
       { to: '/app/projects', label: t('common.nav.projects'), icon: Folder },
       { to: '/app/clients', label: t('common.nav.clients'), icon: Users },
+      { to: '/app/proposals', label: t('common.nav.proposals'), icon: FileText },
+      { to: '/app/contracts', label: t('common.nav.contracts'), icon: FileSignature },
       { to: '/app/analytics', label: t('common.nav.analytics'), icon: BarChart3 },
       { to: '/app/settings', label: t('common.nav.settings'), icon: Settings },
     ]

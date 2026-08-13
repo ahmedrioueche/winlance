@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { FileText } from 'lucide-vue-next'
 import type { ClientProposal } from '../../types'
 
@@ -6,13 +8,25 @@ interface Props {
   proposal: ClientProposal
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const route = useRoute()
+const router = useRouter()
+
+const clientId = computed(() => String(route.params.id || ''))
+
+function handleOpenProposal() {
+  if (clientId.value) {
+    void router.push(`/app/clients/${clientId.value}/proposals/${props.proposal.id}`)
+  } else {
+    void router.push(`/app/proposals/${props.proposal.id}`)
+  }
+}
 </script>
 
 <template>
   <div
     class="group rounded-2xl border border-border bg-canvas-elevated p-5 shadow-soft space-y-4 cursor-pointer hover:border-accent/40 hover:shadow-lift transition-all"
-    @click="$router.push(`/app/proposals/${proposal.id}`)"
+    @click="handleOpenProposal"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-center gap-3 truncate">
