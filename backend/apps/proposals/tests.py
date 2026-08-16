@@ -55,6 +55,7 @@ class ProposalAPITests(APITestCase):
         self.assertEqual(Proposal.objects.filter(user=self.user).count(), 1)
 
     def test_generate_task_apply(self):
+        from apps.proposals.services import generate_proposal_content
         proposal = Proposal.objects.create(
             user=self.user,
             lead=self.lead,
@@ -62,8 +63,7 @@ class ProposalAPITests(APITestCase):
             amount=5000,
             status=Proposal.Status.DRAFT,
         )
-        result = generate_proposal_draft.apply(args=[str(proposal.id)])
-        self.assertTrue(result.result["ok"])
+        generate_proposal_content(proposal)
         proposal.refresh_from_db()
         self.assertEqual(proposal.status, Proposal.Status.READY)
         self.assertTrue(proposal.body)

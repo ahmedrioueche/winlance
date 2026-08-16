@@ -52,11 +52,15 @@ export async function suggestPortalEdits(
   return data
 }
 
-export async function acceptPortalProposal(token: string, proposalId: string) {
+export async function acceptPortalProposal(
+  token: string,
+  proposalId: string,
+  payload?: { signer_name?: string; signer_email?: string; selected_addon_ids?: string[] },
+) {
   const headers = getPasscodeHeader(token)
   const { data } = await apiClient.post<Proposal>(
     `/portal/${token}/proposals/${proposalId}/accept/`,
-    {},
+    payload || {},
     { headers },
   )
   return data

@@ -92,8 +92,15 @@ export function useSuggestPortalEditsMutation() {
 export function useAcceptPortalProposalMutation() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ token, proposalId }: { token: string; proposalId: string }) =>
-      api.acceptPortalProposal(token, proposalId),
+    mutationFn: ({
+      token,
+      proposalId,
+      payload,
+    }: {
+      token: string
+      proposalId: string
+      payload?: { signer_name?: string; signer_email?: string; selected_addon_ids?: string[] }
+    }) => api.acceptPortalProposal(token, proposalId, payload),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: portalKeys.all })
     },

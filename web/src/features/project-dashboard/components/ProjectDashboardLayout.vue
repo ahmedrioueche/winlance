@@ -26,6 +26,15 @@ const mobileMenuOpen = ref(false)
 const projectId = computed(() => String(route.params.id || ''))
 const { data: project } = useProjectQuery(projectId)
 
+const backToProjectsUrl = computed(() => {
+  // If a `from` query param is present, use it to navigate back to the originating workspace
+  const from = route.query.from as string | undefined
+  if (from && from.startsWith('/app/')) {
+    return from
+  }
+  return '/app/projects'
+})
+
 const projectInitials = computed(() => {
   if (!project.value?.title) return 'PR'
   const parts = project.value.title.trim().split(' ')
@@ -35,15 +44,22 @@ const projectInitials = computed(() => {
   return project.value.title.substring(0, 2).toUpperCase()
 })
 
+// Preserve the `from` query param across internal navigation so the back button stays correct
+const fromQuery = computed(() => {
+  const from = route.query.from as string | undefined
+  return from ? { from } : {}
+})
+
 const navItems = computed(() => {
   const id = projectId.value
   const base = `/app/projects/${id}`
+  const query = fromQuery.value
   return [
-    { path: `${base}/overview`, labelKey: 'common.projects.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
-    { path: `${base}/tasks`, labelKey: 'common.projects.nav.tasks', defaultLabel: 'Tasks', icon: CheckSquare },
-    { path: `${base}/milestones`, labelKey: 'common.projects.nav.milestones', defaultLabel: 'Milestones', icon: FolderKanban },
-    { path: `${base}/files`, labelKey: 'common.projects.nav.files', defaultLabel: 'Files', icon: Files },
-    { path: `${base}/settings`, labelKey: 'common.projects.nav.settings', defaultLabel: 'Settings', icon: Settings },
+    { path: `${base}/overview`, to: { path: `${base}/overview`, query }, labelKey: 'common.projects.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
+    { path: `${base}/tasks`, to: { path: `${base}/tasks`, query }, labelKey: 'common.projects.nav.tasks', defaultLabel: 'Tasks', icon: CheckSquare },
+    { path: `${base}/milestones`, to: { path: `${base}/milestones`, query }, labelKey: 'common.projects.nav.milestones', defaultLabel: 'Milestones', icon: FolderKanban },
+    { path: `${base}/files`, to: { path: `${base}/files`, query }, labelKey: 'common.projects.nav.files', defaultLabel: 'Files', icon: Files },
+    { path: `${base}/settings`, to: { path: `${base}/settings`, query }, labelKey: 'common.projects.nav.settings', defaultLabel: 'Settings', icon: Settings },
   ]
 })
 
@@ -108,7 +124,7 @@ function getStatusBadgeClass(status?: string) {
         <RouterLink
           v-for="item in navItems"
           :key="item.path"
-          :to="item.path"
+          :to="item.to"
           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
           :class="[
             isLinkActive(item.path)
@@ -145,7 +161,7 @@ function getStatusBadgeClass(status?: string) {
 
           <!-- Back to All Projects Button -->
           <RouterLink
-            to="/app/projects"
+            :to="backToProjectsUrl"
             class="inline-flex items-center gap-2 rounded-lg border border-border bg-canvas px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-accent/40 hover:bg-canvas-muted shrink-0"
           >
             <ArrowLeft class="h-3.5 w-3.5 shrink-0 text-accent" />

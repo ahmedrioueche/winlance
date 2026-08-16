@@ -35,7 +35,7 @@ const { t } = useI18n()
         v-for="p in projects"
         :key="p.id"
         class="rounded-xl border border-border/80 bg-canvas p-4 text-xs flex items-center justify-between gap-4 cursor-pointer hover:border-accent/40 transition"
-        @click="$router.push(`/app/projects/${p.id}/overview`)"
+        @click="$router.push({ path: `/app/projects/${p.id}/overview`, query: { from: $route.path } })"
       >
         <div class="flex items-center gap-3 truncate">
           <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/30 bg-accent-soft text-accent shrink-0">

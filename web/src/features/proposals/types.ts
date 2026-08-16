@@ -34,6 +34,14 @@ export type ProposalVersion = {
   created_at: string
 }
 
+export type ProposalAddon = {
+  id: string
+  title: string
+  description?: string
+  amount: number
+  is_selected?: boolean
+}
+
 export type ProposalMilestone = {
   id?: string
   title: string
@@ -59,6 +67,15 @@ export type Proposal = {
   currency: string
   status: ProposalStatus | string
   generation_task_id: string
+  expires_at?: string | null
+  is_expired?: boolean
+  addons?: ProposalAddon[]
+  client_feedback?: string
+  signed_at?: string | null
+  signed_name?: string
+  signed_email?: string
+  signed_ip?: string
+  signed_user_agent?: string
   portal_token?: string
   versions?: ProposalVersion[]
   milestones?: ProposalMilestone[]
@@ -77,7 +94,7 @@ export type ProposalFromLead = {
 }
 
 export type ProposalUpdate = Partial<
-  Pick<Proposal, 'client' | 'title' | 'target_project_name' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status' | 'milestones'>
+  Pick<Proposal, 'client' | 'title' | 'target_project_name' | 'summary' | 'body' | 'amount' | 'currency' | 'project_id' | 'template' | 'status' | 'milestones' | 'expires_at' | 'addons' | 'client_feedback'>
 >
 
 export type SmartImportResult = {

@@ -88,6 +88,37 @@ class Proposal(TimeStampedModel):
     )
     generation_task_id = models.CharField(max_length=255, blank=True, default="")
 
+    expires_at = models.DateTimeField(null=True, blank=True)
+    addons = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Optional add-ons list: [{id, title, description, amount, is_selected}]",
+    )
+    client_feedback = models.TextField(
+        blank=True,
+        default="",
+        help_text="Revision notes provided by client when requesting changes.",
+    )
+
+    # Signing Audit Trail Fields
+    signed_at = models.DateTimeField(null=True, blank=True)
+    signed_name = models.CharField(max_length=255, blank=True, default="")
+    signed_email = models.CharField(max_length=255, blank=True, default="")
+    signed_ip = models.CharField(max_length=100, blank=True, default="")
+    signed_user_agent = models.TextField(blank=True, default="")
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+
+        if self.expires_at and self.status not in [
+            self.Status.ACCEPTED,
+            self.Status.REJECTED,
+            self.Status.WITHDRAWN,
+        ]:
+            return timezone.now() > self.expires_at
+        return False
+
     class Meta(TimeStampedModel.Meta):
         ordering = ["-created_at"]
 

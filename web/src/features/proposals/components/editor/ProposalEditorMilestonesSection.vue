@@ -174,7 +174,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
 </script>
 
 <template>
-  <div class="border-border bg-canvas-elevated shadow-soft space-y-6 rounded-2xl border p-6 sm:p-8">
+  <div class="border-border bg-canvas-elevated shadow-soft space-y-5 sm:space-y-6 rounded-2xl border p-4 sm:p-6 md:p-8">
     <!-- Header -->
     <div class="border-border/60 space-y-3 border-b pb-4">
       <!-- Top Row: Icon + Title + Info Tooltip + Budget Sum Badge -->
@@ -186,8 +186,9 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
             <Sparkles class="h-5 w-5" />
           </div>
           <div class="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 class="font-display text-ink truncate text-base font-bold">
-              {{ t('proposals.editor.milestones.title', 'Milestones & Deliverables Breakdown') }}
+            <h3 class="font-display text-ink truncate text-sm sm:text-base font-bold">
+              <span class="hidden sm:inline">{{ t('proposals.editor.milestones.title', 'Milestones & Deliverables Breakdown') }}</span>
+              <span class="sm:hidden">Milestones</span>
             </h3>
             <!-- Info Tooltip Icon -->
             <span
@@ -209,8 +210,8 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
 
       <!-- Milestone Count Quick Selector + Add Button (Placed side-by-side) -->
       <div v-if="!isViewingPast" class="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div class="flex items-center gap-2">
-          <span class="text-ink text-xs font-semibold">{{ t('proposals.editor.milestones.countLabel', 'Number of Milestones:') }}</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-ink text-xs font-semibold hidden sm:inline">{{ t('proposals.editor.milestones.countLabel', 'Number of Milestones:') }}</span>
           <div
             class="bg-canvas border-border flex items-center gap-1 rounded-xl border p-1 text-xs"
           >
@@ -269,7 +270,7 @@ function updateDeliverableText(mIdx: number, dIdx: number, val: string) {
       <div
         v-for="(m, mIdx) in localMilestones"
         :key="m.id || mIdx"
-        class="border-border bg-canvas group relative space-y-4 rounded-xl border p-5 shadow-xs"
+        class="border-border bg-canvas group relative space-y-3 sm:space-y-4 rounded-xl border p-3 sm:p-5 shadow-xs"
       >
         <!-- Milestone Header Controls -->
         <div class="flex items-start justify-between gap-4">

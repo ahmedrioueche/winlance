@@ -64,6 +64,7 @@ class ProposalSerializer(serializers.ModelSerializer):
     versions = ProposalVersionSerializer(many=True, read_only=True)
     milestones = ProposalMilestoneSerializer(many=True, required=False)
     portal_token = serializers.SerializerMethodField()
+    is_expired = serializers.ReadOnlyField()
 
     class Meta:
         model = Proposal
@@ -82,6 +83,15 @@ class ProposalSerializer(serializers.ModelSerializer):
             "currency",
             "status",
             "generation_task_id",
+            "expires_at",
+            "is_expired",
+            "addons",
+            "client_feedback",
+            "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
+            "signed_user_agent",
             "portal_token",
             "versions",
             "milestones",
@@ -92,6 +102,12 @@ class ProposalSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "generation_task_id",
+            "is_expired",
+            "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
+            "signed_user_agent",
             "portal_token",
             "created_at",
             "updated_at",

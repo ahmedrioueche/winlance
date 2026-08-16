@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CheckCircle2, DollarSign, FileCheck, ShieldCheck } from 'lucide-vue-next'
-import { BaseButton } from '@/shared/components/base'
+import { AlertCircle, CheckCircle2, DollarSign, Edit3, FileCheck, ShieldCheck } from 'lucide-vue-next'
+import { BaseButton, BaseModal } from '@/shared/components/base'
 import type { Proposal } from '@/features/proposals/types'
 
 interface Props {
@@ -13,9 +14,19 @@ defineProps<Props>()
 
 const emit = defineEmits<{
   signProposal: []
+  requestChanges: [notes: string]
 }>()
 
 const { t } = useI18n()
+const requestModalOpen = ref(false)
+const feedbackNotes = ref('')
+
+function handleConfirmRequestChanges() {
+  if (!feedbackNotes.value.trim()) return
+  emit('requestChanges', feedbackNotes.value.trim())
+  requestModalOpen.value = false
+  feedbackNotes.value = ''
+}
 </script>
 
 <template>
@@ -41,6 +52,18 @@ const { t } = useI18n()
       </div>
     </div>
 
+    <!-- Client Feedback Banner if revision was requested -->
+    <div
+      v-if="proposal?.status === 'CHANGES_REQUESTED' && proposal?.client_feedback"
+      class="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4 text-xs space-y-1 text-purple-600 dark:text-purple-400"
+    >
+      <div class="flex items-center gap-2 font-bold">
+        <Edit3 class="h-4 w-4" />
+        <span>Revision Requested</span>
+      </div>
+      <p class="text-[11px] opacity-90 italic">"{{ proposal.client_feedback }}"</p>
+    </div>
+
     <div class="rounded-xl border border-border/70 bg-canvas p-4 text-xs text-ink-soft leading-relaxed space-y-2">
       <p>
         By signing and accepting this proposal, you confirm that you have reviewed the executive statement of work, milestone schedule, and scope terms listed above.
@@ -61,15 +84,50 @@ const { t } = useI18n()
         </span>
       </div>
 
-      <BaseButton v-if="!isAccepted" size="md" class="shadow-sm" @click="emit('signProposal')">
-        <FileCheck class="h-4 w-4" />
-        <span>{{ t('portal.signProposal', 'Sign & Accept Proposal') }}</span>
-      </BaseButton>
+      <div v-if="!isAccepted && !proposal?.is_expired" class="flex items-center gap-3">
+        <BaseButton variant="secondary" size="md" @click="requestModalOpen = true">
+          <Edit3 class="h-4 w-4 text-purple-500" />
+          <span>Request Changes</span>
+        </BaseButton>
 
-      <div v-else class="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+        <BaseButton size="md" class="shadow-sm" @click="emit('signProposal')">
+          <FileCheck class="h-4 w-4" />
+          <span>{{ t('portal.signProposal', 'Sign & Accept Proposal') }}</span>
+        </BaseButton>
+      </div>
+
+      <div v-else-if="isAccepted" class="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
         <CheckCircle2 class="h-4 w-4" />
         <span>Signed &amp; Formally Accepted</span>
       </div>
     </div>
+
+    <!-- Request Changes Modal -->
+    <BaseModal
+      v-model="requestModalOpen"
+      title="Request Proposal Changes"
+      description="Specify any adjustments or clarification needed before signing."
+    >
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-ink mb-1.5">Revision Details / Requested Edits:</label>
+          <textarea
+            v-model="feedbackNotes"
+            rows="4"
+            placeholder="e.g. Please update Milestone 2 timeline to start on Sept 1st and clarify API deployment scope..."
+            class="w-full rounded-xl border border-border bg-canvas p-3 text-xs text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none"
+          />
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <BaseButton variant="secondary" size="sm" @click="requestModalOpen = false">
+            Cancel
+          </BaseButton>
+          <BaseButton size="sm" :disabled="!feedbackNotes.trim()" @click="handleConfirmRequestChanges">
+            Submit Revision Request
+          </BaseButton>
+        </div>
+      </div>
+    </BaseModal>
   </div>
 </template>

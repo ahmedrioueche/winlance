@@ -129,7 +129,7 @@ def portal_suggest_edits(request, token, proposal_id):
     body = request.data.get("body", proposal.body)
     title = request.data.get("title", proposal.title)
     amount = request.data.get("amount", proposal.amount)
-    change_summary = request.data.get("change_summary", "Client requested changes")
+    feedback = request.data.get("feedback_notes", request.data.get("change_summary", "Client requested changes"))
 
     last_version = proposal.versions.order_by("-version_number").first()
     next_ver = (last_version.version_number + 1) if last_version else 1
@@ -143,7 +143,7 @@ def portal_suggest_edits(request, token, proposal_id):
         body=body,
         amount=amount,
         currency=proposal.currency,
-        change_summary=change_summary,
+        change_summary=feedback,
         created_by_name=client_display_name,
         created_by_role="client",
     )
@@ -151,8 +151,9 @@ def portal_suggest_edits(request, token, proposal_id):
     proposal.body = body
     proposal.title = title
     proposal.amount = amount
+    proposal.client_feedback = feedback
     proposal.status = Proposal.Status.CHANGES_REQUESTED
-    proposal.save(update_fields=["body", "title", "amount", "status", "updated_at"])
+    proposal.save(update_fields=["body", "title", "amount", "client_feedback", "status", "updated_at"])
 
     serializer = ProposalSerializer(proposal, context={"request": request})
     return Response(serializer.data)
@@ -161,6 +162,8 @@ def portal_suggest_edits(request, token, proposal_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def portal_accept_proposal(request, token, proposal_id):
+    from django.utils import timezone
+
     client = _get_client_by_token(token)
     if not client:
         return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -172,8 +175,50 @@ def portal_accept_proposal(request, token, proposal_id):
         id=proposal_id, user=client.freelancer
     ).first()
 
+    if not proposal:
+        return Response({"detail": "Proposal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if proposal.is_expired:
+        return Response(
+            {"detail": "This proposal has expired. Please contact the freelancer for an updated proposal."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Capture Audit Trail details
+    signer_name = request.data.get("signer_name", "").strip() or client.name
+    signer_email = request.data.get("signer_email", "").strip() or client.email
+    x_forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
+    remote_ip = x_forwarded.split(",")[0].strip() if x_forwarded else request.META.get("REMOTE_ADDR", "127.0.0.1")
+    user_agent = request.META.get("HTTP_USER_AGENT", "")
+
+    # Selected Add-ons update
+    selected_addon_ids = request.data.get("selected_addon_ids")
+    if isinstance(selected_addon_ids, list) and isinstance(proposal.addons, list):
+        updated_addons = []
+        for item in proposal.addons:
+            if isinstance(item, dict):
+                item["is_selected"] = item.get("id") in selected_addon_ids
+            updated_addons.append(item)
+        proposal.addons = updated_addons
+
     proposal.status = Proposal.Status.ACCEPTED
-    proposal.save(update_fields=["status", "updated_at"])
+    proposal.signed_at = timezone.now()
+    proposal.signed_name = signer_name
+    proposal.signed_email = signer_email
+    proposal.signed_ip = remote_ip
+    proposal.signed_user_agent = user_agent
+    proposal.save(
+        update_fields=[
+            "status",
+            "addons",
+            "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
+            "signed_user_agent",
+            "updated_at",
+        ]
+    )
 
     serializer = ProposalSerializer(proposal, context={"request": request})
     return Response(serializer.data)

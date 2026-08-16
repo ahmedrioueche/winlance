@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Trash2 } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 import { BaseButton, BaseInput, BaseModal } from '@/shared/components/base'
@@ -7,9 +8,14 @@ interface Props {
   open: boolean
   confirmText: string
   isDeleting: boolean
+  proposalTitle?: string
+  isConfirmed?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  proposalTitle: '',
+  isConfirmed: undefined,
+})
 
 const emit = defineEmits<{
   'update:confirmText': [val: string]
@@ -18,6 +24,13 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const isConfirmValid = computed(() => {
+  if (props.isConfirmed !== undefined) {
+    return props.isConfirmed
+  }
+  return props.confirmText.trim().toUpperCase() === 'DELETE'
+})
 </script>
 
 <template>
@@ -28,7 +41,12 @@ const { t } = useI18n()
   >
     <div class="space-y-4 text-xs">
       <p class="text-muted leading-relaxed">
-        {{ t('proposals.editor.versions.deleteModalText', 'Are you sure you want to delete this proposal? This action is permanent and cannot be undone.') }}
+        <template v-if="proposalTitle">
+          Are you sure you want to delete <span class="font-semibold text-ink">{{ proposalTitle }}</span>? This action is permanent and cannot be undone.
+        </template>
+        <template v-else>
+          {{ t('proposals.editor.versions.deleteModalText', 'Are you sure you want to delete this proposal? This action is permanent and cannot be undone.') }}
+        </template>
       </p>
       <p class="font-semibold text-ink">
         {{ t('proposals.editor.versions.deleteConfirmPrompt', 'To confirm deletion, type DELETE in capital letters below:') }}
@@ -49,7 +67,7 @@ const { t } = useI18n()
         variant="secondary"
         size="sm"
         class="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20"
-        :disabled="confirmText.trim() !== 'DELETE'"
+        :disabled="!isConfirmValid"
         :loading="isDeleting"
         @click="emit('confirm')"
       >

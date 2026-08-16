@@ -9,6 +9,13 @@ export interface ProposalExportData {
   amount: number | string | null
   currency: string
   milestones: ProposalMilestoneItem[]
+  expiresAt?: string | null
+  addons?: any[]
+  signedAt?: string | null
+  signedName?: string
+  signedEmail?: string
+  signedIp?: string
+  status?: string
   createdAt?: string
 }
 
@@ -31,325 +38,145 @@ function renderMarkdown(md: string): string {
   return marked.parse(md, { async: false }) as string
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
 function buildHtml(data: ProposalExportData): string {
   const milestoneSum = data.milestones.reduce((sum, m) => sum + (Number(m.amount) || 0), 0)
+  const addonsList = data.addons || []
+  const selectedAddonsSum = addonsList
+    .filter(a => a.is_selected)
+    .reduce((sum, a) => sum + (Number(a.amount) || 0), 0)
+  const totalAmount = (Number(data.amount) || 0) + selectedAddonsSum
 
   const milestonesHtml = data.milestones.length > 0
     ? data.milestones.map((m, idx) => {
       const deliverablesList = (m.deliverables || [])
         .filter(d => d.trim())
-        .map(d => `<li>${escapeHtml(d)}</li>`)
+        .map(d => `<li style="margin-bottom:4px;">${escapeHtml(d)}</li>`)
         .join('')
 
       return `
-        <div class="milestone">
-          <div class="milestone-header">
-            <span class="milestone-phase">Phase ${idx + 1}</span>
-            <h3 class="milestone-title">${escapeHtml(m.title)}</h3>
-            ${Number(m.amount) ? `<span class="milestone-budget">${formatCurrency(m.amount, data.currency)}</span>` : ''}
+      <div class="milestone-card">
+        <div class="milestone-header">
+          <div>
+            <div class="milestone-badge">Phase ${idx + 1}</div>
+            <div class="milestone-title">${escapeHtml(m.title || `Phase ${idx + 1}`)}</div>
           </div>
-          ${m.description ? `<p class="milestone-desc">${escapeHtml(m.description)}</p>` : ''}
-          ${deliverablesList ? `
-            <div class="deliverables">
-              <span class="deliverables-label">Deliverables</span>
-              <ul>${deliverablesList}</ul>
-            </div>
-          ` : ''}
+          ${Number(m.amount) ? `<div class="milestone-amount">${formatCurrency(m.amount, data.currency)}</div>` : ''}
         </div>
-      `
+        ${m.description?.trim() ? `<div class="milestone-desc">${escapeHtml(m.description)}</div>` : ''}
+        ${deliverablesList ? `
+        <div style="margin-top: 10px;">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 6px;">Deliverables:</div>
+          <ul class="deliverables-list">${deliverablesList}</ul>
+        </div>
+        ` : ''}
+      </div>`
     }).join('')
     : ''
 
+  const addonsHtml = addonsList.length > 0
+    ? `
+    <div class="section">
+      <div class="section-heading">
+        <h2>Optional Add-ons &amp; Services</h2>
+      </div>
+      <div class="addons-list">
+        ${addonsList.map(a => `
+          <div style="border: 1px solid #e8e8f0; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; background: ${a.is_selected ? '#f8f5ff' : '#ffffff'};">
+            <div>
+              <strong style="font-size: 11px; color: #1a1a2e;">${escapeHtml(a.title)} ${a.is_selected ? '<span style="color:#6366f1; font-size:10px;">[SELECTED]</span>' : ''}</strong>
+              ${a.description ? `<p style="font-size:10px; color:#666; margin: 2px 0 0 0;">${escapeHtml(a.description)}</p>` : ''}
+            </div>
+            <span style="font-size: 11px; font-weight: bold; color: #6366f1;">+${formatCurrency(a.amount, data.currency)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    `
+    : ''
+
+  const auditTrailHtml = (data.status === 'ACCEPTED' || data.signedAt)
+    ? `
+    <div class="section" style="border: 1px solid #10b981; background: #ecfdf5; padding: 16px; border-radius: 12px; margin-top: 24px;">
+      <h3 style="margin: 0 0 10px 0; color: #047857; font-size: 13px;">ELECTRONIC SIGNATURE AUDIT CERTIFICATE</h3>
+      <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+        <tr><td style="padding: 3px 0; color: #666;">Signer Name:</td><td style="font-weight: bold; color: #111;">${escapeHtml(data.signedName || 'Authorized Signer')}</td></tr>
+        <tr><td style="padding: 3px 0; color: #666;">Signer Email:</td><td style="font-weight: bold; color: #111;">${escapeHtml(data.signedEmail || 'N/A')}</td></tr>
+        <tr><td style="padding: 3px 0; color: #666;">Signed Date:</td><td style="font-weight: bold; color: #111;">${formatDate(data.signedAt || undefined)}</td></tr>
+        <tr><td style="padding: 3px 0; color: #666;">IP Address:</td><td style="font-weight: bold; color: #111;">${escapeHtml(data.signedIp || '127.0.0.1')}</td></tr>
+      </table>
+    </div>
+    `
+    : ''
+
   return `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-  .page, .page * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  .page {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: #1a1a2e;
     background: #ffffff;
-    line-height: 1.6;
-    font-size: 13px;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 48px 40px;
-  }
-
-  /* ── Header ── */
-  .header {
-    border-bottom: 2px solid #e8e8f0;
-    padding-bottom: 28px;
-    margin-bottom: 32px;
-  }
-
-  .header-label {
-    text-transform: uppercase;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: #8888a0;
-    margin-bottom: 8px;
-  }
-
-  .header h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: #1a1a2e;
-    line-height: 1.25;
-    margin-bottom: 16px;
-  }
-
-  .header-meta {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .meta-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #8888a0;
-    font-weight: 600;
-  }
-
-  .meta-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a1a2e;
-  }
-
-  .meta-value.accent {
-    color: #6366f1;
-  }
-
-  /* ── Sections ── */
-  .section {
-    margin-bottom: 32px;
-  }
-
-  .section-heading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eeeef5;
-  }
-
-  .section-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-    background: #6366f1;
-    color: #fff;
     font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .section-heading h2 {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a2e;
-  }
-
-  .summary-text {
-    font-size: 13.5px;
-    line-height: 1.75;
-    color: #33334d;
-    white-space: pre-wrap;
-  }
-
-  /* ── Milestones ── */
-  .milestone {
-    background: #f9f9fc;
-    border: 1px solid #e8e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 14px;
-    page-break-inside: avoid;
-  }
-
-  .milestone-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-  }
-
-  .milestone-phase {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    font-weight: 700;
-    color: #6366f1;
-    background: #ededfc;
-    padding: 3px 10px;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
-
-  .milestone-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a1a2e;
-    flex: 1;
-  }
-
-  .milestone-budget {
-    font-size: 14px;
-    font-weight: 700;
-    color: #059669;
-    flex-shrink: 0;
-  }
-
-  .milestone-desc {
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 12px;
     line-height: 1.6;
-  }
-
-  .deliverables {
-    border-top: 1px solid #e8e8f0;
-    padding-top: 10px;
-  }
-
-  .deliverables-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    color: #8888a0;
-    display: block;
-    margin-bottom: 6px;
-  }
-
-  .deliverables ul {
-    list-style: none;
     padding: 0;
+    margin: 0;
   }
-
-  .deliverables li {
-    position: relative;
-    padding-left: 22px;
-    font-size: 12.5px;
-    color: #33334d;
-    margin-bottom: 5px;
-    line-height: 1.5;
-  }
-
-  .deliverables li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #6366f1;
-    font-weight: 700;
-    font-size: 13px;
-  }
-
-  /* ── Milestone Summary Bar ── */
-  .milestones-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #6366f1;
-    color: #fff;
-    padding: 14px 20px;
-    border-radius: 10px;
-    margin-bottom: 18px;
-    font-size: 13px;
-  }
-
-  .milestones-summary strong {
-    font-size: 15px;
-  }
-
-  /* ── Body / Terms (rendered markdown) ── */
-  .body-content {
-    font-size: 13px;
-    line-height: 1.75;
-    color: #33334d;
-  }
-
-  .body-content h1, .body-content h2, .body-content h3 {
-    color: #1a1a2e;
-    margin-top: 18px;
-    margin-bottom: 8px;
-  }
-
-  .body-content h3 { font-size: 14px; }
-  .body-content h2 { font-size: 15px; }
-  .body-content h1 { font-size: 17px; }
-
-  .body-content ul, .body-content ol {
-    padding-left: 20px;
-    margin-bottom: 12px;
-  }
-
-  .body-content li {
-    margin-bottom: 4px;
-  }
-
-  .body-content p {
-    margin-bottom: 10px;
-  }
-
-  .body-content strong {
-    font-weight: 600;
-    color: #1a1a2e;
-  }
-
-  /* ── Footer ── */
-  .footer {
-    border-top: 1px solid #e8e8f0;
-    padding-top: 16px;
-    margin-top: 40px;
-    text-align: center;
-    font-size: 10px;
-    color: #aaa;
-  }
+  .page { padding: 40px; max-width: 800px; margin: 0 auto; }
+  .header { border-bottom: 2px solid #6366f1; padding-bottom: 20px; margin-bottom: 28px; }
+  .header-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #6366f1; margin-bottom: 4px; }
+  h1 { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.25; }
+  .header-meta { display: flex; gap: 24px; background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .meta-item { display: flex; flex-direction: column; }
+  .meta-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+  .meta-value { font-size: 12px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+  .meta-value.accent { color: #6366f1; font-size: 14px; }
+  .section { margin-bottom: 28px; }
+  .section-heading { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 14px; }
+  .section-number { background: #6366f1; color: #ffffff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; }
+  .summary-text { background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; color: #334155; white-space: pre-wrap; font-size: 11px; }
+  .milestones-summary { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 12px; font-weight: 600; }
+  .milestone-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #ffffff; }
+  .milestone-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .milestone-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #6366f1; background: #eeeffe; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+  .milestone-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+  .milestone-amount { font-size: 12px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0; }
+  .milestone-desc { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .deliverables-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #334155; }
+  .body-content { font-size: 11px; color: #334155; line-height: 1.6; }
+  .footer { border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 40px; text-align: center; font-size: 10px; color: #94a3b8; }
 </style>
 </head>
-<body style="margin: 0; padding: 0; background: #ffffff;">
+<body>
 <div class="page">
-  <!-- Header -->
   <div class="header">
     <div class="header-label">Project Proposal</div>
     <h1>${escapeHtml(data.title || 'Untitled Proposal')}</h1>
     <div class="header-meta">
       <div class="meta-item">
-        <span class="meta-label">Total Budget</span>
-        <span class="meta-value accent">${formatCurrency(data.amount, data.currency)}</span>
+        <span class="meta-label">Total Investment</span>
+        <span class="meta-value accent">${formatCurrency(totalAmount, data.currency)}</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">Currency</span>
-        <span class="meta-value">${data.currency || 'USD'}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Date</span>
+        <span class="meta-label">Date Created</span>
         <span class="meta-value">${formatDate(data.createdAt)}</span>
       </div>
+      ${data.expiresAt ? `
+      <div class="meta-item">
+        <span class="meta-label">Valid Until</span>
+        <span class="meta-value" style="color:#d97706;">${formatDate(data.expiresAt)}</span>
+      </div>
+      ` : ''}
       <div class="meta-item">
         <span class="meta-label">Milestones</span>
         <span class="meta-value">${data.milestones.length}</span>
@@ -358,7 +185,6 @@ function buildHtml(data: ProposalExportData): string {
   </div>
 
   ${data.summary.trim() ? `
-  <!-- Section 1: Executive Summary -->
   <div class="section">
     <div class="section-heading">
       <span class="section-number">1</span>
@@ -369,24 +195,18 @@ function buildHtml(data: ProposalExportData): string {
   ` : ''}
 
   ${data.milestones.length > 0 ? `
-  <!-- Section 2: Milestones & Deliverables -->
   <div class="section">
     <div class="section-heading">
       <span class="section-number">2</span>
       <h2>Milestones &amp; Deliverables</h2>
     </div>
-    ${milestoneSum > 0 ? `
-    <div class="milestones-summary">
-      <span>${data.milestones.length} milestone phase${data.milestones.length > 1 ? 's' : ''}</span>
-      <strong>${formatCurrency(milestoneSum, data.currency)}</strong>
-    </div>
-    ` : ''}
     ${milestonesHtml}
   </div>
   ` : ''}
 
+  ${addonsHtml}
+
   ${data.body.trim() ? `
-  <!-- Section 3: Scope Terms & Next Steps -->
   <div class="section">
     <div class="section-heading">
       <span class="section-number">${data.milestones.length > 0 ? '3' : '2'}</span>
@@ -396,20 +216,14 @@ function buildHtml(data: ProposalExportData): string {
   </div>
   ` : ''}
 
+  ${auditTrailHtml}
+
   <div class="footer">
-    Generated on ${formatDate()} &middot; This document is confidential and intended solely for the named recipient.
+    Generated on ${formatDate()} &middot; Confidential Proposal Document &middot; Winlance Platform
   </div>
 </div>
 </body>
 </html>`
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
 }
 
 export function useProposalExport() {
@@ -445,7 +259,7 @@ export function useProposalExport() {
       // Allow fonts and layout to render inside iframe
       await new Promise(resolve => setTimeout(resolve, 250))
 
-      const pageContent = iframeDoc.querySelector('.page') || iframeDoc.body
+      const pageContent = (iframeDoc.querySelector('.page') || iframeDoc.body) as HTMLElement
 
       const filename = `${(data.title || 'proposal').replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').toLowerCase()}.pdf`
 
@@ -465,7 +279,7 @@ export function useProposalExport() {
             format: 'a4',
             orientation: 'portrait',
           },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } as any,
         })
         .from(pageContent)
         .save()

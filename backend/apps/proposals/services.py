@@ -150,7 +150,8 @@ def generate_proposal_content(proposal):
 
 
 def mark_proposal_sent(proposal):
-    # Allow sending from DRAFT, READY, UNDER_REVIEW, or SENT
+    if proposal.status not in [Proposal.Status.READY, Proposal.Status.SENT, Proposal.Status.UNDER_REVIEW]:
+        raise ValidationError({"status": "Only READY proposals can be marked as sent."})
     proposal.status = Proposal.Status.SENT
     proposal.save(update_fields=["status", "updated_at"])
     return proposal

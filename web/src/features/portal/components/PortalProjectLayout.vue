@@ -36,6 +36,8 @@ const {
   refetch,
 } = usePortalProjectQuery(token, projectId)
 
+const backToProjectsUrl = computed(() => `/portal/${token.value}/projects`)
+
 const isUnlocked = ref(false)
 const isPasswordProtected = computed(() => portalInfo.value?.is_password_protected ?? false)
 const showChallengeModal = computed(() => isPasswordProtected.value && !isUnlocked.value)
@@ -227,7 +229,7 @@ function getStatusBadgeClass(status?: string) {
 
           <!-- Back to All Projects Button -->
           <RouterLink
-            :to="`/portal/${token}/projects`"
+            :to="backToProjectsUrl"
             class="inline-flex items-center gap-2 rounded-lg border border-border bg-canvas px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-accent/40 hover:bg-canvas-muted shrink-0"
           >
             <ArrowLeft class="h-3.5 w-3.5 shrink-0 text-accent" />

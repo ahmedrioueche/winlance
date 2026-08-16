@@ -12,7 +12,7 @@ defineProps<Props>()
 <template>
   <div
     class="group rounded-2xl border border-border bg-canvas-elevated p-5 shadow-soft space-y-4 cursor-pointer hover:border-accent/40 hover:shadow-lift transition-all"
-    @click="$router.push(`/app/projects/${project.id}/overview`)"
+    @click="$router.push({ path: `/app/projects/${project.id}/overview`, query: { from: $route.path } })"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-center gap-3 truncate">

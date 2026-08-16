@@ -51,6 +51,8 @@ const {
   currency,
   currentStatus,
   milestones,
+  expiresAt,
+  addons,
   viewingVersion,
   isViewingPast,
   autoSaveStatus,
@@ -154,7 +156,7 @@ function handleExportPdf() {
 </script>
 
 <template>
-  <div class="space-y-6 min-h-screen pb-16">
+  <div class="space-y-4 sm:space-y-6 min-h-screen pb-16">
     <!-- Readonly Version Banner (Visible when viewing past version) -->
     <ProposalEditorReadonlyBanner
       v-if="viewingVersion && isViewingPast"
@@ -260,6 +262,8 @@ function handleExportPdf() {
             <ProposalEditorDocumentCanvas
               v-model:summary="summary"
               v-model:body="body"
+              v-model:expires-at="expiresAt"
+              v-model:addons="addons"
               :title="title"
               :is-viewing-past="isViewingPast"
               :milestones="milestones"

@@ -46,6 +46,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   const currentStatus = ref('DRAFT')
   const targetProjectName = ref('')
   const milestones = ref<import('../../types').ProposalMilestone[]>([])
+  const expiresAt = ref('')
+  const addons = ref<import('../../types').ProposalAddon[]>([])
 
   // UI Version States
   const viewingVersion = ref<ProposalVersion | null>(null)
@@ -58,6 +60,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     body: '',
     amount: 0 as number | string,
     milestonesCount: 0,
+    expiresAt: '',
+    addonsCount: 0,
   })
 
   // Auto-save state
@@ -90,7 +94,9 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     const bodyChanged = normalizeText(body.value) !== normalizeText(lastSaved.value.body)
     const amountChanged = normalizeNum(amount.value) !== normalizeNum(lastSaved.value.amount)
     const milestonesChanged = (milestones.value?.length || 0) !== (lastSaved.value.milestonesCount || 0)
-    return titleChanged || summaryChanged || bodyChanged || amountChanged || milestonesChanged
+    const expiresChanged = (expiresAt.value || '') !== (lastSaved.value.expiresAt || '')
+    const addonsChanged = (addons.value?.length || 0) !== (lastSaved.value.addonsCount || 0)
+    return titleChanged || summaryChanged || bodyChanged || amountChanged || milestonesChanged || expiresChanged || addonsChanged
   })
 
   // Initialize fresh local state on new proposal, or sync from fetched proposal data
@@ -98,6 +104,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     proposalId,
     (id) => {
       if (id === 'new') {
+        const defaultExp = new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]
         viewingVersion.value = null
         title.value = ''
         summary.value = ''
@@ -107,7 +114,9 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         currentStatus.value = 'DRAFT'
         targetProjectName.value = ''
         milestones.value = []
-        lastSaved.value = { title: '', summary: '', body: '', amount: 0, milestonesCount: 0 }
+        expiresAt.value = defaultExp || ''
+        addons.value = []
+        lastSaved.value = { title: '', summary: '', body: '', amount: 0, milestonesCount: 0, expiresAt: defaultExp || '', addonsCount: 0 }
       }
     },
     { immediate: true },
@@ -122,6 +131,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         const incomingBody = val.body || ''
         const incomingAmount = val.amount ? Number(val.amount) : 0
         const incomingMilestones = val.milestones || []
+        const incomingExpires = val.expires_at ? val.expires_at.split('T')[0] : ''
+        const incomingAddons = val.addons || []
 
         title.value = incomingTitle
         summary.value = incomingSummary
@@ -131,12 +142,16 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         currentStatus.value = val.status || 'DRAFT'
         targetProjectName.value = val.target_project_name || ''
         milestones.value = incomingMilestones
+        expiresAt.value = incomingExpires
+        addons.value = incomingAddons
         lastSaved.value = {
           title: incomingTitle,
           summary: incomingSummary,
           body: incomingBody,
           amount: incomingAmount,
           milestonesCount: incomingMilestones.length,
+          expiresAt: incomingExpires,
+          addonsCount: incomingAddons.length,
         }
       }
     },
@@ -181,7 +196,7 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
   }
 
   watch(
-    [title, summary, body, amount, currency, targetProjectName, milestones],
+    [title, summary, body, amount, currency, targetProjectName, milestones, expiresAt, addons],
     () => {
       if (!isViewingPast.value) {
         scheduleAutoSave()
@@ -202,6 +217,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
       )
       if (!hasContent) return
 
+      const formattedExpires = expiresAt.value ? new Date(expiresAt.value).toISOString() : null
+
       const newProp = await createProposalMutation.mutateAsync({
         title: title.value.trim() || 'New Proposal',
         client: clientId.value || undefined,
@@ -212,6 +229,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         status: currentStatus.value,
         target_project_name: targetProjectName.value.trim(),
         milestones: milestones.value,
+        expires_at: formattedExpires,
+        addons: addons.value,
       })
       lastSaved.value = {
         title: title.value.trim() || 'New Proposal',
@@ -219,6 +238,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         body: body.value,
         amount: Number(amount.value),
         milestonesCount: milestones.value.length,
+        expiresAt: expiresAt.value,
+        addonsCount: addons.value.length,
       }
       if (clientId.value) {
         void router.replace({
@@ -230,6 +251,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
       }
       return newProp
     } else {
+      const formattedExpires = expiresAt.value ? new Date(expiresAt.value).toISOString() : null
+
       await updateProposal.mutateAsync({
         id: proposalId.value,
         client: clientId.value || undefined,
@@ -241,6 +264,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         status: currentStatus.value,
         target_project_name: targetProjectName.value.trim(),
         milestones: milestones.value,
+        expires_at: formattedExpires,
+        addons: addons.value,
       })
       lastSaved.value = {
         title: title.value.trim(),
@@ -248,6 +273,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
         body: body.value,
         amount: Number(amount.value),
         milestonesCount: milestones.value.length,
+        expiresAt: expiresAt.value,
+        addonsCount: addons.value.length,
       }
     }
   }
@@ -515,6 +542,8 @@ export function useProposalEditorState(proposalId: Ref<string>, clientId: Ref<st
     currentStatus,
     targetProjectName,
     milestones,
+    expiresAt,
+    addons,
     viewingVersion,
     isViewingPast,
     isDirty,

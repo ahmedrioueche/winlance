@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ErrorState, Skeleton } from '@/shared/components/base'
+import { useToast } from '@/shared/toast/useToast'
 import { usePortalProposalView } from '../../composables/proposals/usePortalProposalView'
 import { usePortalAcceptanceModal } from '../../composables/proposals/usePortalAcceptanceModal'
+import { useSuggestPortalEditsMutation } from '../../queries'
 import PortalProposalAcceptanceModal from '../proposals/PortalProposalAcceptanceModal.vue'
 import PortalProposalDocumentView from '../proposals/PortalProposalDocumentView.vue'
 import PortalProposalStickyBar from '../proposals/PortalProposalStickyBar.vue'
 import PortalProposalViewHeader from '../proposals/PortalProposalViewHeader.vue'
 
 const route = useRoute()
+const toast = useToast()
 const token = computed(() => String(route.params.token || ''))
 const proposalId = computed(() => String(route.params.id || route.params.proposalId || ''))
+const selectedAddonIds = ref<string[]>([])
+
+const suggestEditsMutation = useSuggestPortalEditsMutation()
 
 const {
   proposal,
@@ -34,6 +40,24 @@ const {
   isAcceptModalOpen.value = false
   void refetch()
 })
+
+async function handleRequestChanges(feedbackNotes: string) {
+  if (!token.value || !proposalId.value) return
+  try {
+    await suggestEditsMutation.mutateAsync({
+      token: token.value,
+      proposalId: proposalId.value,
+      payload: {
+        change_summary: feedbackNotes,
+        feedback_notes: feedbackNotes,
+      },
+    })
+    toast.success('Revision request submitted successfully!')
+    void refetch()
+  } catch (err) {
+    toast.errorFromUnknown(err)
+  }
+}
 </script>
 
 <template>
@@ -61,9 +85,11 @@ const {
 
     <!-- Unified Executive Document Flow -->
     <PortalProposalDocumentView
+      v-model:selected-addon-ids="selectedAddonIds"
       :proposal="proposal"
       :is-accepted="isAccepted"
       @sign-proposal="handleOpenAcceptModal"
+      @request-changes="handleRequestChanges"
     />
 
     <!-- Floating Sticky Quick-Accept Bar -->
@@ -80,7 +106,7 @@ const {
       :open="isAcceptModalOpen"
       :is-accepting="isAccepting"
       @close="isAcceptModalOpen = false"
-      @accept="handleAcceptProposal"
+      @accept="handleAcceptProposal(selectedAddonIds)"
     />
   </section>
 </template>

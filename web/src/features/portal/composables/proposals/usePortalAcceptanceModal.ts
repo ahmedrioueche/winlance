@@ -14,13 +14,18 @@ export function usePortalAcceptanceModal(
   const signerEmail = ref('')
   const signatureDataUrl = ref('')
 
-  async function handleAcceptProposal() {
+  async function handleAcceptProposal(selectedAddonIds?: string[]) {
     if (!token.value || !proposalId.value || !signerName.value.trim()) return
 
     try {
       await acceptMutation.mutateAsync({
         token: token.value,
         proposalId: proposalId.value,
+        payload: {
+          signer_name: signerName.value.trim(),
+          signer_email: signerEmail.value.trim(),
+          selected_addon_ids: selectedAddonIds || [],
+        },
       })
       toast.success('portal.acceptedToast')
       if (onSuccessCallback) {

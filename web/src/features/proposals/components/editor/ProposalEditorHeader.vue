@@ -126,12 +126,12 @@ const backLink = computed(() => {
         <ArrowLeft class="h-4 w-4" />
       </RouterLink>
 
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
-        <h1 class="font-display text-lg font-bold text-ink truncate max-w-xs sm:max-w-md">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0">
+        <h1 class="font-display text-base sm:text-lg font-bold text-ink truncate max-w-[180px] xs:max-w-xs sm:max-w-sm md:max-w-md">
           {{ title || t('proposals.editor.untitled', 'Untitled Proposal') }}
         </h1>
 
-        <div class="w-44 shrink-0">
+        <div class="w-36 sm:w-44 shrink-0">
           <BaseSelect
             :model-value="currentStatus"
             label=""
@@ -144,7 +144,7 @@ const backLink = computed(() => {
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex shrink-0 items-center gap-2">
+    <div class="flex shrink-0 flex-wrap items-center gap-2">
       <!-- Auto-save Status Indicator -->
       <div
         v-if="autoSaveStatus !== 'idle' && !isViewingPast"
@@ -203,7 +203,8 @@ const backLink = computed(() => {
         @click="emit('openSmartImportModal')"
       >
         <Wand2 class="h-3.5 w-3.5" />
-        <span>{{ t('proposals.editor.aiImport', '✨ AI Import') }}</span>
+        <span class="hidden sm:inline">{{ t('proposals.editor.aiImport', '✨ AI Import') }}</span>
+        <span class="sm:hidden">AI</span>
       </BaseButton>
 
       <!-- History Drawer Toggle Button (Only if versions exist) -->
@@ -240,7 +241,8 @@ const backLink = computed(() => {
         @click="emit('openProject', proposal.project_id!)"
       >
         <Folder class="h-3.5 w-3.5 text-accent" />
-        <span>{{ t('proposals.editor.openProjectWorkspace', 'Open Project Workspace') }}</span>
+        <span class="hidden sm:inline">{{ t('proposals.editor.openProjectWorkspace', 'Open Project Workspace') }}</span>
+        <span class="sm:hidden">Project</span>
       </BaseButton>
 
       <!-- Create Project Button -->
