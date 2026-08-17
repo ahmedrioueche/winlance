@@ -5,6 +5,7 @@ export function useTaskFilters(tasks: Ref<ProjectTask[]>) {
   const searchQuery = ref('')
   const priorityFilter = ref<string>('')
   const statusFilter = ref<string>('')
+  const milestoneFilter = ref<string>('')
 
   const filteredTasks = computed(() => {
     return tasks.value.filter((t) => {
@@ -16,8 +17,11 @@ export function useTaskFilters(tasks: Ref<ProjectTask[]>) {
 
       const matchesStatus = !statusFilter.value || t.status === statusFilter.value
       const matchesPriority = !priorityFilter.value || t.priority === priorityFilter.value
+      const matchesMilestone =
+        !milestoneFilter.value ||
+        (t.milestone === milestoneFilter.value || t.milestone_id === milestoneFilter.value)
 
-      return matchesSearch && matchesStatus && matchesPriority
+      return matchesSearch && matchesStatus && matchesPriority && matchesMilestone
     })
   })
 
@@ -34,6 +38,7 @@ export function useTaskFilters(tasks: Ref<ProjectTask[]>) {
     searchQuery,
     priorityFilter,
     statusFilter,
+    milestoneFilter,
     filteredTasks,
     todoTasks,
     inProgressTasks,

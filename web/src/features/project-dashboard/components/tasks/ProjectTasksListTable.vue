@@ -11,6 +11,7 @@ interface Props {
   draggedRowIndex: number | null
   hasNextPage?: boolean
   isFetchingNextPage?: boolean
+  milestoneMap?: Map<string, string>
 }
 
 defineProps<Props>()
@@ -55,6 +56,7 @@ const { t } = useI18n()
             :index="index"
             :total-rows="tasks.length"
             :is-dragged="draggedRowIndex === index"
+            :milestone-title="milestoneMap?.get(task.milestone || task.milestone_id || '')"
             @status-change="emit('statusChange', task, $event)"
             @edit="emit('edit', task)"
             @delete="emit('delete', task)"

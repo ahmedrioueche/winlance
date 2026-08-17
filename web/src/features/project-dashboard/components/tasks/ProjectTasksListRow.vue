@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Calendar, ChevronDown, ChevronUp, Edit3, GripVertical, Trash2 } from 'lucide-vue-next'
+import { Calendar, ChevronDown, ChevronUp, Edit3, GripVertical, Sparkles, Trash2 } from 'lucide-vue-next'
 import { BaseSelect } from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
 import type { ProjectTask, TaskPriority, TaskStatus } from '../../types'
@@ -11,6 +11,7 @@ interface Props {
   index: number
   totalRows: number
   isDragged: boolean
+  milestoneTitle?: string
 }
 
 const props = defineProps<Props>()
@@ -88,8 +89,14 @@ function getPriorityBadgeClass(priority?: TaskPriority | string) {
       <div class="flex items-start gap-2.5">
         <span class="mt-1 font-mono text-[11px] font-semibold text-muted">#{{ index + 1 }}</span>
         <div>
-          <div class="font-bold text-ink text-xs truncate" :class="{ 'line-through text-muted': task.status === 'DONE' }">
-            {{ task.title }}
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold text-ink text-xs truncate" :class="{ 'line-through text-muted': task.status === 'DONE' }">
+              {{ task.title }}
+            </span>
+            <span v-if="milestoneTitle" class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+              <Sparkles class="h-3 w-3" />
+              <span>{{ milestoneTitle }}</span>
+            </span>
           </div>
           <p v-if="task.description" class="mt-0.5 max-w-lg text-[11px] text-muted truncate">
             {{ task.description }}

@@ -8,6 +8,7 @@ interface Props {
   tasks: ProjectTask[]
   dotClass: string
   draggedTaskId: string | null
+  milestoneMap?: Map<string, string>
 }
 
 defineProps<Props>()
@@ -46,6 +47,7 @@ const emit = defineEmits<{
         :key="task.id"
         :task="task"
         :is-dragged="draggedTaskId === task.id"
+        :milestone-title="milestoneMap?.get(task.milestone || task.milestone_id || '')"
         @drag-start="emit('dragStart', $event)"
         @edit="emit('edit', task)"
         @delete="emit('delete', task)"

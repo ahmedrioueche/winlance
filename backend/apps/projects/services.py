@@ -126,35 +126,56 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
             contract.project_id = project.id
             contract.save(update_fields=["project_id", "updated_at"])
 
-    # First, copy structured proposal milestones if present
-    if not project.milestones.exists() and proposal.milestones.exists():
-        copy_proposal_milestones_to_project(proposal, project)
+    populate_milestones_and_tasks_for_project(proposal, project)
+    return project
 
-    # Extract and generate tasks fallback if project currently has no tasks
-    if not project.tasks.exists():
-        extracted_tasks = extract_tasks_from_proposal(
-            title=proposal.title,
-            summary=proposal.summary or "",
-            body=proposal.body or "",
+
+def populate_milestones_and_tasks_for_project(proposal, project):
+    """
+    Populates milestones and tasks for a newly created project from a proposal.
+    If proposal has structured editor milestones, copies them.
+    Otherwise uses AI / fallback extractor to generate structured milestones + tasks.
+    """
+    if project.milestones.exists() or project.tasks.exists():
+        return
+
+    if proposal.milestones.exists():
+        copy_proposal_milestones_to_project(proposal, project)
+        return
+
+    from .ai_extractor import extract_milestones_and_tasks_from_proposal
+
+    extracted_milestones = extract_milestones_and_tasks_from_proposal(
+        title=proposal.title,
+        summary=proposal.summary or "",
+        body=proposal.body or "",
+    )
+
+    for idx, m_item in enumerate(extracted_milestones):
+        m_status = Milestone.Status.IN_PROGRESS if idx == 0 else Milestone.Status.PENDING
+        milestone = Milestone.objects.create(
+            project=project,
+            title=m_item["title"],
+            description=m_item.get("description", ""),
+            status=m_status,
+            order=m_item.get("order", idx + 1),
         )
-        
         tasks_to_create = [
             Task(
                 project=project,
-                title=item["title"],
-                description=item.get("description", ""),
-                priority=item.get("priority", "MEDIUM"),
-                due_date=item.get("due_date"),
-                order=item.get("order", idx + 1),
+                milestone=milestone,
+                title=t_item["title"],
+                description=t_item.get("description", ""),
+                priority=t_item.get("priority", "MEDIUM"),
+                due_date=t_item.get("due_date"),
+                order=t_item.get("order", t_idx + 1),
                 source_proposal=proposal,
                 status=Task.Status.TODO,
             )
-            for idx, item in enumerate(extracted_tasks)
+            for t_idx, t_item in enumerate(m_item.get("tasks", []))
         ]
         if tasks_to_create:
             Task.objects.bulk_create(tasks_to_create)
-
-    return project
 
 
 def copy_proposal_milestones_to_project(proposal, project):
@@ -166,6 +187,7 @@ def copy_proposal_milestones_to_project(proposal, project):
         return False
 
     proposal_milestones = proposal.milestones.all().order_by("order", "created_at")
+    global_t_order = 1
     for idx, p_m in enumerate(proposal_milestones):
         m_status = Milestone.Status.IN_PROGRESS if idx == 0 else Milestone.Status.PENDING
         milestone = Milestone.objects.create(
@@ -180,7 +202,7 @@ def copy_proposal_milestones_to_project(proposal, project):
         deliverables = p_m.deliverables or []
         if isinstance(deliverables, list):
             tasks_to_create = []
-            for t_idx, d_item in enumerate(deliverables):
+            for d_item in deliverables:
                 title_str = d_item if isinstance(d_item, str) else d_item.get("title", "")
                 if title_str.strip():
                     tasks_to_create.append(
@@ -188,11 +210,12 @@ def copy_proposal_milestones_to_project(proposal, project):
                             project=project,
                             milestone=milestone,
                             title=title_str.strip(),
-                            order=t_idx + 1,
+                            order=global_t_order,
                             source_proposal=proposal,
                             status=Task.Status.TODO,
                         )
                     )
+                    global_t_order += 1
             if tasks_to_create:
                 Task.objects.bulk_create(tasks_to_create)
     return True
@@ -251,29 +274,7 @@ def create_project_from_proposal(user, proposal, *, title=None, client_email="",
         contract.project_id = project.id
         contract.save(update_fields=["project_id", "updated_at"])
 
-    # Auto-extract tasks if empty
-    if not project.tasks.exists():
-        extracted_tasks = extract_tasks_from_proposal(
-            title=proposal.title,
-            summary=proposal.summary or "",
-            body=proposal.body or "",
-        )
-        tasks_to_create = [
-            Task(
-                project=project,
-                title=item["title"],
-                description=item.get("description", ""),
-                priority=item.get("priority", "MEDIUM"),
-                due_date=item.get("due_date"),
-                order=item.get("order", idx + 1),
-                source_proposal=proposal,
-                status=Task.Status.TODO,
-            )
-            for idx, item in enumerate(extracted_tasks)
-        ]
-        if tasks_to_create:
-            Task.objects.bulk_create(tasks_to_create)
-
+    populate_milestones_and_tasks_for_project(proposal, project)
     return project
 
 

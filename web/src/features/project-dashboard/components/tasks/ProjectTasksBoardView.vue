@@ -15,6 +15,7 @@ interface Props {
   draggedTaskId: string | null
   hasNextPage?: boolean
   isFetchingNextPage?: boolean
+  milestoneMap?: Map<string, string>
 }
 
 defineProps<Props>()
@@ -39,6 +40,7 @@ const { t } = useI18n()
         :tasks="todoTasks"
         dot-class="bg-slate-400"
         :dragged-task-id="draggedTaskId"
+        :milestone-map="milestoneMap"
         @drag-start="emit('dragStart', $event)"
         @drop-on-column="emit('dropOnColumn', $event)"
         @edit="emit('edit', $event)"
@@ -51,6 +53,7 @@ const { t } = useI18n()
         :tasks="inProgressTasks"
         dot-class="bg-amber-500"
         :dragged-task-id="draggedTaskId"
+        :milestone-map="milestoneMap"
         @drag-start="emit('dragStart', $event)"
         @drop-on-column="emit('dropOnColumn', $event)"
         @edit="emit('edit', $event)"
@@ -63,6 +66,7 @@ const { t } = useI18n()
         :tasks="inReviewTasks"
         dot-class="bg-purple-500"
         :dragged-task-id="draggedTaskId"
+        :milestone-map="milestoneMap"
         @drag-start="emit('dragStart', $event)"
         @drop-on-column="emit('dropOnColumn', $event)"
         @edit="emit('edit', $event)"
@@ -75,6 +79,7 @@ const { t } = useI18n()
         :tasks="doneTasks"
         dot-class="bg-emerald-500"
         :dragged-task-id="draggedTaskId"
+        :milestone-map="milestoneMap"
         @drag-start="emit('dragStart', $event)"
         @drop-on-column="emit('dropOnColumn', $event)"
         @edit="emit('edit', $event)"

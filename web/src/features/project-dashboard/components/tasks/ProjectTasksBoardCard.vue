@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Calendar, Edit3, Trash2 } from 'lucide-vue-next'
+import { Calendar, Edit3, Sparkles, Trash2 } from 'lucide-vue-next'
 import type { ProjectTask, TaskPriority } from '../../types'
 
 interface Props {
   task: ProjectTask
   isDragged: boolean
+  milestoneTitle?: string
 }
 
 defineProps<Props>()
@@ -63,6 +64,14 @@ function getPriorityBadgeClass(priority?: TaskPriority | string) {
           <Trash2 class="h-3 w-3" />
         </button>
       </div>
+    </div>
+
+    <!-- Milestone Badge -->
+    <div v-if="milestoneTitle" class="mt-1.5">
+      <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20 max-w-full truncate">
+        <Sparkles class="h-2.5 w-2.5 shrink-0" />
+        <span class="truncate">{{ milestoneTitle }}</span>
+      </span>
     </div>
 
     <p v-if="task.description" class="mt-1.5 text-[11px] text-muted line-clamp-2">

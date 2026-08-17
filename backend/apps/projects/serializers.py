@@ -22,6 +22,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "project",
+            "milestone",
             "title",
             "description",
             "status",

@@ -38,6 +38,9 @@ const { data: project, isPending, isError, refetch } = usePortalProjectQuery(tok
 const approveMutation = useApprovePortalTaskMutation()
 const toast = useToast()
 
+const milestones = computed(() => project.value?.progress?.milestones || (project.value as any)?.milestones || [])
+const milestoneMap = computed(() => new Map(milestones.value.map((m: any) => [m.id, m.title])))
+
 // Controls state
 const searchQuery = ref('')
 const statusFilter = ref('')
@@ -351,9 +354,15 @@ async function handleApproveTask(task: PortalTask) {
                 <div class="flex items-start gap-2.5">
                   <CheckSquare class="h-4 w-4 text-accent shrink-0 mt-0.5" />
                   <div>
-                    <span class="font-semibold text-ink block leading-snug">
-                      {{ task.title }}
-                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-semibold text-ink block leading-snug">
+                        {{ task.title }}
+                      </span>
+                      <span v-if="milestoneMap.get((task as any).milestone || (task as any).milestone_id || '')" class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                        <Sparkles class="h-3 w-3" />
+                        <span>{{ milestoneMap.get((task as any).milestone || (task as any).milestone_id || '') }}</span>
+                      </span>
+                    </div>
                     <span v-if="task.description" class="text-[11px] text-muted truncate block max-w-sm mt-0.5">
                       {{ task.description }}
                     </span>
@@ -476,6 +485,13 @@ async function handleApproveTask(task: PortalTask) {
                 :class="getPriorityBadgeClass(task.priority)"
               >
                 {{ task.priority }}
+              </span>
+            </div>
+
+            <div v-if="milestoneMap.get((task as any).milestone || (task as any).milestone_id || '')" class="mt-1">
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20 max-w-full truncate">
+                <Sparkles class="h-2.5 w-2.5 shrink-0" />
+                <span class="truncate">{{ milestoneMap.get((task as any).milestone || (task as any).milestone_id || '') }}</span>
               </span>
             </div>
 

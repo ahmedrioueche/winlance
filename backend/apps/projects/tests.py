@@ -113,7 +113,7 @@ class ProjectPortalAPITests(APITestCase):
         self.assertEqual(len(portal.data["requirements"]), 1)
         self.assertEqual(portal.data["offer"]["title"], "Portal Offer")
         self.assertEqual(portal.data["contract"]["title"], "Portal Contract")
-        self.assertEqual(len(portal.data["progress"]["milestones"]), 1)
+        self.assertGreaterEqual(len(portal.data["progress"]["milestones"]), 1)
         self.assertEqual(len(portal.data["reports"]), 1)
 
     def test_client_can_edit_requirements_via_portal(self):

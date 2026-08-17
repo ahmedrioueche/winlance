@@ -46,6 +46,8 @@ export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export interface ProjectTask {
   id: string
   project: string
+  milestone?: string | null
+  milestone_id?: string | null
   title: string
   description?: string
   status: TaskStatus

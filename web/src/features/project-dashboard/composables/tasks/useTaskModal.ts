@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import { useCreateTaskMutation, useUpdateTaskMutation } from '../../queries'
 import type { ProjectTask, TaskPriority, TaskStatus } from '../../types'
 
@@ -15,14 +15,16 @@ export function useTaskModal(
   const editingTask = ref<ProjectTask | null>(null)
   const taskTitle = ref('')
   const taskDescription = ref('')
+  const taskMilestoneId = ref('')
   const taskStatus = ref<TaskStatus>('TODO')
   const taskPriority = ref<TaskPriority>('MEDIUM')
   const taskDueDate = ref('')
 
-  function handleOpenCreateModal() {
+  function handleOpenCreateModal(defaultMilestoneId?: string) {
     editingTask.value = null
     taskTitle.value = ''
     taskDescription.value = ''
+    taskMilestoneId.value = defaultMilestoneId || ''
     taskStatus.value = 'TODO'
     taskPriority.value = 'MEDIUM'
     taskDueDate.value = ''
@@ -33,6 +35,7 @@ export function useTaskModal(
     editingTask.value = task
     taskTitle.value = task.title
     taskDescription.value = task.description || ''
+    taskMilestoneId.value = task.milestone || task.milestone_id || ''
     taskStatus.value = task.status
     taskPriority.value = task.priority
     taskDueDate.value = task.due_date || ''
@@ -50,6 +53,7 @@ export function useTaskModal(
           payload: {
             title: taskTitle.value.trim(),
             description: taskDescription.value.trim(),
+            milestone: taskMilestoneId.value || null,
             status: taskStatus.value,
             priority: taskPriority.value,
             due_date: taskDueDate.value || null,
@@ -62,6 +66,7 @@ export function useTaskModal(
           payload: {
             title: taskTitle.value.trim(),
             description: taskDescription.value.trim(),
+            milestone: taskMilestoneId.value || null,
             status: taskStatus.value,
             priority: taskPriority.value,
             due_date: taskDueDate.value || null,
@@ -82,6 +87,7 @@ export function useTaskModal(
     editingTask,
     taskTitle,
     taskDescription,
+    taskMilestoneId,
     taskStatus,
     taskPriority,
     taskDueDate,
@@ -91,5 +97,3 @@ export function useTaskModal(
     isSubmitting: computed(() => createTaskMutation.isPending.value || updateTaskMutation.isPending.value),
   }
 }
-
-import { computed } from 'vue'

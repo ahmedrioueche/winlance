@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from '@/shared/toast/useToast'
 import { ErrorState, Skeleton } from '@/shared/components/base'
+import { useProjectQuery } from '../../queries'
 import { useTaskDeletion } from '../../composables/tasks/useTaskDeletion'
 import { useTaskFilters } from '../../composables/tasks/useTaskFilters'
 import { useTaskModal } from '../../composables/tasks/useTaskModal'
@@ -19,6 +20,10 @@ import ProjectTasksBoardView from '../tasks/ProjectTasksBoardView.vue'
 const route = useRoute()
 const toast = useToast()
 const projectId = computed(() => String(route.params.id || ''))
+
+const { data: project } = useProjectQuery(projectId)
+const milestones = computed(() => project.value?.milestones || [])
+const milestoneMap = computed(() => new Map(milestones.value.map((m) => [m.id, m.title])))
 
 const { viewMode } = useTaskViewMode()
 
@@ -39,6 +44,7 @@ const {
   searchQuery,
   priorityFilter,
   statusFilter,
+  milestoneFilter,
   filteredTasks,
   todoTasks,
   inProgressTasks,
@@ -63,6 +69,7 @@ const {
   editingTask,
   taskTitle,
   taskDescription,
+  taskMilestoneId,
   taskStatus,
   taskPriority,
   taskDueDate,
@@ -113,6 +120,8 @@ const {
         v-model:search-query="searchQuery"
         v-model:status-filter="statusFilter"
         v-model:priority-filter="priorityFilter"
+        v-model:milestone-filter="milestoneFilter"
+        :milestones="milestones"
       />
 
       <!-- List Table View -->
@@ -123,6 +132,7 @@ const {
         :dragged-row-index="draggedRowIndex"
         :has-next-page="hasNextPage"
         :is-fetching-next-page="isFetchingNextPage"
+        :milestone-map="milestoneMap"
         @status-change="handleQuickStatusChange"
         @edit="handleOpenEditModal"
         @delete="handlePromptDeleteTask"
@@ -144,6 +154,7 @@ const {
         :dragged-task-id="draggedTaskId"
         :has-next-page="hasNextPage"
         :is-fetching-next-page="isFetchingNextPage"
+        :milestone-map="milestoneMap"
         @drag-start="handleDragStart"
         @drop-on-column="handleDropOnColumn"
         @edit="handleOpenEditModal"
@@ -156,12 +167,14 @@ const {
     <ProjectTaskFormModal
       v-model:task-title="taskTitle"
       v-model:task-description="taskDescription"
+      v-model:task-milestone-id="taskMilestoneId"
       v-model:task-status="taskStatus"
       v-model:task-priority="taskPriority"
       v-model:task-due-date="taskDueDate"
       :open="isModalOpen"
       :editing-task="editingTask"
       :is-submitting="isSubmitting"
+      :milestones="milestones"
       @close="isModalOpen = false"
       @save="handleSaveTask"
     />
