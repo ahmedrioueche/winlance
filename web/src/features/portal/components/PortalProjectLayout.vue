@@ -9,7 +9,7 @@ import {
   ListChecks,
   Lock,
   Menu,
-  Sparkles,
+  ScrollText,
   X,
 } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
@@ -84,6 +84,13 @@ const navItems = computed(() => {
       label: t('portal.projects.nav.overview', 'Overview'),
       icon: LayoutDashboard,
       active: route.name === 'portal-project-overview' || route.path === base,
+    },
+    {
+      name: 'contract',
+      path: `${base}/contract`,
+      label: t('portal.projects.nav.contract', 'Contract'),
+      icon: ScrollText,
+      active: route.name === 'portal-project-contract' || route.path.includes('/contract'),
     },
     {
       name: 'tasks',

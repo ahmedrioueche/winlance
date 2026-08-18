@@ -77,6 +77,12 @@ export const portalRoutes: RouteRecordRaw[] = [
         component: () => import('./components/pages/project/PortalProjectRequirementsPage.vue'),
         meta: { layout: 'blank', requiresAuth: false },
       },
+      {
+        path: 'contract',
+        name: 'portal-project-contract',
+        component: () => import('./components/pages/project/PortalProjectContractPage.vue'),
+        meta: { layout: 'blank', requiresAuth: false },
+      },
     ],
   },
 ]

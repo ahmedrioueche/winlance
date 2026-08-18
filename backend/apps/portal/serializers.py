@@ -101,6 +101,7 @@ class PortalProjectDetailSerializer(PortalProjectListSerializer):
     requirements = PortalRequirementSerializer(many=True, read_only=True)
     files = PortalProjectFileSerializer(many=True, read_only=True)
     reports = serializers.SerializerMethodField()
+    contract = serializers.SerializerMethodField()
 
     class Meta(PortalProjectListSerializer.Meta):
         fields = PortalProjectListSerializer.Meta.fields + [
@@ -109,9 +110,21 @@ class PortalProjectDetailSerializer(PortalProjectListSerializer):
             "requirements",
             "files",
             "reports",
+            "contract",
         ]
 
     def get_reports(self, obj):
         # Only surface reports that the freelancer marked visible to the client
         visible_reports = obj.reports.filter(is_visible_to_client=True)
         return PortalProjectReportSerializer(visible_reports, many=True).data
+
+    def get_contract(self, obj):
+        from apps.contracts.models import Contract
+        from apps.contracts.serializers import ContractSerializer
+
+        contract = Contract.objects.filter(project_id=obj.id).exclude(status=Contract.Status.DRAFT).first()
+        if not contract and obj.proposal_id:
+            contract = Contract.objects.filter(proposal_id=obj.proposal_id).exclude(status=Contract.Status.DRAFT).first()
+        if contract:
+            return ContractSerializer(contract, context=self.context).data
+        return None
