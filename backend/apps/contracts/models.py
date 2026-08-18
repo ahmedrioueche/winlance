@@ -79,6 +79,9 @@ class Contract(TimeStampedModel):
     generation_task_id = models.CharField(max_length=255, blank=True, default="")
     export_task_id = models.CharField(max_length=255, blank=True, default="")
     signed_at = models.DateTimeField(null=True, blank=True)
+    signed_name = models.CharField(max_length=255, blank=True, default="")
+    signed_email = models.EmailField(blank=True, default="")
+    signed_ip = models.GenericIPAddressField(null=True, blank=True)
 
     class Meta(TimeStampedModel.Meta):
         ordering = ["-created_at"]

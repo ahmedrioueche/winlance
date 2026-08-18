@@ -263,7 +263,7 @@ export function useProposalExport() {
 
       const filename = `${(data.title || 'proposal').replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').toLowerCase()}.pdf`
 
-      await html2pdf()
+      await (html2pdf() as any)
         .set({
           margin: [10, 0, 10, 0],
           filename,
@@ -279,7 +279,7 @@ export function useProposalExport() {
             format: 'a4',
             orientation: 'portrait',
           },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } as any,
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
         })
         .from(pageContent)
         .save()

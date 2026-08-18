@@ -172,10 +172,25 @@ def mark_contract_sent(contract):
     return contract
 
 
-def mark_contract_signed(contract):
+def mark_contract_signed(contract, *, signed_name="", signed_email="", signed_ip=None):
     if contract.status not in {Contract.Status.READY, Contract.Status.SENT}:
         raise ValidationError({"status": "Contract must be READY or SENT before signing."})
     contract.status = Contract.Status.SIGNED
     contract.signed_at = timezone.now()
-    contract.save(update_fields=["status", "signed_at", "updated_at"])
+    if signed_name:
+        contract.signed_name = signed_name
+    if signed_email:
+        contract.signed_email = signed_email
+    if signed_ip:
+        contract.signed_ip = signed_ip
+    contract.save(
+        update_fields=[
+            "status",
+            "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
+            "updated_at",
+        ]
+    )
     return contract

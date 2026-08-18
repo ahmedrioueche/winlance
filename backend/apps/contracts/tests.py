@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.contracts.models import Contract
-from apps.contracts.tasks import export_contract_document, generate_contract_draft
+from apps.contracts.services import build_contract_export, generate_contract_content
 from apps.leads.models import Lead
 from apps.proposals.models import Proposal
 from apps.proposals.services import generate_proposal_content
@@ -59,7 +59,7 @@ class ContractAPITests(APITestCase):
             amount=15000,
             status=Contract.Status.DRAFT,
         )
-        generate_contract_draft.apply(args=[str(contract.id)])
+        generate_contract_content(contract)
         response = self.client.post(reverse("contract-export", args=[contract.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -67,8 +67,8 @@ class ContractAPITests(APITestCase):
         self.assertTrue(contract.export_content)
         self.assertIn("Export me", contract.export_content)
 
-        result = export_contract_document.apply(args=[str(contract.id)])
-        self.assertTrue(result.result["ok"])
+        result = build_contract_export(contract)
+        self.assertTrue(result.export_content)
 
     def test_sign_contract(self):
         contract = Contract.objects.create(
@@ -80,10 +80,16 @@ class ContractAPITests(APITestCase):
             amount=15000,
             status=Contract.Status.READY,
         )
-        response = self.client.post(reverse("contract-sign", args=[contract.id]))
+        response = self.client.post(
+            reverse("contract-sign", args=[contract.id]),
+            {"signed_name": "Jane Client", "signed_email": "jane@example.com"},
+            format="json",
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], Contract.Status.SIGNED)
         self.assertIsNotNone(response.data["signed_at"])
+        self.assertEqual(response.data["signed_name"], "Jane Client")
+        self.assertEqual(response.data["signed_email"], "jane@example.com")
 
     def test_filter_by_project_id_for_future_portal(self):
         import uuid

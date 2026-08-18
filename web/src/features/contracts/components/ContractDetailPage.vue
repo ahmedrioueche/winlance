@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { Download, FileText, Send, CheckCircle, Sparkles } from 'lucide-vue-next'
 
 import { useProjectsQuery } from '@/features/projects'
 import {
@@ -22,6 +23,8 @@ import {
   useContractTemplatesQuery,
   useUpdateContractMutation,
 } from '../queries'
+import { useContractExport } from '../composables/useContractExport'
+import ContractDocumentCanvas from './ContractDocumentCanvas.vue'
 
 const { t, te } = useI18n()
 const toast = useToast()
@@ -34,6 +37,7 @@ const templatesQuery = useContractTemplatesQuery()
 const projectsQuery = useProjectsQuery(computed(() => ({ page: 1, page_size: 50 })))
 const action = useContractActionMutation()
 const update = useUpdateContractMutation()
+const { exportPdf, isExporting } = useContractExport()
 
 const contract = computed(() => contractQuery.data.value)
 const status = computed(() => contract.value?.status)
@@ -110,8 +114,34 @@ async function save() {
   }
 }
 
+async function handleExportPdf() {
+  if (!contract.value) return
+  try {
+    if (dirty.value) await save()
+    await exportPdf({
+      title: title.value || contract.value.title,
+      body: body.value || contract.value.body,
+      amount: contract.value.amount,
+      currency: contract.value.currency,
+      status: contract.value.status,
+      signedAt: contract.value.signed_at,
+      signedName: contract.value.signed_name,
+      signedEmail: contract.value.signed_email,
+      signedIp: contract.value.signed_ip,
+      createdAt: contract.value.created_at,
+    })
+    toast.success('contracts.messages.exported')
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
+
 async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
   try {
+    if (kind === 'export') {
+      await handleExportPdf()
+      return
+    }
     if (dirty.value && kind === 'generate') await save()
     await action.mutateAsync({ id: id.value, action: kind })
     toast.success(`contracts.messages.${kind}d`)
@@ -137,16 +167,20 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
     />
     <EmptyState v-else-if="!contract" :title="t('common.errors.notFound')" />
 
-    <article v-else class="space-y-6">
-      <div class="flex flex-wrap items-start justify-between gap-3">
+    <article v-else class="space-y-8">
+      <!-- Page Header & Action Controls -->
+      <div class="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
         <div>
-          <p class="text-sm text-muted">{{ statusLabel }}</p>
-          <h1 class="font-display text-3xl text-ink">{{ contract.title }}</h1>
-          <p v-if="contract.signed_at" class="mt-1 text-xs text-muted">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-accent/10 text-accent border border-accent/20">
+            {{ statusLabel }}
+          </span>
+          <h1 class="font-display text-3xl text-ink font-bold mt-1">{{ contract.title }}</h1>
+          <p v-if="contract.signed_at" class="mt-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
             {{ t('contracts.editor.signedAt', { date: new Date(contract.signed_at).toLocaleString() }) }}
           </p>
         </div>
-        <div class="flex flex-wrap gap-2">
+
+        <div class="flex flex-wrap items-center gap-2">
           <BaseButton
             variant="secondary"
             :loading="update.isPending.value"
@@ -155,13 +189,28 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
           >
             {{ t('common.actions.save') }}
           </BaseButton>
+
           <BaseButton
-            v-for="kind in (['generate', 'export', 'send', 'sign'] as const)"
+            variant="secondary"
+            :loading="isExporting"
+            :disabled="isGenerating"
+            @click="handleExportPdf"
+          >
+            <Download class="h-4 w-4 mr-1.5" />
+            Export PDF
+          </BaseButton>
+
+          <BaseButton
+            v-for="kind in (['generate', 'send', 'sign'] as const)"
             :key="kind"
+            :variant="kind === 'sign' ? 'primary' : 'secondary'"
             :loading="action.isPending.value || (kind === 'generate' && isGenerating)"
             :disabled="isGenerating && kind !== 'generate'"
             @click="act(kind)"
           >
+            <Sparkles v-if="kind === 'generate'" class="h-4 w-4 mr-1.5" />
+            <Send v-else-if="kind === 'send'" class="h-4 w-4 mr-1.5" />
+            <CheckCircle v-else-if="kind === 'sign'" class="h-4 w-4 mr-1.5" />
             {{ t(`contracts.${kind}`) }}
           </BaseButton>
         </div>
@@ -169,46 +218,58 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
 
       <div
         v-if="isGenerating"
-        class="rounded-lg border border-border bg-accent-soft px-4 py-3 text-sm text-ink"
+        class="rounded-lg border border-border bg-accent-soft px-4 py-3 text-sm text-ink flex items-center gap-2"
         role="status"
       >
-        {{ t('contracts.editor.generating') }}
+        <Sparkles class="h-4 w-4 text-accent animate-spin" />
+        <span>{{ t('contracts.editor.generating') }}</span>
       </div>
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <BaseSelect
-          v-model="templateId"
-          :label="t('contracts.editor.template')"
-          :options="templateOptions"
-          :disabled="isGenerating"
-        />
-        <BaseSelect
-          v-model="projectId"
-          :label="t('contracts.editor.project')"
-          :options="projectOptions"
-          :disabled="isGenerating"
-        />
+      <!-- Editor Controls -->
+      <div class="grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-1 space-y-4 rounded-xl border border-border bg-canvas-elevated p-5 shadow-sm">
+          <h2 class="font-display text-base font-bold text-ink">Contract Settings</h2>
+          <BaseSelect
+            v-model="templateId"
+            :label="t('contracts.editor.template')"
+            :options="templateOptions"
+            :disabled="isGenerating"
+          />
+          <BaseSelect
+            v-model="projectId"
+            :label="t('contracts.editor.project')"
+            :options="projectOptions"
+            :disabled="isGenerating"
+          />
+          <BaseInput
+            v-model="title"
+            :label="t('contracts.editor.title')"
+            :disabled="isGenerating"
+          />
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <BaseTextarea
+            v-model="body"
+            :label="t('contracts.editor.body')"
+            :rows="12"
+            :disabled="isGenerating"
+          />
+        </div>
       </div>
 
-      <BaseInput
-        v-model="title"
-        :label="t('contracts.editor.title')"
-        :disabled="isGenerating"
-      />
-      <BaseTextarea
-        v-model="body"
-        :label="t('contracts.editor.body')"
-        :rows="14"
-        :disabled="isGenerating"
-      />
+      <!-- Document Preview Canvas & Audit Certificate -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-display text-xl font-bold text-ink flex items-center gap-2">
+            <FileText class="h-5 w-5 text-accent" />
+            Document Preview
+          </h2>
+          <span class="text-xs text-muted">Real-time Markdown document rendering</span>
+        </div>
 
-      <section v-if="contract.export_content" class="space-y-2">
-        <h2 class="font-display text-lg text-ink">{{ t('contracts.editor.export') }}</h2>
-        <pre
-          class="overflow-x-auto rounded-lg border border-border bg-canvas-elevated p-4 text-sm whitespace-pre-wrap text-ink-soft"
-          >{{ contract.export_content }}</pre
-        >
-      </section>
+        <ContractDocumentCanvas :contract="{ ...contract, title, body }" />
+      </div>
     </article>
   </section>
 </template>

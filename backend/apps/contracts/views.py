@@ -106,5 +106,16 @@ class ContractViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="sign")
     def sign(self, request, pk=None):
         contract = self.get_object()
-        mark_contract_signed(contract)
+        signed_name = request.data.get("signed_name") or request.user.get_full_name() or request.user.username
+        signed_email = request.data.get("signed_email") or request.user.email
+        client_ip = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+        if client_ip and "," in client_ip:
+            client_ip = client_ip.split(",")[0].strip()
+
+        mark_contract_signed(
+            contract,
+            signed_name=signed_name,
+            signed_email=signed_email,
+            signed_ip=client_ip,
+        )
         return Response(ContractSerializer(contract, context={"request": request}).data)

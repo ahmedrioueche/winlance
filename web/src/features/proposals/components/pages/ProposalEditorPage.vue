@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import { ErrorState, Skeleton } from '@/shared/components/base'
+import { useToast } from '@/shared/toast/useToast'
+import { useCreateContractMutation } from '@/features/contracts'
 import { useProposalComparison } from '../../composables/editor/useProposalComparison'
 import { useProposalEditorState } from '../../composables/editor/useProposalEditorState'
 import { useProposalExport } from '../../composables/editor/useProposalExport'
@@ -142,6 +144,24 @@ async function handleSmartImported(result: SmartImportResult) {
 
 const { exportPdf, isExporting } = useProposalExport()
 
+const toast = useToast()
+const createContractMutation = useCreateContractMutation()
+
+async function handleCreateContract() {
+  const currentProposalId = proposalId.value
+  if (!currentProposalId || currentProposalId === 'new') return
+  try {
+    const contract = await createContractMutation.mutateAsync({
+      proposal_id: currentProposalId,
+      generate: true,
+    })
+    toast.success('contracts.messages.created')
+    await router.push({ name: 'contract-detail', params: { id: contract.id } })
+  } catch (error) {
+    toast.errorFromUnknown(error)
+  }
+}
+
 function handleExportPdf() {
   exportPdf({
     title: title.value,
@@ -197,7 +217,7 @@ function handleExportPdf() {
         :is-viewing-past="isViewingPast"
         :has-versions="hasVersions"
         :versions-count="versions.length"
-        :is-saving="updateProposal.isPending.value"
+        :is-saving="updateProposal.isPending.value || createProposalMutation.isPending.value"
         :is-creating-project="createProjectMutation.isPending.value"
         :is-publishing="createVersion.isPending.value"
         :auto-save-status="autoSaveStatus"
@@ -207,6 +227,7 @@ function handleExportPdf() {
         @save="handleSave"
         @publish="handlePublish"
         @create-project="handleCreateProject"
+        @create-contract="handleCreateContract"
         @open-project="router.push(`/app/projects/${$event}/overview`)"
         @open-delete-modal="deleteModalOpen = true"
         @open-smart-import-modal="smartImportModalOpen = true"

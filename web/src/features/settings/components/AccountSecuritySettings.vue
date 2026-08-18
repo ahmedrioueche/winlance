@@ -18,7 +18,7 @@ const twoFactorEnabled = ref(false)
 async function handleUpdatePassword() {
   if (!currentPassword.value || !newPassword.value) return
   if (newPassword.value !== confirmPassword.value) {
-    toast.error('New passwords do not match.')
+    toast.errorFromUnknown('New passwords do not match.')
     return
   }
 

@@ -41,6 +41,9 @@ class ContractSerializer(serializers.ModelSerializer):
             "generation_task_id",
             "export_task_id",
             "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
             "created_at",
             "updated_at",
         ]
@@ -52,6 +55,9 @@ class ContractSerializer(serializers.ModelSerializer):
             "generation_task_id",
             "export_task_id",
             "signed_at",
+            "signed_name",
+            "signed_email",
+            "signed_ip",
             "created_at",
             "updated_at",
         ]

@@ -31,6 +31,9 @@ export type Contract = {
   generation_task_id: string
   export_task_id: string
   signed_at: string | null
+  signed_name?: string
+  signed_email?: string
+  signed_ip?: string | null
   created_at: string
   updated_at: string
 }

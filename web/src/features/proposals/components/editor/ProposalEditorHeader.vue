@@ -4,6 +4,7 @@ import {
   Check,
   Clock,
   Download,
+  FileText,
   Folder,
   FolderPlus,
   History,
@@ -48,6 +49,7 @@ const emit = defineEmits<{
   save: []
   publish: []
   createProject: []
+  createContract: []
   openProject: [projectId: string]
   openDeleteModal: []
   openSmartImportModal: []
@@ -254,6 +256,19 @@ const backLink = computed(() => {
       >
         <FolderPlus class="h-3.5 w-3.5" />
         <span>{{ t('proposals.editor.createProject', 'Create Project') }}</span>
+      </BaseButton>
+
+      <!-- Create Contract Button -->
+      <BaseButton
+        v-if="proposalId !== 'new'"
+        size="sm"
+        variant="secondary"
+        class="border-indigo-500/30 bg-indigo-500/5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10"
+        @click="emit('createContract')"
+      >
+        <FileText class="h-3.5 w-3.5" />
+        <span class="hidden sm:inline">{{ t('proposals.editor.createContract', 'Contract') }}</span>
+        <span class="sm:hidden">Contract</span>
       </BaseButton>
 
       <!-- Publish Button -->
