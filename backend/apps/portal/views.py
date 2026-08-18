@@ -5,6 +5,9 @@ from rest_framework.response import Response
 
 from django.db.models import Q
 from apps.clients.models import Client
+from apps.contracts.models import Contract
+from apps.contracts.serializers import ContractSerializer
+from apps.contracts.services import mark_contract_signed
 from apps.projects.models import Milestone, Project, Task
 from apps.proposals.models import Proposal, ProposalVersion
 from apps.proposals.serializers import ProposalSerializer
@@ -354,5 +357,81 @@ def portal_approve_milestone(request, token, project_id, milestone_id):
         "status": milestone.status,
         "detail": "Milestone signed off and accepted successfully.",
     })
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def portal_contracts_list(request, token):
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    contracts = Contract.objects.filter(
+        user=client.freelancer
+    ).exclude(
+        status=Contract.Status.DRAFT
+    ).select_related("proposal", "lead", "template")
+
+    serializer = ContractSerializer(contracts, many=True, context={"request": request})
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def portal_contract_detail(request, token, contract_id):
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    contract = Contract.objects.filter(
+        id=contract_id, user=client.freelancer
+    ).select_related("proposal", "lead", "template").first()
+
+    if not contract:
+        return Response({"detail": "Contract not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ContractSerializer(contract, context={"request": request})
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def portal_sign_contract(request, token, contract_id):
+    client = _get_client_by_token(token)
+    if not client:
+        return Response({"detail": "Client portal not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not _check_passcode(client, request):
+        return Response({"detail": "Passcode required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    contract = Contract.objects.filter(
+        id=contract_id, user=client.freelancer
+    ).first()
+
+    if not contract:
+        return Response({"detail": "Contract not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    signed_name = request.data.get("signed_name", "").strip() or client.name
+    signed_email = request.data.get("signed_email", "").strip() or client.email
+
+    x_forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
+    remote_ip = x_forwarded.split(",")[0].strip() if x_forwarded else request.META.get("REMOTE_ADDR", "127.0.0.1")
+
+    mark_contract_signed(
+        contract,
+        signed_name=signed_name,
+        signed_email=signed_email,
+        signed_ip=remote_ip,
+    )
+
+    serializer = ContractSerializer(contract, context={"request": request})
+    return Response(serializer.data)
+
 
 

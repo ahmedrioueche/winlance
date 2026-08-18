@@ -4,8 +4,6 @@ import {
   FolderKanban,
   Lock,
   Menu,
-  ScrollText,
-  Sparkles,
   X,
 } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
@@ -119,17 +117,6 @@ const navItems = computed(() => {
           <component :is="item.icon" class="h-4 w-4 shrink-0" />
           <span>{{ item.label }}</span>
         </RouterLink>
-
-        <!-- Disabled Contracts Nav Link -->
-        <div
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted/50 cursor-not-allowed"
-        >
-          <ScrollText class="h-4 w-4 shrink-0" />
-          <span>{{ t('portal.nav.contracts', 'Contracts') }}</span>
-          <span class="ms-auto bg-canvas-muted text-muted rounded px-1.5 py-0.5 text-[9px] font-bold uppercase">
-            {{ t('common.labels.soon', 'Soon') }}
-          </span>
-        </div>
       </nav>
 
       <!-- Sidebar Footer -->

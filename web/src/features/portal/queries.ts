@@ -11,6 +11,8 @@ export const portalKeys = {
   proposalDetail: (token: string, id: string) => ['portal', 'proposal', token, id] as const,
   projects: (token: string) => ['portal', 'projects', token] as const,
   projectDetail: (token: string, id: string) => ['portal', 'project', token, id] as const,
+  contracts: (token: string) => ['portal', 'contracts', token] as const,
+  contractDetail: (token: string, id: string) => ['portal', 'contract', token, id] as const,
 }
 
 export function usePortalInfoQuery(token: MaybeRefOrGetter<string>) {
@@ -143,6 +145,43 @@ export function useApprovePortalMilestoneMutation() {
       await qc.invalidateQueries({
         queryKey: portalKeys.projectDetail(token, projectId),
       })
+    },
+  })
+}
+
+export function usePortalContractsQuery(token: MaybeRefOrGetter<string>) {
+  return useQuery({
+    queryKey: computed(() => portalKeys.contracts(toValue(token))),
+    queryFn: () => api.fetchPortalContracts(toValue(token)),
+    enabled: computed(() => Boolean(toValue(token))),
+  })
+}
+
+export function usePortalContractQuery(
+  token: MaybeRefOrGetter<string>,
+  contractId: MaybeRefOrGetter<string>,
+) {
+  return useQuery({
+    queryKey: computed(() => portalKeys.contractDetail(toValue(token), toValue(contractId))),
+    queryFn: () => api.fetchPortalContract(toValue(token), toValue(contractId)),
+    enabled: computed(() => Boolean(toValue(token) && toValue(contractId))),
+  })
+}
+
+export function useSignPortalContractMutation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      token,
+      contractId,
+      payload,
+    }: {
+      token: string
+      contractId: string
+      payload?: { signer_name?: string; signer_email?: string }
+    }) => api.signPortalContract(token, contractId, payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: portalKeys.all })
     },
   })
 }

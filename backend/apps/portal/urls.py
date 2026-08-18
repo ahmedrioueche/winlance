@@ -13,4 +13,7 @@ urlpatterns = [
     path("portal/<str:token>/projects/<uuid:project_id>/", views.portal_project_detail, name="portal-project-detail"),
     path("portal/<str:token>/projects/<uuid:project_id>/tasks/<uuid:task_id>/approve/", views.portal_approve_task, name="portal-approve-task"),
     path("portal/<str:token>/projects/<uuid:project_id>/milestones/<uuid:milestone_id>/approve/", views.portal_approve_milestone, name="portal-approve-milestone"),
+    path("portal/<str:token>/contracts/", views.portal_contracts_list, name="portal-contracts-list"),
+    path("portal/<str:token>/contracts/<uuid:contract_id>/", views.portal_contract_detail, name="portal-contract-detail"),
+    path("portal/<str:token>/contracts/<uuid:contract_id>/sign/", views.portal_sign_contract, name="portal-sign-contract"),
 ]

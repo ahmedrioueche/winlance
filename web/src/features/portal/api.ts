@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+import type { Contract } from '@/features/contracts/types'
 import type { Proposal } from '@/features/proposals/types'
 
 import type { PortalInfo, PortalProject, SuggestEditsPayload } from './types'
@@ -106,6 +107,34 @@ export async function approvePortalMilestone(
   const { data } = await apiClient.post<{ id: string; title: string; status: string; detail: string }>(
     `/portal/${token}/projects/${projectId}/milestones/${milestoneId}/approve/`,
     {},
+    { headers },
+  )
+  return data
+}
+
+export async function fetchPortalContracts(token: string) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.get<Contract[]>(`/portal/${token}/contracts/`, { headers })
+  return data
+}
+
+export async function fetchPortalContract(token: string, contractId: string) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.get<Contract>(`/portal/${token}/contracts/${contractId}/`, {
+    headers,
+  })
+  return data
+}
+
+export async function signPortalContract(
+  token: string,
+  contractId: string,
+  payload?: { signer_name?: string; signer_email?: string },
+) {
+  const headers = getPasscodeHeader(token)
+  const { data } = await apiClient.post<Contract>(
+    `/portal/${token}/contracts/${contractId}/sign/`,
+    payload || {},
     { headers },
   )
   return data
