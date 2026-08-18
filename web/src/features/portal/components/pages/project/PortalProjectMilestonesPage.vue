@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { Calendar, CheckCheck, CheckCircle2, Clock, Loader2, Sparkles } from 'lucide-vue-next'
 
-import { BaseButton, EmptyState, ErrorState, Skeleton } from '@/shared/components/base'
+import { BaseButton, BasePageHeader, EmptyState, ErrorState, Skeleton } from '@/shared/components/base'
 import { useApprovePortalMilestoneMutation, usePortalProjectQuery } from '../../../queries'
 import { useToast } from '@/shared/toast/useToast'
 import type { PortalMilestone } from '../../../types'
@@ -96,16 +96,10 @@ async function handleApproveMilestone(milestone: PortalMilestone) {
   />
 
   <section v-else class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="font-display text-xl font-bold tracking-tight text-ink">
-          Project Milestones &amp; Sign-offs
-        </h2>
-        <p class="text-xs text-muted">
-          Sequential deliverable phases and milestone acceptance approvals for this project.
-        </p>
-      </div>
-    </div>
+    <BasePageHeader
+      title="Project Milestones & Sign-offs"
+      subtitle="Sequential deliverable phases and milestone acceptance approvals for this project."
+    />
 
     <EmptyState
       v-if="!project.milestones || project.milestones.length === 0"

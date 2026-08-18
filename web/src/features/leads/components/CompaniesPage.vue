@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import {
   BaseButton,
   BaseInput,
+  BasePageHeader,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -42,10 +43,10 @@ async function onCreate() {
 
 <template>
   <section class="w-full space-y-6">
-    <div>
-      <h1 class="font-display text-3xl text-ink">{{ t('leads.companies.title') }}</h1>
-      <p class="mt-2 text-muted">{{ t('leads.companies.subtitle') }}</p>
-    </div>
+    <BasePageHeader
+      :title="t('leads.companies.title')"
+      :subtitle="t('leads.companies.subtitle')"
+    />
 
     <LoadingState v-if="query.isPending.value" />
     <ErrorState

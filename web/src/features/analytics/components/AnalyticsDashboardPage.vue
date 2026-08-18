@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
+  BasePageHeader,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -42,10 +43,10 @@ function money(value?: string | number) {
 
 <template>
   <section class="w-full space-y-8">
-    <header>
-      <h1 class="font-display text-3xl text-ink">{{ t('analytics.title') }}</h1>
-      <p class="mt-2 text-muted">{{ t('analytics.subtitle') }}</p>
-    </header>
+    <BasePageHeader
+      :title="t('analytics.title')"
+      :subtitle="t('analytics.subtitle')"
+    />
 
     <LoadingState v-if="pending" />
     <ErrorState

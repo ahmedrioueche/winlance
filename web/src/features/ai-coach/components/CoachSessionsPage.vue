@@ -6,6 +6,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import {
   BaseButton,
   BaseModal,
+  BasePageHeader,
   BaseSelect,
   BaseTextarea,
   EmptyState,
@@ -56,13 +57,14 @@ async function submit() {
 
 <template>
   <section class="w-full space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 class="font-display text-3xl text-ink">{{ t('aiCoach.title') }}</h1>
-        <p class="mt-2 text-muted">{{ t('aiCoach.subtitle') }}</p>
-      </div>
-      <BaseButton @click="open = true">{{ t('aiCoach.create') }}</BaseButton>
-    </div>
+    <BasePageHeader
+      :title="t('aiCoach.title')"
+      :subtitle="t('aiCoach.subtitle')"
+    >
+      <template #actions>
+        <BaseButton @click="open = true">{{ t('aiCoach.create') }}</BaseButton>
+      </template>
+    </BasePageHeader>
 
     <LoadingState v-if="isPending" />
     <ErrorState

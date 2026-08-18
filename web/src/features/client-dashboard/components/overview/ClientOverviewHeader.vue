@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { Globe, Plus } from 'lucide-vue-next'
-import { BaseButton, BaseCardHeader } from '@/shared/components/base'
+import { BaseButton, BasePageHeader } from '@/shared/components/base'
 import type { Client } from '../../types'
 
 interface Props {
@@ -19,7 +19,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <BaseCardHeader
+  <BasePageHeader
     :title="client?.name || 'Client Workspace'"
     :subtitle="t('clients.overview.subtitle', { name: client?.name || '' })"
   >
@@ -39,5 +39,5 @@ const { t } = useI18n()
         <span>Create Proposal</span>
       </BaseButton>
     </template>
-  </BaseCardHeader>
+  </BasePageHeader>
 </template>

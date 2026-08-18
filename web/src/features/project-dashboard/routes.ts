@@ -29,12 +29,6 @@ export const projectDashboardRoutes: RouteRecordRaw[] = [
         meta: { layout: 'blank', requiresAuth: true, titleKey: 'projects.nav.milestones' },
       },
       {
-        path: 'files',
-        name: 'project-workspace-files',
-        component: () => import('./components/pages/ProjectFilesPage.vue'),
-        meta: { layout: 'blank', requiresAuth: true, titleKey: 'projects.nav.files' },
-      },
-      {
         path: 'settings',
         name: 'project-workspace-settings',
         component: () => import('./components/pages/ProjectSettingsPage.vue'),

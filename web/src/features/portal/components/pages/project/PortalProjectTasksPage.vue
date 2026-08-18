@@ -16,7 +16,7 @@ import { useRoute } from 'vue-router'
 
 import {
   BaseButton,
-  BaseCardHeader,
+  BasePageHeader,
   BaseSelect,
   EmptyState,
   ErrorState,
@@ -223,7 +223,7 @@ async function handleApproveTask(task: PortalTask) {
 
   <section v-else class="space-y-6">
     <!-- Header Card — mirrors ProjectTasksHeader.vue exactly -->
-    <BaseCardHeader :title="t('projects.tasks.title', 'Tasks & Scope Requirements')">
+    <BasePageHeader :title="t('projects.tasks.title', 'Tasks & Scope Requirements')">
       <template #badge>
         <span class="rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-accent uppercase">
           Read Only
@@ -286,7 +286,7 @@ async function handleApproveTask(task: PortalTask) {
         </div>
         <!-- No "New Task" button — client has read-only access -->
       </template>
-    </BaseCardHeader>
+    </BasePageHeader>
 
     <!-- Filter Bar — mirrors ProjectTasksFilterBar.vue exactly -->
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

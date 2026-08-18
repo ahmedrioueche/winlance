@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Bell,
   CheckSquare,
-  Files,
   FolderKanban,
   LayoutDashboard,
   Menu,
@@ -58,7 +57,6 @@ const navItems = computed(() => {
     { path: `${base}/overview`, to: { path: `${base}/overview`, query }, labelKey: 'common.projects.nav.overview', defaultLabel: 'Overview', icon: LayoutDashboard },
     { path: `${base}/tasks`, to: { path: `${base}/tasks`, query }, labelKey: 'common.projects.nav.tasks', defaultLabel: 'Tasks', icon: CheckSquare },
     { path: `${base}/milestones`, to: { path: `${base}/milestones`, query }, labelKey: 'common.projects.nav.milestones', defaultLabel: 'Milestones', icon: FolderKanban },
-    { path: `${base}/files`, to: { path: `${base}/files`, query }, labelKey: 'common.projects.nav.files', defaultLabel: 'Files', icon: Files },
     { path: `${base}/settings`, to: { path: `${base}/settings`, query }, labelKey: 'common.projects.nav.settings', defaultLabel: 'Settings', icon: Settings },
   ]
 })

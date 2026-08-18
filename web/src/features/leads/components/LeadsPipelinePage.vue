@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import { BaseButton, EmptyState, ErrorState, LoadingState } from '@/shared/components/base'
+import { BaseButton, BasePageHeader, EmptyState, ErrorState, LoadingState } from '@/shared/components/base'
 import { useToast } from '@/shared/toast/useToast'
 
 import { LEAD_STATUSES } from '../types'
@@ -25,12 +25,13 @@ async function move(id: number, status: (typeof LEAD_STATUSES)[number]) {
 
 <template>
   <section class="w-full">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="font-display text-3xl text-ink">{{ t('leads.pipeline.title') }}</h1>
-      <RouterLink to="/app/leads">
-        <BaseButton variant="secondary">{{ t('leads.pipeline.backToList') }}</BaseButton>
-      </RouterLink>
-    </div>
+    <BasePageHeader :title="t('leads.pipeline.title')">
+      <template #actions>
+        <RouterLink to="/app/leads">
+          <BaseButton variant="secondary">{{ t('leads.pipeline.backToList') }}</BaseButton>
+        </RouterLink>
+      </template>
+    </BasePageHeader>
 
     <LoadingState v-if="isPending" class="mt-8" />
     <ErrorState

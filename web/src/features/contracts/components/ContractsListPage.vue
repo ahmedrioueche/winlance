@@ -8,6 +8,7 @@ import {
   BaseButton,
   BaseInput,
   BaseModal,
+  BasePageHeader,
   BaseSelect,
   EmptyState,
   ErrorState,
@@ -70,13 +71,14 @@ async function submit() {
 
 <template>
   <section class="w-full">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="font-display text-3xl text-ink">{{ t('contracts.title') }}</h1>
-        <p class="mt-2 text-muted">{{ t('contracts.subtitle') }}</p>
-      </div>
-      <BaseButton @click="open = true">{{ t('contracts.create') }}</BaseButton>
-    </div>
+    <BasePageHeader
+      :title="t('contracts.title')"
+      :subtitle="t('contracts.subtitle')"
+    >
+      <template #actions>
+        <BaseButton @click="open = true">{{ t('contracts.create') }}</BaseButton>
+      </template>
+    </BasePageHeader>
 
     <LoadingState v-if="isPending" class="mt-8" />
     <ErrorState

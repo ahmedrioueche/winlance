@@ -2,7 +2,7 @@
 import { AlertTriangle, Settings } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { ErrorState, Skeleton } from '@/shared/components/base'
+import { BasePageHeader, ErrorState, Skeleton } from '@/shared/components/base'
 import { useProjectSettingsForm, type SettingsSection } from '../../composables/settings/useProjectSettingsForm'
 import ProjectSettingsDangerZone from '../settings/ProjectSettingsDangerZone.vue'
 import ProjectSettingsDeleteModal from '../settings/ProjectSettingsDeleteModal.vue'
@@ -60,14 +60,10 @@ const navItems: Array<{ id: SettingsSection; label: string; icon: unknown }> = [
   />
 
   <section v-else class="space-y-6">
-    <div>
-      <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
-        Project Settings
-      </h1>
-      <p class="mt-1 text-sm text-muted">
-        Manage workspace parameters, client details, budget, and danger zone actions for {{ project?.title }}
-      </p>
-    </div>
+    <BasePageHeader
+      title="Project Settings"
+      :subtitle="`Manage workspace parameters, client details, budget, and danger zone actions for ${project?.title || ''}`"
+    />
 
     <!-- Mobile Horizontal Sub-Navigation Tab Bar -->
     <nav class="flex overflow-x-auto gap-2 pb-2 border-b border-border sm:hidden scrollbar-none" aria-label="Project Settings Mobile Navigation">

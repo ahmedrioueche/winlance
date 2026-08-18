@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Globe, Plus } from 'lucide-vue-next'
-import { BaseButton, BaseCardHeader } from '@/shared/components/base'
+import { BaseButton, BasePageHeader } from '@/shared/components/base'
 import type { Project } from '../../types'
 
 interface Props {
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <BaseCardHeader
+  <BasePageHeader
     :title="project?.title || 'Project Workspace'"
     :subtitle="project?.summary || 'Project overview, milestone deliverables, and client scope tracking.'"
   >
@@ -36,5 +36,5 @@ const emit = defineEmits<{
         <span>Add Task</span>
       </BaseButton>
     </template>
-  </BaseCardHeader>
+  </BasePageHeader>
 </template>

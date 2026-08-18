@@ -1,10 +1,7 @@
 import {
   ArrowLeft,
-  BarChart2,
   BarChart3,
-  ClipboardList,
   FileSignature,
-  Files,
   FileText,
   Flag,
   Folder,
@@ -113,10 +110,7 @@ export function useSidebarLinks(
       return [
         { to: `${base}/overview`, label: t('common.shell.projectOverview'), exact: true, icon: LayoutDashboard },
         { to: `${base}#share`, label: t('common.shell.projectShare'), icon: Share2 },
-        { to: `${base}#requirements`, label: t('common.shell.projectRequirements'), icon: ClipboardList },
         { to: `${base}#milestones`, label: t('common.shell.projectMilestones'), icon: Flag },
-        { to: `${base}#files`, label: t('common.shell.projectFiles'), icon: Files },
-        { to: `${base}#reports`, label: t('common.shell.projectReports'), icon: BarChart2 },
         { to: '/app/projects', label: t('common.shell.allProjects'), icon: ArrowLeft },
       ]
     }

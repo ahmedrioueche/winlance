@@ -1,34 +1,64 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
-
-import { appConfig } from '@/config'
-import { BaseButton, ThemeToggle } from '@/shared/components/base'
-
-const { t } = useI18n()
+import LandingHeader from './landing/LandingHeader.vue'
+import LandingHero from './landing/LandingHero.vue'
+import LandingStatsTicker from './landing/LandingStatsTicker.vue'
+import LandingPipelineDemo from './landing/LandingPipelineDemo.vue'
+import LandingBentoFeatures from './landing/LandingBentoFeatures.vue'
+import LandingAiCoachDemo from './landing/LandingAiCoachDemo.vue'
+import LandingProposalWorkflow from './landing/LandingProposalWorkflow.vue'
+import LandingRoiCalculator from './landing/LandingRoiCalculator.vue'
+import LandingClientPortalSpotlight from './landing/LandingClientPortalSpotlight.vue'
+import LandingTestimonials from './landing/LandingTestimonials.vue'
+import LandingPricing from './landing/LandingPricing.vue'
+import LandingFaq from './landing/LandingFaq.vue'
+import LandingCtaBanner from './landing/LandingCtaBanner.vue'
+import LandingFooter from './landing/LandingFooter.vue'
 </script>
 
 <template>
-  <main class="px-page relative mx-auto flex min-h-dvh max-w-5xl flex-col justify-center py-16">
-    <div class="end-page absolute top-6">
-      <ThemeToggle />
-    </div>
-    <p class="text-muted text-sm font-medium tracking-[0.2em] uppercase">
-      {{ appConfig.appName }}
-    </p>
-    <h1 class="font-display text-ink mt-4 max-w-3xl text-5xl leading-tight md:text-6xl">
-      {{ t('home.hero.title') }}
-    </h1>
-    <p class="text-ink-soft mt-4 max-w-xl text-lg">
-      {{ t('home.hero.subtitle') }}
-    </p>
-    <div class="mt-8 flex flex-wrap gap-3">
-      <RouterLink to="/login">
-        <BaseButton size="lg">{{ t('home.hero.ctaLogin') }}</BaseButton>
-      </RouterLink>
-      <RouterLink to="/app">
-        <BaseButton size="lg" variant="secondary">{{ t('home.hero.ctaApp') }}</BaseButton>
-      </RouterLink>
-    </div>
-  </main>
+  <div class="min-h-dvh bg-canvas text-ink selection:bg-accent-soft selection:text-ink">
+    <!-- 1. Sticky Navigation Header -->
+    <LandingHeader />
+
+    <main>
+      <!-- 2. Hero Section -->
+      <LandingHero />
+
+      <!-- 3. Social Proof Stats Ticker -->
+      <LandingStatsTicker />
+
+      <!-- 4. Interactive Live CRM Pipeline Demo -->
+      <LandingPipelineDemo />
+
+      <!-- 5. Bento Box Core Features Grid -->
+      <LandingBentoFeatures />
+
+      <!-- 6. Interactive AI Sales Coach Simulator -->
+      <LandingAiCoachDemo />
+
+      <!-- 7. Proposal to Contract Workflow -->
+      <LandingProposalWorkflow />
+
+      <!-- 8. Interactive Freelancer ROI Calculator -->
+      <LandingRoiCalculator />
+
+      <!-- 9. Client Portal Spotlight -->
+      <LandingClientPortalSpotlight />
+
+      <!-- 10. Developer Testimonials & Case Studies -->
+      <LandingTestimonials />
+
+      <!-- 11. Transparent Pricing Tiers -->
+      <LandingPricing />
+
+      <!-- 12. Frequently Asked Questions (FAQ) -->
+      <LandingFaq />
+
+      <!-- 13. Final Call to Action Banner -->
+      <LandingCtaBanner />
+    </main>
+
+    <!-- 14. Footer -->
+    <LandingFooter />
+  </div>
 </template>

@@ -60,24 +60,6 @@ export const portalRoutes: RouteRecordRaw[] = [
         meta: { layout: 'blank', requiresAuth: false },
       },
       {
-        path: 'files',
-        name: 'portal-project-files',
-        component: () => import('./components/pages/project/PortalProjectFilesPage.vue'),
-        meta: { layout: 'blank', requiresAuth: false },
-      },
-      {
-        path: 'reports',
-        name: 'portal-project-reports',
-        component: () => import('./components/pages/project/PortalProjectReportsPage.vue'),
-        meta: { layout: 'blank', requiresAuth: false },
-      },
-      {
-        path: 'requirements',
-        name: 'portal-project-requirements',
-        component: () => import('./components/pages/project/PortalProjectRequirementsPage.vue'),
-        meta: { layout: 'blank', requiresAuth: false },
-      },
-      {
         path: 'contract',
         name: 'portal-project-contract',
         component: () => import('./components/pages/project/PortalProjectContractPage.vue'),

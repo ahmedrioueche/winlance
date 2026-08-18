@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import { BasePageHeader } from '@/shared/components/base'
 import ChecklistsPanel from './ChecklistsPanel.vue'
 import SequencesPanel from './SequencesPanel.vue'
 import TagsPanel from './TagsPanel.vue'
@@ -41,10 +42,10 @@ async function setTab(next: Tab) {
 
 <template>
   <section class="w-full space-y-8">
-    <header>
-      <h1 class="font-display text-3xl text-ink">{{ t('outreach.title') }}</h1>
-      <p class="mt-2 text-muted">{{ t('outreach.subtitle') }}</p>
-    </header>
+    <BasePageHeader
+      :title="t('outreach.title')"
+      :subtitle="t('outreach.subtitle')"
+    />
 
     <div
       class="flex flex-wrap gap-2 border-b border-border pb-3"

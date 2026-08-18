@@ -6,7 +6,6 @@ import { useOverviewData } from '../../composables/overview/useOverviewData'
 import ProjectOverviewHeader from '../overview/ProjectOverviewHeader.vue'
 import ProjectOverviewMetrics from '../overview/ProjectOverviewMetrics.vue'
 import ProjectOverviewMilestones from '../overview/ProjectOverviewMilestones.vue'
-import ProjectOverviewRequirements from '../overview/ProjectOverviewRequirements.vue'
 
 const route = useRoute()
 const projectId = computed(() => String(route.params.id || ''))
@@ -17,7 +16,6 @@ const {
   isError,
   refetch,
   milestones,
-  requirements,
   completedMilestones,
   overallProgressPercent,
   formatCurrency,
@@ -58,19 +56,11 @@ const {
       :formatted-budget="formatCurrency(project?.budget, project?.currency)"
     />
 
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
-      <div class="lg:col-span-8 space-y-6">
-        <ProjectOverviewMilestones
-          :milestones="milestones"
-          :project-id="projectId"
-        />
-      </div>
-
-      <div class="lg:col-span-4 space-y-6">
-        <ProjectOverviewRequirements
-          :requirements="requirements"
-        />
-      </div>
+    <div class="space-y-6">
+      <ProjectOverviewMilestones
+        :milestones="milestones"
+        :project-id="projectId"
+      />
     </div>
   </section>
 </template>

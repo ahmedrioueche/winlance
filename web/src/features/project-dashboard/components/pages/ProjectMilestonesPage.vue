@@ -3,7 +3,7 @@ import { FolderKanban, Plus } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { BaseButton, ErrorState, Skeleton } from '@/shared/components/base'
+import { BaseButton, BasePageHeader, ErrorState, Skeleton } from '@/shared/components/base'
 
 import { useProjectQuery } from '../../queries'
 
@@ -28,20 +28,17 @@ const milestones = computed(() => project.value?.milestones ?? [])
   />
 
   <section v-else class="space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-border bg-canvas-elevated p-6 shadow-soft">
-      <div>
-        <h1 class="font-display text-2xl font-bold tracking-tight text-ink">
-          Project Milestones
-        </h1>
-        <p class="mt-1 text-sm text-muted">
-          Track phase deliverables, completion progress, and milestone deadlines for {{ project?.title }}
-        </p>
-      </div>
-      <BaseButton size="sm">
-        <Plus class="h-3.5 w-3.5" />
-        <span>Add Milestone</span>
-      </BaseButton>
-    </div>
+    <BasePageHeader
+      title="Project Milestones"
+      :subtitle="`Track phase deliverables, completion progress, and milestone deadlines for ${project?.title || ''}`"
+    >
+      <template #actions>
+        <BaseButton size="sm">
+          <Plus class="h-3.5 w-3.5" />
+          <span>Add Milestone</span>
+        </BaseButton>
+      </template>
+    </BasePageHeader>
 
     <div v-if="milestones.length === 0" class="rounded-2xl border border-border bg-canvas-elevated p-12 text-center text-xs text-muted">
       No milestones created for this project yet.

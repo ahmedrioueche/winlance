@@ -1,0 +1,137 @@
+{
+  "hero": {
+    "title": "Gagnez des clients freelances sans surcharge.",
+    "subtitle": "Pipeline, propositions, contrats et portails clients — un seul espace de travail.",
+    "ctaLogin": "Se connecter",
+    "ctaApp": "Ouvrir l'application"
+  },
+  "landing": {
+    "nav": {
+      "features": "Fonctionnalités",
+      "demos": "Démos Live",
+      "roi": "Calculateur ROI",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "login": "Connexion",
+      "getStarted": "Essai Gratuit"
+    },
+    "hero": {
+      "badge": "Conçu Exclusivement pour Développeurs Indépendants",
+      "title": "Gagnez Plus de Clients Freelance. Zéro Friction.",
+      "subtitle": "Le système d'acquisition client dédié aux développeurs freelances. Trouvez des leads, validez vos propositions, envoyez des contrats et gérez vos portails clients.",
+      "ctaPrimary": "Démarrer l'Essai Gratuit",
+      "ctaSecondary": "Explorer les Démos",
+      "badge1": "+$14.5k Proposition Signée",
+      "badge2": "Contrat PDF en 1 Clic",
+      "badge3": "+38% Taux de Conversion"
+    },
+    "ticker": {
+      "stat1": "+2.4M$",
+      "stat1Label": "Propositions Générées",
+      "stat2": "+1 200",
+      "stat2Label": "Développeurs Actifs",
+      "stat3": "4.9 / 5",
+      "stat3Label": "Satisfaction Client",
+      "stat4": "65%",
+      "stat4Label": "Clôture Plus Rapide"
+    },
+    "pipeline": {
+      "tag": "DÉMO EN DIRECT",
+      "title": "CRM Client Visuel Pensé pour les Ingénieurs Logiciels",
+      "subtitle": "Suivez votre pipeline commercial du premier contact jusqu'au contrat signé.",
+      "stageNew": "Nouveaux Leads",
+      "stageContacted": "Contactés",
+      "stageDiscovery": "Appel Découverte",
+      "stageProposal": "Proposition Envoyée",
+      "stageWon": "Gagnés & Signés"
+    },
+    "bento": {
+      "tag": "MODULES DU SYSTÈME",
+      "title": "Tout ce dont vous avez besoin pour signer et fidéliser vos clients",
+      "subtitle": "Des outils conçus sur-mesure pour chaque étape de votre cycle de vente freelance.",
+      "bento1Title": "Prospection & CRM",
+      "bento1Desc": "Organisez vos prospects, suivez le dernier contact et évaluez les chances de signature.",
+      "bento2Title": "Scripts de Démarchage",
+      "bento2Desc": "Modèles de cold email et scripts LinkedIn testés pour portfolios de développeurs.",
+      "bento3Title": "Coach Ventes IA",
+      "bento3Desc": "Obtenez des conseils instantanés sur la négociation de tarifs et la gestion des relances.",
+      "bento4Title": "Générateur de Propositions",
+      "bento4Desc": "Créez des propositions détaillées avec livrables et tarifs en moins de 2 minutes.",
+      "bento5Title": "Contrats PDF en 1 Clic",
+      "bento5Desc": "Transformez automatiquement les propositions acceptées en contrats prêts à signer.",
+      "bento6Title": "Portail Client Dédié",
+      "bento6Desc": "Offrez à vos clients un espace de suivi en direct pour les jalons, fichiers et mises à jour."
+    },
+    "aiCoach": {
+      "tag": "ASSISTANT IA",
+      "title": "Votre Coach Commercial IA 24/7",
+      "subtitle": "Incertain quant à la réaction face à une négociation de prix ou un client silencieux ?",
+      "prompt1": "Le client trouve le devis de 10k$ trop cher",
+      "prompt2": "Le client ne répond plus après la proposition",
+      "prompt3": "Comment structurer les paiements par jalons ?"
+    },
+    "workflow": {
+      "tag": "AUTOMATISATION SIMPLE",
+      "title": "Du Premier Appel au Contrat Signé en 3 Étapes",
+      "subtitle": "Éliminez la lourdeur administrative et signez plus vite.",
+      "step1Title": "1. Qualifier & Chiffrer",
+      "step1Desc": "Prenez des notes pendant l'appel et laissez l'IA structurer les livrables.",
+      "step2Title": "2. Générer la Proposition",
+      "step2Desc": "Envoyez une proposition claire avec options tarifaires.",
+      "step3Title": "3. Contrat en 1 Clic",
+      "step3Desc": "Transformez la proposition acceptée en contrat PDF légal."
+    },
+    "roi": {
+      "tag": "CALCULATEUR DE CROISSANCE",
+      "title": "Estimez Votre Augmentation de Revenus",
+      "subtitle": "Voyez l'impact de l'organisation de votre pipeline sur vos revenus mensuels.",
+      "targetIncome": "Objectif de Revenu Mensuel",
+      "avgProjectRate": "Tarif Moyen par Projet",
+      "leadsPerMonth": "Projets Contactés / Mois",
+      "estRevenue": "Revenu Mensuel Projeté",
+      "estCloseRate": "Taux de Signature Requis"
+    },
+    "portal": {
+      "tag": "EXPÉRIENCE CLIENT",
+      "title": "Transformez Chaque Client en Moteur de Recommandations",
+      "subtitle": "Offrez une transparence totale sans échanger 50 e-mails.",
+      "feature1": "Suivi en direct de l'avancement des jalons",
+      "feature2": "Fichiers et liens de livrables centralisés",
+      "feature3": "Validation automatique des livrables"
+    },
+    "testimonials": {
+      "tag": "AVIS DÉVELOPPEURS",
+      "title": "Approuvé par les Ingénieurs Freelances",
+      "subtitle": "Ce que les développeurs solos disent de Winlance."
+    },
+    "pricing": {
+      "tag": "TARIFICATION CLAIRE",
+      "title": "Des Tarifs Simples Rentabilisés dès la 1ère Mission",
+      "subtitle": "Aucun frais caché. Annulez à tout moment.",
+      "monthly": "Paiement Mensuel",
+      "annual": "Paiement Annuel",
+      "discount": "Économisez 20%",
+      "freeTitle": "Starter",
+      "proTitle": "Pro Solo",
+      "growthTitle": "Croissance",
+      "ctaFree": "Démarrer Gratuitement",
+      "ctaPro": "Essayer Pro Solo",
+      "ctaGrowth": "Contacter l'Équipe"
+    },
+    "faq": {
+      "tag": "DES QUESTIONS ?",
+      "title": "Foire Aux Questions",
+      "subtitle": "Tout ce que vous devez savoir sur Winlance."
+    },
+    "cta": {
+      "title": "Prêt à Gagner Votre Prochain Client ?",
+      "subtitle": "Rejoignez des centaines de développeurs solos qui signent plus vite avec Winlance.",
+      "button": "Démarrer l'Essai Gratuit",
+      "note": "Sans carte de crédit • Essai offert de 14 jours"
+    },
+    "footer": {
+      "tagline": "Le CRM des développeurs solos. Gagnez plus de missions freelances.",
+      "rights": "Tous droits réservés."
+    }
+  }
+}

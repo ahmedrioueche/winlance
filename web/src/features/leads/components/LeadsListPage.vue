@@ -7,6 +7,7 @@ import {
   BaseButton,
   BaseInput,
   BaseModal,
+  BasePageHeader,
   BaseSelect,
   EmptyState,
   ErrorState,
@@ -86,18 +87,19 @@ async function confirmDelete() {
 
 <template>
   <section class="w-full">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="font-display text-3xl text-ink">{{ t('leads.list.title') }}</h1>
-        <p class="mt-2 text-muted">{{ t('leads.list.subtitle') }}</p>
-      </div>
-      <div class="flex gap-2">
-        <RouterLink to="/app/leads/pipeline">
-          <BaseButton variant="secondary">{{ t('leads.list.pipeline') }}</BaseButton>
-        </RouterLink>
-        <BaseButton @click="createOpen = true">{{ t('leads.list.create') }}</BaseButton>
-      </div>
-    </div>
+    <BasePageHeader
+      :title="t('leads.list.title')"
+      :subtitle="t('leads.list.subtitle')"
+    >
+      <template #actions>
+        <div class="flex gap-2">
+          <RouterLink to="/app/leads/pipeline">
+            <BaseButton variant="secondary">{{ t('leads.list.pipeline') }}</BaseButton>
+          </RouterLink>
+          <BaseButton @click="createOpen = true">{{ t('leads.list.create') }}</BaseButton>
+        </div>
+      </template>
+    </BasePageHeader>
 
     <div class="mt-6 grid gap-3 md:grid-cols-[1fr_12rem]">
       <BaseInput v-model="q" :label="t('leads.filters.search')" />

@@ -74,5 +74,135 @@
         "cta": "Open analytics"
       }
     }
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "demos": "Live Demos",
+      "roi": "ROI Calculator",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Sign In",
+      "getStarted": "Get Started Free"
+    },
+    "hero": {
+      "badge": "Built Exclusively for Solo Developers",
+      "title": "Win More Freelance Clients. Zero Overhead.",
+      "subtitle": "The dedicated Client Acquisition OS for tech freelancers. Find leads, close proposals, send contracts, and manage client portals — all in one calm workspace.",
+      "ctaPrimary": "Start Free Trial",
+      "ctaSecondary": "Explore Interactive Demos",
+      "badge1": "+$14.5k Proposal Closed",
+      "badge2": "1-Click Contract Signed",
+      "badge3": "+38% Win Rate Boost"
+    },
+    "ticker": {
+      "stat1": "$2.4M+",
+      "stat1Label": "Proposals Generated",
+      "stat2": "1,200+",
+      "stat2Label": "Active Solo Devs",
+      "stat3": "4.9 / 5",
+      "stat3Label": "Satisfaction Rating",
+      "stat4": "65%",
+      "stat4Label": "Faster Deal Closure"
+    },
+    "pipeline": {
+      "tag": "LIVE PIPELINE DEMO",
+      "title": "Visual Client CRM Built for Software Engineers",
+      "subtitle": "Track your sales pipeline from cold lead to signed contract. Click or drag leads across stages to test the workflow.",
+      "stageNew": "New Leads",
+      "stageContacted": "Contacted",
+      "stageDiscovery": "Discovery Call",
+      "stageProposal": "Proposal Sent",
+      "stageWon": "Won & Signed"
+    },
+    "bento": {
+      "tag": "CORE OS MODULES",
+      "title": "Everything You Need to Win & Retain High-Value Clients",
+      "subtitle": "Purpose-built tools covering every single step of your freelance sales cycle.",
+      "bento1Title": "Lead Discovery & CRM",
+      "bento1Desc": "Organize prospective clients, track last touchpoints, and score leads by close probability.",
+      "bento2Title": "Outreach & Email Scripts",
+      "bento2Desc": "Tested cold outreach templates and LinkedIn scripts tailored for developer portfolios.",
+      "bento3Title": "AI Sales Coach",
+      "bento3Desc": "Get instant guidance on tough client negotiation, pricing pushbacks, and ghosting.",
+      "bento4Title": "Proposal Builder",
+      "bento4Desc": "Generate milestone-based proposals with customized deliverables in under 2 minutes.",
+      "bento5Title": "1-Click PDF Contracts",
+      "bento5Desc": "Automatically turn accepted proposals into binding contracts ready for client execution.",
+      "bento6Title": "Client Project Portal",
+      "bento6Desc": "Give clients a dedicated live portal for milestones, files, and updates that drives referral business."
+    },
+    "aiCoach": {
+      "tag": "AI SALES ASSISTANT",
+      "title": "Your 24/7 AI Sales Coach for Freelance Negotiations",
+      "subtitle": "Unsure how to handle pricing pushback or follow up after silence? Ask the AI Coach.",
+      "prompt1": "Client says $10k quote is too expensive",
+      "prompt2": "Client went silent after receiving proposal",
+      "prompt3": "How should I structure milestone payments?"
+    },
+    "workflow": {
+      "tag": "SEAMLESS AUTOMATION",
+      "title": "From First Call to Signed Contract in 3 Easy Steps",
+      "subtitle": "Eliminate administrative drag and sign deals faster.",
+      "step1Title": "1. Qualify & Quote",
+      "step1Desc": "Capture scope notes during discovery and let AI structure scope & milestones.",
+      "step2Title": "2. Generate Proposal",
+      "step2Desc": "Send a clean proposal with tiered pricing and optional add-on deliverables.",
+      "step3Title": "3. One-Click Contract",
+      "step3Desc": "Transform accepted proposals into legally binding contract PDFs instantly."
+    },
+    "roi": {
+      "tag": "GROWTH CALCULATOR",
+      "title": "Estimate Your Monthly Revenue Boost",
+      "subtitle": "See how organizing your pipeline and accelerating close rates impacts your bottom line.",
+      "targetIncome": "Target Monthly Revenue",
+      "avgProjectRate": "Average Project Rate",
+      "leadsPerMonth": "Leads Contacted / Month",
+      "estRevenue": "Projected Monthly Revenue",
+      "estCloseRate": "Required Close Rate"
+    },
+    "portal": {
+      "tag": "CLIENT EXPERIENCE",
+      "title": "Turn Every Client into a Repeat Referral Engine",
+      "subtitle": "Deliver transparency without endless email updates. Provide a branded client portal.",
+      "feature1": "Real-time milestone progress tracking",
+      "feature2": "Centralized deliverable files & links",
+      "feature3": "Automated status updates & sign-off"
+    },
+    "testimonials": {
+      "tag": "DEVELOPER REVIEWS",
+      "title": "Loved by Freelance Engineers Worldwide",
+      "subtitle": "Here is what solo developers say about switching to Winlance."
+    },
+    "pricing": {
+      "tag": "TRANSPARENT PRICING",
+      "title": "Simple Pricing that Pays for Itself on Deal #1",
+      "subtitle": "No hidden fees. Cancel anytime.",
+      "monthly": "Monthly Billing",
+      "annual": "Annual Billing",
+      "discount": "Save 20%",
+      "freeTitle": "Starter",
+      "proTitle": "Pro Solo",
+      "growthTitle": "Growth",
+      "ctaFree": "Get Started Free",
+      "ctaPro": "Start Pro Trial",
+      "ctaGrowth": "Contact Sales"
+    },
+    "faq": {
+      "tag": "GOT QUESTIONS?",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about Winlance."
+    },
+    "cta": {
+      "title": "Ready to Win Your Next Freelance Client?",
+      "subtitle": "Join hundreds of solo developers closing deals faster with Winlance.",
+      "button": "Get Started Free Today",
+      "note": "No credit card required • 14-day free trial"
+    },
+    "footer": {
+      "tagline": "The CRM for solo developers. Win more freelance clients.",
+      "rights": "All rights reserved."
+    }
   }
 }
+

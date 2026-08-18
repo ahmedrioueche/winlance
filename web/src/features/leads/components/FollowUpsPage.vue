@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 
 import {
   BaseButton,
+  BasePageHeader,
   BaseSelect,
   EmptyState,
   ErrorState,
@@ -49,13 +50,14 @@ function formatWhen(iso: string) {
 
 <template>
   <section class="w-full space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="font-display text-3xl text-ink">{{ t('leads.followUps.pageTitle') }}</h1>
-        <p class="mt-2 text-muted">{{ t('leads.followUps.pageSubtitle') }}</p>
-      </div>
-      <BaseSelect v-model="filter" :label="t('leads.followUps.filter')" :options="filterOptions" />
-    </div>
+    <BasePageHeader
+      :title="t('leads.followUps.pageTitle')"
+      :subtitle="t('leads.followUps.pageSubtitle')"
+    >
+      <template #actions>
+        <BaseSelect v-model="filter" :label="t('leads.followUps.filter')" :options="filterOptions" />
+      </template>
+    </BasePageHeader>
 
     <LoadingState v-if="query.isPending.value" />
     <ErrorState

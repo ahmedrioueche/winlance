@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { Kanban, ListFilter, Plus } from 'lucide-vue-next'
-import { BaseButton, BaseCardHeader } from '@/shared/components/base'
+import { BaseButton, BasePageHeader } from '@/shared/components/base'
 
 interface Props {
   viewMode: 'list' | 'kanban'
@@ -24,7 +24,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <BaseCardHeader :title="t('projects.tasks.title')">
+  <BasePageHeader :title="t('projects.tasks.title')">
     <template #badge>
       <span class="rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-accent uppercase">
         AI Parsed
@@ -91,5 +91,5 @@ const { t } = useI18n()
         <span>{{ t('projects.tasks.newTask') }}</span>
       </BaseButton>
     </template>
-  </BaseCardHeader>
+  </BasePageHeader>
 </template>

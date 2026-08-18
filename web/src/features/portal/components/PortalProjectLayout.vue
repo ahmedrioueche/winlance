@@ -2,11 +2,8 @@
 import {
   ArrowLeft,
   CheckSquare,
-  FileText,
-  Files,
   FolderKanban,
   LayoutDashboard,
-  ListChecks,
   Lock,
   Menu,
   ScrollText,
@@ -107,30 +104,6 @@ const navItems = computed(() => {
       icon: FolderKanban,
       count: project.value?.milestones?.length,
       active: route.name === 'portal-project-milestones' || route.path.includes('/milestones'),
-    },
-    {
-      name: 'files',
-      path: `${base}/files`,
-      label: t('portal.projects.nav.files', 'Shared Files'),
-      icon: Files,
-      count: project.value?.files?.length,
-      active: route.name === 'portal-project-files' || route.path.includes('/files'),
-    },
-    {
-      name: 'reports',
-      path: `${base}/reports`,
-      label: t('portal.projects.nav.reports', 'Status Reports'),
-      icon: FileText,
-      count: project.value?.reports?.length,
-      active: route.name === 'portal-project-reports' || route.path.includes('/reports'),
-    },
-    {
-      name: 'requirements',
-      path: `${base}/requirements`,
-      label: t('portal.projects.nav.requirements', 'Requirements'),
-      icon: ListChecks,
-      count: project.value?.requirements?.length,
-      active: route.name === 'portal-project-requirements' || route.path.includes('/requirements'),
     },
   ]
 })

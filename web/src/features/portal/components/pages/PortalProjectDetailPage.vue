@@ -16,7 +16,7 @@ import {
 
 import {
   BaseButton,
-  BaseCardHeader,
+  BasePageHeader,
   EmptyState,
   ErrorState,
   Skeleton,
@@ -105,7 +105,7 @@ function getMilestoneIcon(status: string) {
 
     <template v-else>
       <!-- Project Header Card -->
-      <BaseCardHeader
+      <BasePageHeader
         :title="project.title"
         :subtitle="project.summary || t('portal.projects.defaultSummary', 'Project workspace overview, milestone deliverables, and status updates.')"
       >
@@ -145,7 +145,7 @@ function getMilestoneIcon(status: string) {
             </div>
           </div>
         </template>
-      </BaseCardHeader>
+      </BasePageHeader>
 
       <!-- Tabs Navigation -->
       <div class="border-b border-border flex items-center gap-2 text-xs">

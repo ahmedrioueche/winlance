@@ -9,7 +9,7 @@ import {
 } from 'lucide-vue-next'
 
 import {
-  BaseCardHeader,
+  BasePageHeader,
   ErrorState,
   Skeleton,
 } from '@/shared/components/base'
@@ -60,7 +60,7 @@ function formatDate(dateStr?: string | null) {
 
   <section v-else class="space-y-8">
     <!-- Project Overview Header Card -->
-    <BaseCardHeader
+    <BasePageHeader
       :title="project.title"
       :subtitle="project.summary || t('portal.projects.defaultSummary', 'Project workspace overview and milestone progress.')"
     >
@@ -97,7 +97,7 @@ function formatDate(dateStr?: string | null) {
           </div>
         </div>
       </template>
-    </BaseCardHeader>
+    </BasePageHeader>
 
     <!-- Overview Key Metrics Grid -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -13,6 +13,7 @@ import {
   BaseButton,
   BaseInput,
   BaseModal,
+  BasePageHeader,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -112,13 +113,11 @@ async function handleExportPdf() {
 
     <div v-else class="space-y-6">
       <!-- Top Action Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <h2 class="font-display text-2xl font-bold text-ink">Project Service Contract</h2>
-          <p class="text-xs text-muted">Legal binding agreement for {{ project?.title }}</p>
-        </div>
-
-        <div class="flex items-center gap-2">
+      <BasePageHeader
+        title="Project Service Contract"
+        :subtitle="`Legal binding agreement for ${project?.title || ''}`"
+      >
+        <template #actions>
           <BaseButton
             variant="secondary"
             size="sm"
@@ -139,8 +138,8 @@ async function handleExportPdf() {
             <PenTool class="h-4 w-4 mr-1.5" />
             Accept &amp; Sign Contract
           </BaseButton>
-        </div>
-      </div>
+        </template>
+      </BasePageHeader>
 
       <!-- Status Notice Banner -->
       <div
