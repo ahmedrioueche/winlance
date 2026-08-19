@@ -6,7 +6,10 @@ import { Globe } from 'lucide-vue-next'
 
 import { AppLogo, BaseButton, ThemeToggle } from '@/shared/components/base'
 
+import { setAppLocale } from '@/i18n'
+
 const { t, locale } = useI18n()
+
 const isScrolled = ref(false)
 const activeSection = ref<string>('')
 const linkRefs = ref<Record<string, HTMLElement | null>>({})
@@ -97,8 +100,9 @@ function handleScroll() {
 }
 
 function toggleLocale() {
-  locale.value = locale.value === 'fr' ? 'en' : 'fr'
+  setAppLocale(locale.value === 'fr' ? 'en' : 'fr')
 }
+
 
 function setLinkRef(id: string, el: unknown) {
   if (el && el instanceof HTMLElement) {

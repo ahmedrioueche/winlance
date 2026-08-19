@@ -23,8 +23,8 @@ const { t } = useI18n()
 
       <!-- Main Headline -->
       <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-ink max-w-4xl mx-auto leading-[1.15]">
-        Win More Freelance Clients. <br />
-        <span class="text-gradient">Zero Sales Overhead.</span>
+        {{ t('home.landing.hero.titleMain') }} <br />
+        <span class="text-gradient">{{ t('home.landing.hero.titleHighlight') }}</span>
       </h1>
 
       <!-- Subtitle -->
@@ -51,15 +51,15 @@ const { t } = useI18n()
       <div class="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-ink-soft">
         <div class="flex items-center gap-1.5">
           <ShieldCheck class="w-4 h-4 text-success" />
-          <span>No Credit Card Required</span>
+          <span>{{ t('home.landing.hero.noCard') }}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <Zap class="w-4 h-4 text-warning" />
-          <span>Setup in Under 3 Minutes</span>
+          <span>{{ t('home.landing.hero.fastSetup') }}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <TrendingUp class="w-4 h-4 text-accent" />
-          <span>Built for Freelance Devs</span>
+          <span>{{ t('home.landing.hero.builtForDevs') }}</span>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ const { t } = useI18n()
             <TrendingUp class="w-4 h-4" />
           </div>
           <div>
-            <div class="text-[10px] text-ink-soft uppercase tracking-wider">Proposal Closed</div>
+            <div class="text-[10px] text-ink-soft uppercase tracking-wider">{{ t('home.landing.hero.proposalClosed') }}</div>
             <div class="text-sm font-bold text-success">+$14,500.00</div>
           </div>
         </div>
@@ -94,11 +94,12 @@ const { t } = useI18n()
             <Zap class="w-4 h-4" />
           </div>
           <div>
-            <div class="text-[10px] text-ink-soft uppercase tracking-wider">Client Signed</div>
-            <div class="text-sm font-bold text-ink">1-Click PDF Contract</div>
+            <div class="text-[10px] text-ink-soft uppercase tracking-wider">{{ t('home.landing.hero.clientSigned') }}</div>
+            <div class="text-sm font-bold text-ink">{{ t('home.landing.hero.contractPdf') }}</div>
           </div>
         </div>
       </div>
+
     </div>
   </section>
 </template>

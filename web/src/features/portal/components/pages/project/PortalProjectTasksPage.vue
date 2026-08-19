@@ -38,7 +38,8 @@ const { data: project, isPending, isError, refetch } = usePortalProjectQuery(tok
 const approveMutation = useApprovePortalTaskMutation()
 const toast = useToast()
 
-const milestones = computed(() => project.value?.progress?.milestones || (project.value as any)?.milestones || [])
+const milestones = computed(() => (project.value as any)?.progress?.milestones || project.value?.milestones || [])
+
 const milestoneMap = computed(() => new Map(milestones.value.map((m: any) => [m.id, m.title])))
 
 // Controls state

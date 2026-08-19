@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { AlertCircle, CheckCircle2, DollarSign, Edit3, FileCheck, ShieldCheck } from 'lucide-vue-next'
+import { CheckCircle2, DollarSign, Edit3, FileCheck, ShieldCheck } from 'lucide-vue-next'
+
 import { BaseButton, BaseModal } from '@/shared/components/base'
 import type { Proposal } from '@/features/proposals/types'
 
@@ -104,10 +105,11 @@ function handleConfirmRequestChanges() {
 
     <!-- Request Changes Modal -->
     <BaseModal
-      v-model="requestModalOpen"
+      :open="requestModalOpen"
       title="Request Proposal Changes"
-      description="Specify any adjustments or clarification needed before signing."
+      @close="requestModalOpen = false"
     >
+
       <div class="space-y-4 text-xs">
         <div>
           <label class="block font-bold text-ink mb-1.5">Revision Details / Requested Edits:</label>

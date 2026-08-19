@@ -1,0 +1,28 @@
+{
+  "title": "Analyses & Métriques",
+  "subtitle": "Santé du pipeline, signatures et indicateurs de livraison.",
+  "funnel": "Entonnoir de conversion",
+  "funnelHint": "Nombre de prospects par étape du pipeline",
+  "funnelChartLabel": "Étapes de l'entonnoir",
+  "summary": "Aperçu global",
+  "summaryHint": "Aperçu de la livraison et des taux de conversion",
+  "empty": "Aucune donnée analytique pour l'instant",
+  "stageSpark": "Tendance par étape",
+  "conversionSpark": "Graphique de conversion",
+  "kpis": {
+    "openLeads": "Prospects ouverts",
+    "winRate": "Taux de conversion",
+    "winRateValue": "{value}%",
+    "pipeline": "Valeur du pipeline",
+    "wonValue": "Valeur remportée",
+    "proposalsSent": "Propositions envoyées",
+    "contractsSigned": "Contrats signés",
+    "activeProjects": "Projets actifs"
+  },
+  "totals": {
+    "leads": "Total des prospects",
+    "won": "Prospects gagnés",
+    "proposals": "Propositions",
+    "contracts": "Contrats"
+  }
+}

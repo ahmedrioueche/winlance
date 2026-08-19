@@ -5,6 +5,76 @@
     "ctaLogin": "Se connecter",
     "ctaApp": "Ouvrir l'application"
   },
+  "dashboard": {
+    "greeting": "Bon retour",
+    "greetingNamed": "Bon retour, {name}",
+    "lede": "Un aperçu fluide de votre pipeline — pour passer sereinement à l'étape suivante.",
+    "ctaLeads": "Ouvrir les prospects",
+    "ctaFollowUps": "Relances",
+    "pulseTitle": "En un coup d'œil",
+    "pulseSubtitle": "Aperçu en direct de votre espace de travail",
+    "pulseLink": "Analyses complètes",
+    "pulseEmpty": "Les métriques apparaîtront à mesure que vous signerez des contrats.",
+    "guideTitle": "Comment Winlance s'articule",
+    "guideSubtitle": "Trois étapes clés pour accompagner une opportunité de l'intérêt jusqu'à la livraison.",
+    "guideCta": "Ouvrir le guide",
+    "steps": {
+      "capture": {
+        "title": "Capturer",
+        "body": "Enregistrez vos prospects, entreprises et relances pour ne rien laisser filer."
+      },
+      "propose": {
+        "title": "Proposer",
+        "body": "Concevez vos démarchages et propositions, puis concluez avec des contrats rattachés à la mission."
+      },
+      "deliver": {
+        "title": "Livrer",
+        "body": "Gérez le projet et partagez un portail client dédié sans changer de fil."
+      }
+    }
+  },
+  "guide": {
+    "title": "Guide",
+    "subtitle": "Une carte synthétique de Winlance — l'essentiel pour avancer.",
+    "back": "Retour au tableau de bord",
+    "sections": {
+      "leads": {
+        "title": "Prospects & entreprises",
+        "body": "Commencez chaque opportunité en tant que prospect. Attachez des contacts, des notes et des relances. Utilisez le tableau Kanban pour suivre la progression.",
+        "cta": "Aller aux prospects"
+      },
+      "outreach": {
+        "title": "Prospection",
+        "body": "Conservez vos modèles réutilisables, séquences, checklists et tags ici. Personnalisez le texte avec le contexte du client puis insérez-le dans une proposition.",
+        "cta": "Aller à la prospection"
+      },
+      "proposals": {
+        "title": "Propositions",
+        "body": "Générez à partir d'un prospect, affinez le contenu et envoyez lorsque l'offre est prête. Suivez le statut pour savoir ce qui est en attente.",
+        "cta": "Aller aux propositions"
+      },
+      "contracts": {
+        "title": "Contrats",
+        "body": "Transformez l'accord en contrat, générez le document et gardez une trace légale liée à la mission.",
+        "cta": "Aller aux contrats"
+      },
+      "projects": {
+        "title": "Projets & portail",
+        "body": "La livraison se fait sur le projet : exigences, jalons, fichiers et rapports. Partagez un lien de portail pour donner au client une vue claire et épurée.",
+        "cta": "Aller aux projets"
+      },
+      "coach": {
+        "title": "Coach IA",
+        "body": "Demandez des conseils sur la tarification, la négociation ou les relances en cas de doute, puis insérez la réponse dans une proposition ou enregistrez-la.",
+        "cta": "Ouvrir le Coach IA"
+      },
+      "analytics": {
+        "title": "Analyses",
+        "body": "Suivez vos prospects ouverts, le taux de signature, la valeur du pipeline et l'entonnoir.",
+        "cta": "Ouvrir les analyses"
+      }
+    }
+  },
   "landing": {
     "nav": {
       "features": "Fonctionnalités",
@@ -18,9 +88,17 @@
     "hero": {
       "badge": "Conçu Exclusivement pour Développeurs Indépendants",
       "title": "Gagnez Plus de Clients Freelance. Zéro Friction.",
-      "subtitle": "Le système d'acquisition client dédié aux développeurs freelances. Trouvez des leads, validez vos propositions, envoyez des contrats et gérez vos portails clients.",
+      "titleMain": "Gagnez Plus de Clients Freelance.",
+      "titleHighlight": "Zéro Friction Commerciale.",
+      "subtitle": "Le système d'acquisition client dédié aux développeurs freelances. Trouvez des leads, validez vos propositions, envoyez des contrats et gérez vos portails clients — le tout dans un espace épuré.",
       "ctaPrimary": "Démarrer l'Essai Gratuit",
       "ctaSecondary": "Explorer les Démos",
+      "noCard": "Sans carte de crédit",
+      "fastSetup": "Configuration en moins de 3 min",
+      "builtForDevs": "Conçu pour les dev freelances",
+      "proposalClosed": "Proposition signée",
+      "clientSigned": "Client engagé",
+      "contractPdf": "Contrat PDF en 1 clic",
       "badge1": "+$14.5k Proposition Signée",
       "badge2": "Contrat PDF en 1 Clic",
       "badge3": "+38% Taux de Conversion"

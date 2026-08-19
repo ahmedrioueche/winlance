@@ -14,9 +14,24 @@ const stripeConnected = ref(true)
 const slackConnected = ref(false)
 const webhooksConnected = ref(false)
 
-function toggleIntegration(name: string, stateRef: { value: boolean }) {
-  stateRef.value = !stateRef.value
-  toast.success(`${name} ${stateRef.value ? 'connected' : 'disconnected'}.`)
+function toggleGoogle() {
+  googleConnected.value = !googleConnected.value
+  toast.success(`Google Calendar ${googleConnected.value ? 'connected' : 'disconnected'}.`)
+}
+
+function toggleStripe() {
+  stripeConnected.value = !stripeConnected.value
+  toast.success(`Stripe ${stripeConnected.value ? 'connected' : 'disconnected'}.`)
+}
+
+function toggleSlack() {
+  slackConnected.value = !slackConnected.value
+  toast.success(`Slack ${slackConnected.value ? 'connected' : 'disconnected'}.`)
+}
+
+function toggleWebhooks() {
+  webhooksConnected.value = !webhooksConnected.value
+  toast.success(`Custom Webhooks ${webhooksConnected.value ? 'configured' : 'disconnected'}.`)
 }
 </script>
 
@@ -49,7 +64,7 @@ function toggleIntegration(name: string, stateRef: { value: boolean }) {
         <BaseButton
           :variant="googleConnected ? 'secondary' : 'primary'"
           size="sm"
-          @click="toggleIntegration('Google Calendar', googleConnected)"
+          @click="toggleGoogle"
         >
           {{ googleConnected ? 'Connected ✓' : 'Connect' }}
         </BaseButton>
@@ -72,7 +87,7 @@ function toggleIntegration(name: string, stateRef: { value: boolean }) {
         <BaseButton
           :variant="stripeConnected ? 'secondary' : 'primary'"
           size="sm"
-          @click="toggleIntegration('Stripe', stripeConnected)"
+          @click="toggleStripe"
         >
           {{ stripeConnected ? 'Connected ✓' : 'Connect' }}
         </BaseButton>
@@ -95,7 +110,7 @@ function toggleIntegration(name: string, stateRef: { value: boolean }) {
         <BaseButton
           :variant="slackConnected ? 'secondary' : 'primary'"
           size="sm"
-          @click="toggleIntegration('Slack', slackConnected)"
+          @click="toggleSlack"
         >
           {{ slackConnected ? 'Connected ✓' : 'Connect' }}
         </BaseButton>
@@ -118,11 +133,12 @@ function toggleIntegration(name: string, stateRef: { value: boolean }) {
         <BaseButton
           :variant="webhooksConnected ? 'secondary' : 'primary'"
           size="sm"
-          @click="toggleIntegration('Custom Webhooks', webhooksConnected)"
+          @click="toggleWebhooks"
         >
           {{ webhooksConnected ? 'Configured ✓' : 'Configure' }}
         </BaseButton>
       </div>
     </div>
   </div>
+
 </template>

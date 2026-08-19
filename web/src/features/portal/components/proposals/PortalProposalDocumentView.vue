@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { marked } from 'marked'
-import { AlertCircle, CheckCircle2, CheckSquare, Clock, DollarSign, FileText, Layers, ShieldCheck, Sparkles, UserCheck } from 'lucide-vue-next'
+import { AlertCircle, CheckSquare, Clock, DollarSign, FileText, ShieldCheck, Sparkles, UserCheck } from 'lucide-vue-next'
+
 import type { Proposal, ProposalAddon } from '@/features/proposals/types'
 import PortalProposalAcceptanceSection from './PortalProposalAcceptanceSection.vue'
 

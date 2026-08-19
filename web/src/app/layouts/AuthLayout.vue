@@ -5,11 +5,14 @@ import { Globe, Sparkles, Kanban, Bot, FileCheck, Star, ShieldCheck } from 'luci
 
 import { AppLogo, ThemeToggle } from '@/shared/components/base'
 
+import { setAppLocale } from '@/i18n'
+
 const { t, locale } = useI18n()
 
 function toggleLocale() {
-  locale.value = locale.value === 'fr' ? 'en' : 'fr'
+  setAppLocale(locale.value === 'fr' ? 'en' : 'fr')
 }
+
 </script>
 
 <template>
@@ -66,16 +69,16 @@ function toggleLocale() {
         <div class="relative z-10 space-y-3">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-accent-soft text-accent border border-accent/20">
             <Sparkles class="w-3.5 h-3.5" />
-            <span>The Client Acquisition OS</span>
+            <span>{{ t('auth.showcase.badge') }}</span>
           </div>
 
           <h2 class="font-display text-2xl xl:text-3xl font-bold text-ink leading-tight">
-            Win More Freelance Clients. <br />
-            <span class="text-gradient">Zero Administrative Friction.</span>
+            {{ t('auth.showcase.title') }} <br />
+            <span class="text-gradient">{{ t('auth.showcase.titleHighlight') }}</span>
           </h2>
 
           <p class="text-xs xl:text-sm text-ink-soft max-w-md leading-relaxed">
-            Organize leads, generate proposals, auto-sign 1-click contracts, and share live client portals.
+            {{ t('auth.showcase.subtitle') }}
           </p>
         </div>
 
@@ -87,8 +90,8 @@ function toggleLocale() {
               <Kanban class="w-5 h-5" />
             </div>
             <div>
-              <h4 class="text-xs font-bold text-ink">Visual Lead CRM Pipeline</h4>
-              <p class="text-[11px] text-ink-soft">Track deal stages from initial outreach to won contracts.</p>
+              <h4 class="text-xs font-bold text-ink">{{ t('auth.showcase.feature1Title') }}</h4>
+              <p class="text-[11px] text-ink-soft">{{ t('auth.showcase.feature1Desc') }}</p>
             </div>
           </div>
 
@@ -98,8 +101,8 @@ function toggleLocale() {
               <Bot class="w-5 h-5" />
             </div>
             <div>
-              <h4 class="text-xs font-bold text-ink">AI Sales & Negotiation Coach</h4>
-              <p class="text-[11px] text-ink-soft">Instant objection handling and fee negotiation scripts.</p>
+              <h4 class="text-xs font-bold text-ink">{{ t('auth.showcase.feature2Title') }}</h4>
+              <p class="text-[11px] text-ink-soft">{{ t('auth.showcase.feature2Desc') }}</p>
             </div>
           </div>
 
@@ -109,8 +112,8 @@ function toggleLocale() {
               <FileCheck class="w-5 h-5" />
             </div>
             <div>
-              <h4 class="text-xs font-bold text-ink">1-Click PDF Contract Generator</h4>
-              <p class="text-[11px] text-ink-soft">Convert accepted proposals into binding contracts instantly.</p>
+              <h4 class="text-xs font-bold text-ink">{{ t('auth.showcase.feature3Title') }}</h4>
+              <p class="text-[11px] text-ink-soft">{{ t('auth.showcase.feature3Desc') }}</p>
             </div>
           </div>
         </div>
@@ -121,19 +124,20 @@ function toggleLocale() {
             <Star v-for="i in 5" :key="i" class="w-3 h-3 fill-warning" />
           </div>
           <p class="text-[11px] text-ink italic leading-relaxed mb-2">
-            "Winlance doubled my proposal close rate within 3 weeks. An essential tool for any solo developer."
+            {{ t('auth.showcase.testimonialQuote') }}
           </p>
           <div class="flex items-center justify-between text-[10px]">
             <div>
-              <span class="font-bold text-ink">Alex Rivera</span>
-              <span class="text-ink-soft"> — Senior Full-Stack Freelancer</span>
+              <span class="font-bold text-ink">{{ t('auth.showcase.testimonialAuthor') }}</span>
+              <span class="text-ink-soft"> — {{ t('auth.showcase.testimonialRole') }}</span>
             </div>
             <div class="flex items-center gap-1 text-success font-medium">
               <ShieldCheck class="w-3 h-3" />
-              <span>Verified Dev</span>
+              <span>{{ t('auth.showcase.testimonialBadge') }}</span>
             </div>
           </div>
         </div>
+
       </aside>
     </div>
   </div>

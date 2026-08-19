@@ -47,8 +47,8 @@ function escapeHtml(str: string): string {
 }
 
 function buildHtml(data: ProposalExportData): string {
-  const milestoneSum = data.milestones.reduce((sum, m) => sum + (Number(m.amount) || 0), 0)
   const addonsList = data.addons || []
+
   const selectedAddonsSum = addonsList
     .filter(a => a.is_selected)
     .reduce((sum, a) => sum + (Number(a.amount) || 0), 0)

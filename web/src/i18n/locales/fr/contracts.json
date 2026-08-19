@@ -1,0 +1,42 @@
+{
+  "title": "Contrats",
+  "subtitle": "Créez et gérez vos contrats commerciaux",
+  "create": "Nouveau contrat",
+  "proposal": "Proposition",
+  "proposalId": "ID de la proposition",
+  "empty": "Aucun contrat pour le moment",
+  "generate": "Générer",
+  "export": "Exporter",
+  "send": "Envoyer",
+  "sign": "Signer",
+  "status": {
+    "DRAFT": "Brouillon",
+    "GENERATING": "Génération…",
+    "READY": "Prêt",
+    "SENT": "Envoyé",
+    "SIGNED": "Signé",
+    "VOID": "Annulé"
+  },
+  "editor": {
+    "back": "Retour aux contrats",
+    "title": "Titre",
+    "body": "Corps du contrat",
+    "template": "Modèle",
+    "defaultTemplate": "Modèle par défaut",
+    "templateDefault": "{name} (par défaut)",
+    "project": "Projet lié",
+    "noProject": "Aucun projet lié",
+    "generating": "Génération en cours. Cette page se rafraîchira une fois prête.",
+    "export": "Document exporté",
+    "signedAt": "Signé le {date}"
+  },
+  "messages": {
+    "created": "Contrat créé",
+    "saved": "Contrat enregistré.",
+    "generated": "Contrat généré",
+    "exportd": "Contrat exporté",
+    "exported": "PDF du contrat exporté",
+    "sendd": "Contrat envoyé",
+    "signd": "Contrat signé"
+  }
+}

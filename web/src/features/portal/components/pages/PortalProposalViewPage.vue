@@ -49,8 +49,8 @@ async function handleRequestChanges(feedbackNotes: string) {
       proposalId: proposalId.value,
       payload: {
         change_summary: feedbackNotes,
-        feedback_notes: feedbackNotes,
       },
+
     })
     toast.success('Revision request submitted successfully!')
     void refetch()

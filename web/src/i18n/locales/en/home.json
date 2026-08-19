@@ -88,9 +88,17 @@
     "hero": {
       "badge": "Built Exclusively for Solo Developers",
       "title": "Win More Freelance Clients. Zero Overhead.",
+      "titleMain": "Win More Freelance Clients.",
+      "titleHighlight": "Zero Sales Overhead.",
       "subtitle": "The dedicated Client Acquisition OS for tech freelancers. Find leads, close proposals, send contracts, and manage client portals — all in one calm workspace.",
       "ctaPrimary": "Start Free Trial",
       "ctaSecondary": "Explore Interactive Demos",
+      "noCard": "No Credit Card Required",
+      "fastSetup": "Setup in Under 3 Minutes",
+      "builtForDevs": "Built for Freelance Devs",
+      "proposalClosed": "Proposal Closed",
+      "clientSigned": "Client Signed",
+      "contractPdf": "1-Click PDF Contract",
       "badge1": "+$14.5k Proposal Closed",
       "badge2": "1-Click Contract Signed",
       "badge3": "+38% Win Rate Boost"

@@ -3,6 +3,7 @@ import { Monitor, Moon, Sun } from '@lucide/vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { setAppLocale } from '@/i18n'
 import { BaseButton, BaseCheckbox, BaseSelect } from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
 import { useToast } from '@/shared/toast/useToast'
@@ -18,7 +19,6 @@ const isSaving = ref(false)
 const languageOptions: SelectOption[] = [
   { value: 'en', label: 'English (US)' },
   { value: 'fr', label: 'Français (French)' },
-  { value: 'es', label: 'Español (Spanish)' },
 ]
 
 function setTheme(theme: string) {
@@ -34,13 +34,16 @@ function setTheme(theme: string) {
 async function handleSave() {
   isSaving.value = true
   try {
-    locale.value = selectedLocale.value
+    if (selectedLocale.value === 'en' || selectedLocale.value === 'fr') {
+      setAppLocale(selectedLocale.value)
+    }
     await new Promise((resolve) => setTimeout(resolve, 300))
     toast.success(t('settings.savedSuccess', 'Settings updated successfully.'))
   } finally {
     isSaving.value = false
   }
 }
+
 </script>
 
 <template>

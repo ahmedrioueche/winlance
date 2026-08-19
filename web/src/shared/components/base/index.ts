@@ -12,4 +12,6 @@ export { default as ErrorState } from './ErrorState.vue'
 export { default as LoadingState } from './LoadingState.vue'
 export { default as Skeleton } from './Skeleton.vue'
 export { default as SuccessState } from './SuccessState.vue'
+export { default as LanguageToggle } from './LanguageToggle.vue'
 export { default as ThemeToggle } from './ThemeToggle.vue'
+

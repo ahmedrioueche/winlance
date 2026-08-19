@@ -5,11 +5,14 @@ import { Globe, Github, Twitter, Linkedin } from 'lucide-vue-next'
 
 import { AppLogo, ThemeToggle } from '@/shared/components/base'
 
+import { setAppLocale } from '@/i18n'
+
 const { t, locale } = useI18n()
 
 function toggleLocale() {
-  locale.value = locale.value === 'fr' ? 'en' : 'fr'
+  setAppLocale(locale.value === 'fr' ? 'en' : 'fr')
 }
+
 </script>
 
 <template>

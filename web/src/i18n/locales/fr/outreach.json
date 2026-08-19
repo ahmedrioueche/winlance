@@ -1,0 +1,90 @@
+{
+  "title": "Prospection",
+  "subtitle": "Modèles, séquences, checklists et tags pour votre prospection client.",
+  "tabs": {
+    "label": "Sections prospection",
+    "templates": "Modèles",
+    "sequences": "Séquences",
+    "checklists": "Checklists",
+    "tags": "Tags"
+  },
+  "playbook": {
+    "templates": "{count} modèles",
+    "sequences": "{count} séquences",
+    "checklists": "{count} checklists"
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Organisez vos modèles, séquences et checklists.",
+    "name": "Nom du tag",
+    "create": "Créer un tag",
+    "rename": "Renommer",
+    "yours": "Vos tags",
+    "system": "Tags système",
+    "empty": "Aucun tag pour l'instant",
+    "created": "Tag créé.",
+    "updated": "Tag mis à jour.",
+    "deleted": "Tag supprimé.",
+    "deleteTitle": "Supprimer le tag",
+    "deleteMessage": "Supprimer ce tag ? Il sera retiré des futures associations."
+  },
+  "templates": {
+    "title": "Modèles",
+    "subtitle": "Textes de prospection réutilisables avec variables.",
+    "create": "Nouveau modèle",
+    "empty": "Aucun modèle pour l'instant",
+    "name": "Titre",
+    "type": "Type",
+    "content": "Contenu",
+    "tags": "Tags",
+    "tagsHint": "Noms séparés par des virgules",
+    "created": "Modèle créé.",
+    "render": "Générer / Insérer",
+    "renderTitle": "Générer le modèle",
+    "runRender": "Aperçu du rendu",
+    "clientName": "Nom du client",
+    "company": "Entreprise",
+    "roleTitle": "Rôle / Titre",
+    "insertRaw": "Insérer l'original",
+    "insertRendered": "Insérer le rendu",
+    "insertReady": "Prêt à être inséré dans une proposition.",
+    "insertEmpty": "Rien à insérer pour l'instant.",
+    "types": {
+      "EMAIL": "E-mail",
+      "LINKEDIN": "LinkedIn",
+      "SCRIPT": "Script",
+      "OTHER": "Autre"
+    }
+  },
+  "sequences": {
+    "title": "Séquences",
+    "subtitle": "Séquences de prospection en plusieurs étapes.",
+    "empty": "Aucune séquence pour l'instant",
+    "step": "Étape {n} · attente {days}j",
+    "templateFallback": "Modèle"
+  },
+  "checklists": {
+    "title": "Checklists",
+    "subtitle": "Listes de contrôle et éléments modifiables.",
+    "create": "Créer une checklist",
+    "empty": "Aucune checklist pour l'instant",
+    "name": "Titre",
+    "description": "Description",
+    "created": "Checklist créée.",
+    "itemCount": "{count} éléments",
+    "emptyItems": "Aucun élément pour l'instant",
+    "itemContent": "Texte de l'élément",
+    "addItem": "Ajouter un élément",
+    "edit": "Modifier",
+    "editItem": "Modifier l'élément",
+    "order": "Ordre {order}",
+    "orderLabel": "Ordre",
+    "doneDefault": "Coché par défaut",
+    "doneDefaultLabel": "Marqué comme fait par défaut",
+    "itemAdded": "Élément ajouté.",
+    "itemUpdated": "Élément mis à jour.",
+    "itemDeleted": "Élément supprimé.",
+    "deleteItemTitle": "Supprimer l'élément",
+    "deleteItemMessage": "Retirer cet élément de la checklist ?"
+  }
+}

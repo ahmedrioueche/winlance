@@ -1,0 +1,104 @@
+{
+  "list": {
+    "title": "Prospects",
+    "subtitle": "Suivez vos opportunités dans le pipeline commercial.",
+    "create": "Nouveau prospect",
+    "pipeline": "Tableau Kanban",
+    "emptyTitle": "Aucun prospect pour le moment",
+    "emptyDescription": "Créez votre premier prospect pour lancer votre pipeline commercial.",
+    "score": "Score {score}"
+  },
+  "create": {
+    "title": "Créer un prospect",
+    "titleLabel": "Titre",
+    "submit": "Créer"
+  },
+  "delete": {
+    "title": "Supprimer le prospect",
+    "message": "Cette action est irréversible. Supprimer ce prospect ?",
+    "confirm": "Supprimer le prospect"
+  },
+  "detail": {
+    "back": "Retour aux prospects",
+    "noDescription": "Aucune description pour le moment.",
+    "value": "Valeur {value}",
+    "probability": "Probabilité {value}%",
+    "status": "Statut",
+    "rescore": "Réévaluer le score"
+  },
+  "pipeline": {
+    "title": "Pipeline",
+    "backToList": "Vue liste",
+    "emptyColumn": "Aucun prospect"
+  },
+  "filters": {
+    "search": "Rechercher",
+    "status": "Statut",
+    "allStatuses": "Tous les statuts"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "empty": "Aucun contact pour le moment",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "E-mail",
+    "noEmail": "Pas d'e-mail",
+    "add": "Ajouter un contact"
+  },
+  "notes": {
+    "title": "Notes",
+    "empty": "Aucune note pour le moment",
+    "content": "Note",
+    "add": "Ajouter une note"
+  },
+  "followUps": {
+    "title": "Relances",
+    "empty": "Aucune relance prévue pour le moment",
+    "when": "Quand",
+    "notes": "Notes",
+    "add": "Planifier une relance",
+    "complete": "Marquer comme fait",
+    "done": "Terminé",
+    "pageTitle": "Relances",
+    "pageSubtitle": "Rappels en retard et à venir dans votre pipeline.",
+    "filter": "Filtrer",
+    "filterOverdue": "En retard",
+    "filterUpcoming": "À venir",
+    "filterCompleted": "Terminées",
+    "emptyFilter": "Rien dans ce filtre",
+    "noNotes": "Pas de notes",
+    "openLead": "Ouvrir le prospect"
+  },
+  "companies": {
+    "title": "Entreprises",
+    "subtitle": "Organisations liées à vos prospects.",
+    "empty": "Aucune entreprise pour le moment",
+    "createTitle": "Ajouter une entreprise",
+    "name": "Nom",
+    "website": "Site web",
+    "industry": "Secteur d'activité",
+    "noIndustry": "Secteur non spécifié",
+    "create": "Créer l'entreprise",
+    "created": "Entreprise créée."
+  },
+  "messages": {
+    "created": "Prospect créé.",
+    "deleted": "Prospect supprimé.",
+    "transitioned": "Statut du prospect mis à jour.",
+    "rescored": "Score du prospect réévalué.",
+    "contactAdded": "Contact ajouté.",
+    "noteAdded": "Note ajoutée.",
+    "followUpAdded": "Relance planifiée.",
+    "followUpCompleted": "Relance terminée."
+  },
+  "status": {
+    "NEW": "Nouveau",
+    "CONTACTED": "Contacté",
+    "INTERESTED": "Intéressé",
+    "DISCOVERY_CALL": "Appel découverte",
+    "PROPOSAL_SENT": "Proposition envoyée",
+    "NEGOTIATION": "Négociation",
+    "WON": "Gagné",
+    "LOST": "Perdu"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Coach IA",
+  "subtitle": "Conseils sur la tarification, la négociation et les relances.",
+  "create": "Nouvelle session",
+  "empty": "Aucune session de coaching pour le moment",
+  "back": "Retour aux sessions",
+  "sessionTitle": "Conseils",
+  "guidanceType": "Type de conseil",
+  "prompt": "De quoi avez-vous besoin ?",
+  "promptLabel": "Votre question / demande",
+  "responseLabel": "Réponse du Coach",
+  "regenerate": "Régénérer",
+  "toProposal": "Insérer dans la proposition",
+  "toOutreach": "Enregistrer comme modèle de prospection",
+  "insertTitle": "Coach IA · {type}",
+  "insertEmpty": "Rien à insérer pour l'instant.",
+  "insertReady": "Prêt à être inséré dans une proposition.",
+  "outreachReady": "Brouillon de modèle de prospection ouvert.",
+  "types": {
+    "PRICING": "Tarification",
+    "NEGOTIATION": "Négociation",
+    "FOLLOW_UP": "Relance",
+    "GENERAL": "Général"
+  },
+  "messages": {
+    "created": "Session créée",
+    "regenerated": "Conseil régénéré"
+  }
+}

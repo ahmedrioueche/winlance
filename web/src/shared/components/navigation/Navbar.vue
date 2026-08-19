@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/features/auth'
-import { BaseButton, ThemeToggle } from '@/shared/components/base'
+import { BaseButton, LanguageToggle, ThemeToggle } from '@/shared/components/base'
+
 import {
   type ShellVariant,
   useSidebarNavContext,
@@ -64,8 +65,10 @@ const userLabel = computed(() => auth.user?.username || auth.user?.email || '')
 
     <div class="flex items-center gap-2">
       <p v-if="userLabel" class="text-muted hidden text-sm sm:block">{{ userLabel }}</p>
+      <LanguageToggle />
       <ThemeToggle />
       <BaseButton variant="secondary" size="sm" @click="auth.logout()">
+
         {{ t('common.nav.logout') }}
       </BaseButton>
     </div>
