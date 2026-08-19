@@ -13,7 +13,10 @@ if not SECRET_KEY or SECRET_KEY.startswith("django-insecure"):
         "Production SECRET_KEY must be set to a strong non-default value."
     )
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["winlance.onrender.com", ".onrender.com", "localhost", "127.0.0.1"])
+render_host = env("RENDER_EXTERNAL_HOSTNAME", default="")
+if render_host and render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_host)
 if not ALLOWED_HOSTS:
     raise ImproperlyConfigured("ALLOWED_HOSTS must be set in production.")
 
