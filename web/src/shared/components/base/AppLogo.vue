@@ -23,8 +23,8 @@ const emit = defineEmits<{
     @click="(e) => emit('click', e)"
   >
     <!-- Logo Badge Box -->
-    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground font-bold font-display text-lg shadow-sm transition-transform group-hover:scale-105">
-      W
+    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground font-bold font-display text-lg shadow-sm transition-transform group-hover:scale-105 overflow-hidden p-1">
+      <img src="/favicon.svg" alt="Winlance Logo" class="h-full w-full object-contain" />
     </div>
 
     <!-- Title & Optional Subtitle -->
