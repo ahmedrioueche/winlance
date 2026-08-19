@@ -16,10 +16,14 @@ class AccountsConfig(AppConfig):
         # Seed demo accounts after migrations
         post_migrate.connect(_seed_demo_accounts, sender=self)
 
-        # Ensure demo accounts exist on startup (e.g., when running dev server without migrations)
+        # Ensure demo accounts exist on startup if DB is ready
         if getattr(settings, "DEMO_ACCOUNTS_ENABLED", False):
-            from .demo import seed_demo_accounts
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
-            if not User.objects.filter(is_demo=True).exists():
-                seed_demo_accounts()
+            try:
+                from .demo import seed_demo_accounts
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                if not User.objects.filter(is_demo=True).exists():
+                    seed_demo_accounts()
+            except Exception:
+                pass
+

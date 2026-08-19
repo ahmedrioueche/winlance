@@ -40,11 +40,11 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.clients",
     "apps.leads",
-    # "apps.outreach",  # deprecated
+    "apps.outreach",
     "apps.proposals",
     "apps.contracts",
     "apps.projects",
-    # "apps.ai_coach",  # deprecated
+    "apps.ai_coach",
     "apps.analytics",
 ]
 

@@ -252,6 +252,7 @@ class DemoAccountTests(APITestCase):
 
     @override_settings(DEMO_ACCOUNTS_ENABLED=False)
     def test_management_command_skips_when_disabled(self):
+        get_user_model().objects.filter(is_demo=True).delete()
         call_command("seed_demo_accounts")
         self.assertFalse(
             get_user_model().objects.filter(email="demo@winlance.local").exists()
