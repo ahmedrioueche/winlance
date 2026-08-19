@@ -14,19 +14,29 @@ from .models import FunnelSnapshot
 
 def compute_funnel_metrics(user):
     leads = Lead.objects.filter(user=user)
-    total = leads.count()
-    by_status = {
-        row["status"]: row["count"]
-        for row in leads.values("status").annotate(count=Count("id"))
+    status_stats = {
+        row["status"]: {
+            "count": row["count"],
+            "value": str(row["total_value"] or Decimal("0")),
+        }
+        for row in leads.values("status").annotate(
+            count=Count("id"),
+            total_value=Sum("estimated_value"),
+        )
     }
+
+    total = leads.count()
+    by_status = {status: stat["count"] for status, stat in status_stats.items()}
 
     stages = []
     for value, label in Lead.Status.choices:
+        stat = status_stats.get(value, {"count": 0, "value": "0"})
         stages.append(
             {
                 "status": value,
                 "label": label,
-                "count": by_status.get(value, 0),
+                "count": stat["count"],
+                "value": stat["value"],
             }
         )
 

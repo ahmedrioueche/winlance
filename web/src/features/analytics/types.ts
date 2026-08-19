@@ -2,6 +2,7 @@ export type FunnelStage = {
   status: string
   label: string
   count: number
+  value?: string
 }
 
 export type FunnelMetrics = {
@@ -31,6 +32,8 @@ export type AnalyticsSummary = {
     contracts_signed: number
   }
   funnel: FunnelMetrics
+  latest_snapshot_id?: string | null
+  latest_snapshot_at?: string | null
 }
 
 export function maxStageCount(stages: FunnelStage[]): number {
@@ -44,3 +47,15 @@ export function stageWidths(stages: FunnelStage[]): Array<FunnelStage & { pct: n
     pct: Math.round((stage.count / max) * 100),
   }))
 }
+
+export function formatCurrency(amount?: string | number): string {
+  if (amount == null || amount === '') return '$0'
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  if (isNaN(num)) return '$0'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(num)
+}
+

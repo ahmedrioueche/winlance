@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
 import * as api from './api'
 
@@ -18,3 +18,14 @@ export const useSummaryQuery = () =>
     queryKey: analyticsKeys.summary,
     queryFn: api.fetchSummary,
   })
+
+export const useRefreshSnapshotMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.postSnapshot,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: analyticsKeys.funnel })
+      void queryClient.invalidateQueries({ queryKey: analyticsKeys.summary })
+    },
+  })
+}
