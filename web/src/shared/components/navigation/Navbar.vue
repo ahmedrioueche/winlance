@@ -3,13 +3,13 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { useAuthStore } from '@/features/auth'
-import { BaseButton, LanguageToggle, ThemeToggle } from '@/shared/components/base'
-
+import { BaseButton } from '@/shared/components/base'
 import {
   type ShellVariant,
   useSidebarNavContext,
 } from '@/shared/components/navigation/useSidebarNav'
+
+import UserDropdown from './UserDropdown.vue'
 
 interface Props {
   variant: ShellVariant
@@ -18,7 +18,6 @@ interface Props {
 defineProps<Props>()
 const { t, te } = useI18n()
 const route = useRoute()
-const auth = useAuthStore()
 const sidebarNav = useSidebarNavContext()
 
 const title = computed(() => {
@@ -35,8 +34,6 @@ const title = computed(() => {
   }
   return t(map[name] ?? 'common.nav.dashboard')
 })
-
-const userLabel = computed(() => auth.user?.username || auth.user?.email || '')
 </script>
 
 <template>
@@ -63,14 +60,8 @@ const userLabel = computed(() => auth.user?.username || auth.user?.email || '')
       </p>
     </div>
 
-    <div class="flex items-center gap-2">
-      <p v-if="userLabel" class="text-muted hidden text-sm sm:block">{{ userLabel }}</p>
-      <LanguageToggle />
-      <ThemeToggle />
-      <BaseButton variant="secondary" size="sm" @click="auth.logout()">
-
-        {{ t('common.nav.logout') }}
-      </BaseButton>
+    <div class="flex items-center gap-3">
+      <UserDropdown />
     </div>
   </header>
 </template>

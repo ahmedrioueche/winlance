@@ -10,7 +10,8 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 
-import { AppLogo, ErrorState, Skeleton, ThemeToggle } from '@/shared/components/base'
+import { AppLogo, ErrorState, Skeleton } from '@/shared/components/base'
+import UserDropdown from '@/shared/components/navigation/UserDropdown.vue'
 
 import PasscodeChallengeModal from './PasscodeChallengeModal.vue'
 import { usePortalInfoQuery } from '../queries'
@@ -129,7 +130,6 @@ const navItems = computed(() => {
             {{ portalInfo?.freelancer_name ? `${portalInfo.freelancer_name} Studio` : 'Winlance Portal' }}
           </p>
         </div>
-        <ThemeToggle />
       </div>
     </aside>
 
@@ -158,7 +158,7 @@ const navItems = computed(() => {
           </div>
         </div>
 
-        <!-- Right Header Actions: Passcode Lock Badge & Theme Toggle -->
+        <!-- Right Header Actions: Passcode Lock Badge & User Dropdown -->
         <div class="flex items-center gap-2.5 ms-auto">
           <div
             v-if="isPasswordProtected"
@@ -168,9 +168,7 @@ const navItems = computed(() => {
             <span class="hidden sm:inline">{{ t('portal.nav.passcodeProtected', 'Passcode Protected') }}</span>
           </div>
 
-          <div class="hidden sm:block">
-            <ThemeToggle />
-          </div>
+          <UserDropdown />
         </div>
       </header>
 

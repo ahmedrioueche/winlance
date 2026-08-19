@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
-import { AppLogo, ThemeToggle } from '@/shared/components/base'
+import { AppLogo } from '@/shared/components/base'
 import type { SidebarLink } from '@/shared/components/navigation/useSidebarNav'
 import { useSidebarNavContext } from '@/shared/components/navigation/useSidebarNav'
 
@@ -91,7 +91,7 @@ function onNavigate() {
     <!-- Sidebar Footer -->
     <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
       <span>Main Workspace</span>
-      <ThemeToggle />
+      <span class="text-[10px] font-mono text-accent/80 font-medium">v0.1.0</span>
     </div>
   </aside>
 </template>

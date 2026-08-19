@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ArrowLeft,
-  Bell,
   CheckSquare,
   FolderKanban,
   LayoutDashboard,
@@ -14,7 +13,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 
 import { AppLogo } from '@/shared/components/base'
-import ThemeToggle from '@/shared/components/base/ThemeToggle.vue'
+import UserDropdown from '@/shared/components/navigation/UserDropdown.vue'
 
 import { useProjectQuery } from '../queries'
 
@@ -139,7 +138,7 @@ function getStatusBadgeClass(status?: string) {
       <!-- Sidebar Footer -->
       <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
         <span>Project Controls</span>
-        <ThemeToggle />
+        <span class="text-[10px] font-mono text-accent/80 font-medium">v0.1.0</span>
       </div>
     </aside>
 
@@ -183,25 +182,7 @@ function getStatusBadgeClass(status?: string) {
 
         <!-- Right Header Actions -->
         <div class="flex items-center gap-3 ms-auto shrink-0">
-          <!-- Notifications Alert Button -->
-          <button
-            type="button"
-            class="relative rounded-lg border border-border bg-canvas p-2 text-muted hover:border-accent/40 hover:text-ink transition"
-            aria-label="Notifications"
-          >
-            <Bell class="h-4 w-4" />
-            <span class="absolute top-1 end-1 h-2 w-2 rounded-full bg-accent" />
-          </button>
-
-          <!-- Project Workspace Avatar -->
-          <div class="flex items-center gap-2.5 rounded-lg border border-border bg-canvas p-1.5 px-3">
-            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-              {{ projectInitials }}
-            </div>
-            <span class="hidden sm:inline text-xs font-semibold text-ink truncate max-w-[120px]">
-              {{ project?.title || 'Project Workspace' }}
-            </span>
-          </div>
+          <UserDropdown />
         </div>
       </header>
 

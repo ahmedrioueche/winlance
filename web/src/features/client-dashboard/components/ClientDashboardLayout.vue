@@ -2,7 +2,6 @@
 import {
   Activity,
   ArrowLeft,
-  Bell,
   CreditCard,
   FileSignature,
   Files,
@@ -18,7 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 
 import { AppLogo } from '@/shared/components/base'
-import ThemeToggle from '@/shared/components/base/ThemeToggle.vue'
+import UserDropdown from '@/shared/components/navigation/UserDropdown.vue'
 
 import { useClientQuery } from '../queries'
 
@@ -115,7 +114,7 @@ function closeMobileMenu() {
       <!-- Sidebar Footer -->
       <div class="p-4 border-t border-border/60 flex items-center justify-between text-xs text-muted">
         <span>Client Details</span>
-        <ThemeToggle />
+        <span class="text-[10px] font-mono text-accent/80 font-medium">v0.1.0</span>
       </div>
     </aside>
 
@@ -146,25 +145,7 @@ function closeMobileMenu() {
 
         <!-- Right Header Actions -->
         <div class="flex items-center gap-3 ms-auto">
-          <!-- Notifications Alert Button -->
-          <button
-            type="button"
-            class="relative rounded-lg border border-border bg-canvas p-2 text-muted hover:border-accent/40 hover:text-ink transition"
-            aria-label="Notifications"
-          >
-            <Bell class="h-4 w-4" />
-            <span class="absolute top-1 end-1 h-2 w-2 rounded-full bg-accent" />
-          </button>
-
-          <!-- Client User Profile Avatar -->
-          <div class="flex items-center gap-2.5 rounded-lg border border-border bg-canvas p-1.5 px-3">
-            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-              {{ clientInitials }}
-            </div>
-            <span class="hidden sm:inline text-xs font-semibold text-ink">
-              {{ client?.name || 'Client' }}
-            </span>
-          </div>
+          <UserDropdown />
         </div>
       </header>
 

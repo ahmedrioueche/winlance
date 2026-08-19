@@ -13,7 +13,8 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 
-import { AppLogo, ErrorState, Skeleton, ThemeToggle } from '@/shared/components/base'
+import { AppLogo, ErrorState, Skeleton } from '@/shared/components/base'
+import UserDropdown from '@/shared/components/navigation/UserDropdown.vue'
 
 import PasscodeChallengeModal from './PasscodeChallengeModal.vue'
 import { usePortalInfoQuery, usePortalProjectQuery } from '../queries'
@@ -189,7 +190,6 @@ function getStatusBadgeClass(status?: string) {
             {{ portalInfo?.freelancer_name ? `${portalInfo.freelancer_name} Studio` : 'Winlance Portal' }}
           </p>
         </div>
-        <ThemeToggle />
       </div>
     </aside>
 
@@ -241,15 +241,7 @@ function getStatusBadgeClass(status?: string) {
             <span>{{ t('portal.nav.passcodeProtected', 'Passcode Protected') }}</span>
           </div>
 
-          <!-- Project Workspace Avatar -->
-          <div class="flex items-center gap-2.5 rounded-lg border border-border bg-canvas p-1.5 px-3">
-            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-              {{ projectInitials }}
-            </div>
-            <span class="hidden sm:inline text-xs font-semibold text-ink truncate max-w-[120px]">
-              {{ project?.title || 'Project Workspace' }}
-            </span>
-          </div>
+          <UserDropdown />
         </div>
       </header>
 
