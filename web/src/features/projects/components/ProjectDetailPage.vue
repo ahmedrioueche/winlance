@@ -99,6 +99,16 @@ async function addReport() {
 
 <template>
   <section class="w-full space-y-8">
+    <div id="overview" class="flex flex-wrap items-start justify-between gap-4 scroll-mt-20">
+      <div>
+        <h1 class="font-display text-3xl text-ink">{{ project?.title || t('projects.detail', 'Project Detail') }}</h1>
+        <p v-if="project?.summary" class="mt-2 text-ink-soft">{{ project.summary }}</p>
+      </div>
+      <BaseButton v-if="project" :loading="createShareLink.isPending.value" @click="share">
+        {{ t('projects.share') }}
+      </BaseButton>
+    </div>
+
     <LoadingState v-if="projectQuery.isPending.value" />
     <ErrorState
       v-else-if="projectQuery.isError.value"
@@ -107,15 +117,6 @@ async function addReport() {
       @retry="projectQuery.refetch()"
     />
     <article v-else-if="project" class="space-y-8">
-      <div id="overview" class="flex flex-wrap items-start justify-between gap-4 scroll-mt-20">
-        <div>
-          <h1 class="font-display text-3xl text-ink">{{ project.title }}</h1>
-          <p class="mt-2 text-ink-soft">{{ project.summary }}</p>
-        </div>
-        <BaseButton :loading="createShareLink.isPending.value" @click="share">
-          {{ t('projects.share') }}
-        </BaseButton>
-      </div>
 
       <section id="share" class="scroll-mt-20 space-y-3">
         <h2 class="font-display text-xl text-ink">{{ t('projects.shareLinks') }}</h2>

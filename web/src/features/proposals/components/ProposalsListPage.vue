@@ -168,13 +168,14 @@ async function applyInsert() {
 
 <template>
   <section class="w-full">
-    <div class="flex items-end justify-between gap-4">
-      <div>
-        <h1 class="font-display text-3xl text-ink">{{ t('proposals.title') }}</h1>
-        <p class="mt-2 text-muted">{{ t('proposals.subtitle') }}</p>
-      </div>
-      <BaseButton @click="open = true">{{ t('proposals.create') }}</BaseButton>
-    </div>
+    <BasePageHeader
+      :title="t('proposals.title')"
+      :subtitle="t('proposals.subtitle')"
+    >
+      <template #actions>
+        <BaseButton @click="open = true">{{ t('proposals.create') }}</BaseButton>
+      </template>
+    </BasePageHeader>
 
     <LoadingState v-if="isPending" class="mt-6" />
     <ErrorState

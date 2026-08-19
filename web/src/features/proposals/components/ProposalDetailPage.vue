@@ -152,9 +152,42 @@ async function onSend() {
 
 <template>
   <section class="w-full space-y-6">
-    <BaseButton variant="ghost" size="sm" @click="router.push({ name: 'proposals' })">
-      ← {{ t('proposals.editor.back') }}
-    </BaseButton>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <BaseButton variant="ghost" size="sm" @click="router.push({ name: 'proposals' })">
+        ← {{ t('proposals.editor.back') }}
+      </BaseButton>
+
+      <div v-if="proposal" class="flex flex-wrap gap-2">
+        <BaseButton
+          variant="secondary"
+          :loading="update.isPending.value"
+          :disabled="isGenerating"
+          @click="save"
+        >
+          {{ t('common.actions.save') }}
+        </BaseButton>
+        <BaseButton
+          :loading="generate.isPending.value"
+          :disabled="isGenerating"
+          @click="onGenerate"
+        >
+          {{ t('proposals.generate') }}
+        </BaseButton>
+        <BaseButton
+          variant="secondary"
+          :loading="send.isPending.value"
+          :disabled="isGenerating"
+          @click="onSend"
+        >
+          {{ t('proposals.send') }}
+        </BaseButton>
+      </div>
+    </div>
+
+    <div v-if="proposal" class="border-b border-border pb-4">
+      <p class="text-sm text-muted">{{ statusLabel }}</p>
+      <h1 class="font-display text-3xl text-ink font-bold mt-1">{{ proposal.title }}</h1>
+    </div>
 
     <LoadingState v-if="proposalQuery.isPending.value" />
     <ErrorState
@@ -166,37 +199,6 @@ async function onSend() {
     <EmptyState v-else-if="!proposal" :title="t('common.errors.notFound')" />
 
     <article v-else class="space-y-6">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p class="text-sm text-muted">{{ statusLabel }}</p>
-          <h1 class="font-display text-3xl text-ink">{{ proposal.title }}</h1>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <BaseButton
-            variant="secondary"
-            :loading="update.isPending.value"
-            :disabled="isGenerating"
-            @click="save"
-          >
-            {{ t('common.actions.save') }}
-          </BaseButton>
-          <BaseButton
-            :loading="generate.isPending.value"
-            :disabled="isGenerating"
-            @click="onGenerate"
-          >
-            {{ t('proposals.generate') }}
-          </BaseButton>
-          <BaseButton
-            variant="secondary"
-            :loading="send.isPending.value"
-            :disabled="isGenerating"
-            @click="onSend"
-          >
-            {{ t('proposals.send') }}
-          </BaseButton>
-        </div>
-      </div>
 
       <div
         v-if="isGenerating"

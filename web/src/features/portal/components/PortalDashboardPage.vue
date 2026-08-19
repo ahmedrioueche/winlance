@@ -49,7 +49,19 @@ async function accept(_kind: 'accept-offer' | 'accept-contract') {
 </script>
 
 <template>
-  <main class="mx-auto min-h-dvh w-full max-w-4xl p-6 md:p-8">
+  <main class="mx-auto min-h-dvh w-full max-w-4xl p-6 md:p-8 space-y-8">
+    <header class="rounded-xl border border-border bg-canvas-elevated p-5 shadow-soft sm:p-8">
+      <p class="text-xs font-medium tracking-[0.18em] text-muted uppercase sm:text-sm">
+        {{ t('portal.badge') }}
+      </p>
+      <h1 class="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl">
+        {{ dashboard?.project?.title || t('portal.badge') }}
+      </h1>
+      <p v-if="dashboard?.project?.summary" class="mt-3 text-base text-ink-soft sm:text-lg">
+        {{ dashboard.project.summary }}
+      </p>
+    </header>
+
     <LoadingState v-if="portalQuery.isPending.value" />
     <EmptyState
       v-else-if="isExpired"
@@ -65,15 +77,6 @@ async function accept(_kind: 'accept-offer' | 'accept-contract') {
     <EmptyState v-else-if="!dashboard" :title="t('common.errors.notFound')" />
 
     <div v-else class="space-y-8 sm:space-y-10">
-      <header class="rounded-xl border border-border bg-canvas-elevated p-5 shadow-soft sm:p-8">
-        <p class="text-xs font-medium tracking-[0.18em] text-muted uppercase sm:text-sm">
-          {{ t('portal.badge') }}
-        </p>
-        <h1 class="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl">
-          {{ dashboard.project?.title }}
-        </h1>
-        <p class="mt-3 text-base text-ink-soft sm:text-lg">{{ dashboard.project?.summary }}</p>
-      </header>
 
       <section class="space-y-3">
         <h2 class="font-display text-xl text-ink sm:text-2xl">{{ t('portal.requirements') }}</h2>

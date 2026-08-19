@@ -154,9 +154,56 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
 
 <template>
   <section class="w-full space-y-6">
-    <BaseButton variant="ghost" size="sm" @click="router.push({ name: 'contracts' })">
-      ← {{ t('contracts.editor.back') }}
-    </BaseButton>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <BaseButton variant="ghost" size="sm" @click="router.push({ name: 'contracts' })">
+        ← {{ t('contracts.editor.back') }}
+      </BaseButton>
+
+      <div v-if="contract" class="flex flex-wrap items-center gap-2">
+        <BaseButton
+          variant="secondary"
+          :loading="update.isPending.value"
+          :disabled="isGenerating"
+          @click="save"
+        >
+          {{ t('common.actions.save') }}
+        </BaseButton>
+
+        <BaseButton
+          variant="secondary"
+          :loading="isExporting"
+          :disabled="isGenerating"
+          @click="handleExportPdf"
+        >
+          <Download class="h-4 w-4 mr-1.5" />
+          Export PDF
+        </BaseButton>
+
+        <BaseButton
+          v-for="kind in (['generate', 'send', 'sign'] as const)"
+          :key="kind"
+          :variant="kind === 'sign' ? 'primary' : 'secondary'"
+          :loading="action.isPending.value || (kind === 'generate' && isGenerating)"
+          :disabled="isGenerating && kind !== 'generate'"
+          @click="act(kind)"
+        >
+          <Sparkles v-if="kind === 'generate'" class="h-4 w-4 mr-1.5" />
+          <Send v-else-if="kind === 'send'" class="h-4 w-4 mr-1.5" />
+          <CheckCircle v-else-if="kind === 'sign'" class="h-4 w-4 mr-1.5" />
+          {{ t(`contracts.${kind}`) }}
+        </BaseButton>
+      </div>
+    </div>
+
+    <div v-if="contract" class="border-b border-border pb-4">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-accent/10 text-accent border border-accent/20">
+        {{ statusLabel }}
+      </span>
+      <h1 class="font-display text-3xl text-ink font-bold mt-1">{{ contract.title }}</h1>
+      <p v-if="contract.signed_at" class="mt-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+        {{ t('contracts.editor.signedAt', { date: new Date(contract.signed_at).toLocaleString() }) }}
+      </p>
+    </div>
 
     <LoadingState v-if="contractQuery.isPending.value" />
     <ErrorState
@@ -168,53 +215,6 @@ async function act(kind: 'generate' | 'export' | 'send' | 'sign') {
     <EmptyState v-else-if="!contract" :title="t('common.errors.notFound')" />
 
     <article v-else class="space-y-8">
-      <!-- Page Header & Action Controls -->
-      <div class="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-accent/10 text-accent border border-accent/20">
-            {{ statusLabel }}
-          </span>
-          <h1 class="font-display text-3xl text-ink font-bold mt-1">{{ contract.title }}</h1>
-          <p v-if="contract.signed_at" class="mt-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-            {{ t('contracts.editor.signedAt', { date: new Date(contract.signed_at).toLocaleString() }) }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <BaseButton
-            variant="secondary"
-            :loading="update.isPending.value"
-            :disabled="isGenerating"
-            @click="save"
-          >
-            {{ t('common.actions.save') }}
-          </BaseButton>
-
-          <BaseButton
-            variant="secondary"
-            :loading="isExporting"
-            :disabled="isGenerating"
-            @click="handleExportPdf"
-          >
-            <Download class="h-4 w-4 mr-1.5" />
-            Export PDF
-          </BaseButton>
-
-          <BaseButton
-            v-for="kind in (['generate', 'send', 'sign'] as const)"
-            :key="kind"
-            :variant="kind === 'sign' ? 'primary' : 'secondary'"
-            :loading="action.isPending.value || (kind === 'generate' && isGenerating)"
-            :disabled="isGenerating && kind !== 'generate'"
-            @click="act(kind)"
-          >
-            <Sparkles v-if="kind === 'generate'" class="h-4 w-4 mr-1.5" />
-            <Send v-else-if="kind === 'send'" class="h-4 w-4 mr-1.5" />
-            <CheckCircle v-else-if="kind === 'sign'" class="h-4 w-4 mr-1.5" />
-            {{ t(`contracts.${kind}`) }}
-          </BaseButton>
-        </div>
-      </div>
 
       <div
         v-if="isGenerating"
