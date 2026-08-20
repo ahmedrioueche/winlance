@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ErrorState, Skeleton } from '@/shared/components/base'
+import { Pagination } from '@/shared/components/composite'
 import { useProposalsList } from '../../composables/list/useProposalsList'
 import ProposalDeleteModal from '../editor/ProposalDeleteModal.vue'
 import ProposalsListFilterBar from '../list/ProposalsListFilterBar.vue'
@@ -8,6 +9,10 @@ import ProposalsListTable from '../list/ProposalsListTable.vue'
 
 const {
   filteredProposals,
+  totalCount,
+  page,
+  pageSize,
+  setPage,
   isPending,
   isError,
   refetch,
@@ -24,19 +29,7 @@ const {
 </script>
 
 <template>
-  <div v-if="isPending" class="space-y-6">
-    <Skeleton class="h-24 w-full rounded-2xl" />
-    <Skeleton class="h-96 w-full rounded-2xl" />
-  </div>
-
-  <ErrorState
-    v-else-if="isError"
-    title="Failed to load proposals list"
-    retry-label="Try again"
-    @retry="refetch()"
-  />
-
-  <section v-else class="space-y-6">
+  <section class="space-y-6">
     <ProposalsListHeader />
 
     <ProposalsListFilterBar
@@ -44,10 +37,30 @@ const {
       v-model:status-filter="statusFilter"
     />
 
-    <ProposalsListTable
-      :proposals="filteredProposals"
-      @delete="handleOpenDeleteModal"
+    <div v-if="isPending" class="py-4">
+      <Skeleton class="h-96 w-full rounded-2xl" />
+    </div>
+
+    <ErrorState
+      v-else-if="isError"
+      title="Failed to load proposals list"
+      retry-label="Try again"
+      @retry="refetch()"
     />
+
+    <template v-else>
+      <ProposalsListTable
+        :proposals="filteredProposals"
+        @delete="handleOpenDeleteModal"
+      />
+
+      <Pagination
+        :page="page"
+        :page-size="pageSize"
+        :total="totalCount"
+        @update:page="setPage"
+      />
+    </template>
 
     <!-- Delete Modal -->
     <ProposalDeleteModal

@@ -33,14 +33,7 @@ const backToProjectsUrl = computed(() => {
   return '/app/projects'
 })
 
-const projectInitials = computed(() => {
-  if (!project.value?.title) return 'PR'
-  const parts = project.value.title.trim().split(' ')
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-  }
-  return project.value.title.substring(0, 2).toUpperCase()
-})
+
 
 // Preserve the `from` query param across internal navigation so the back button stays correct
 const fromQuery = computed(() => {

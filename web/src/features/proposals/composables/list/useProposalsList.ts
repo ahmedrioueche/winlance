@@ -1,15 +1,29 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { usePagination } from '@/shared/composables/usePagination'
 import { useToast } from '@/shared/toast/useToast'
 import { useDeleteProposalMutation, useProposalsQuery } from '../../queries'
 import type { Proposal } from '../../types'
 
 export function useProposalsList() {
   const toast = useToast()
-  const { data: proposalsData, isPending, isError, refetch } = useProposalsQuery({})
-  const deleteProposalMutation = useDeleteProposalMutation()
+  const { page, pageSize, setPage } = usePagination({ defaultPageSize: 5 })
 
   const searchQuery = ref('')
   const statusFilter = ref<string>('')
+
+  watch([searchQuery, statusFilter], () => {
+    setPage(1)
+  })
+
+  const params = computed(() => ({
+    page: page.value,
+    page_size: pageSize.value,
+    q: searchQuery.value.trim() || undefined,
+    status: statusFilter.value || undefined,
+  }))
+
+  const { data: proposalsData, isPending, isError, refetch } = useProposalsQuery(params)
+  const deleteProposalMutation = useDeleteProposalMutation()
 
   const isDeleteModalOpen = ref(false)
   const selectedProposal = ref<Proposal | null>(null)
@@ -24,6 +38,14 @@ export function useProposalsList() {
       return proposalsData.value
     }
     return []
+  })
+
+  const totalCount = computed(() => {
+    if (!proposalsData.value) return 0
+    if ('count' in proposalsData.value && typeof proposalsData.value.count === 'number') {
+      return proposalsData.value.count
+    }
+    return proposals.value.length
   })
 
   const filteredProposals = computed(() => {
@@ -60,6 +82,10 @@ export function useProposalsList() {
   return {
     proposals,
     filteredProposals,
+    totalCount,
+    page,
+    pageSize,
+    setPage,
     isPending,
     isError,
     refetch,

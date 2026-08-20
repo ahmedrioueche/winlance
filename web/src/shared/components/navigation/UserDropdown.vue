@@ -121,20 +121,20 @@ onUnmounted(() => {
           @click="closeDropdown"
         >
           <Settings class="h-4 w-4 text-muted" />
-          <span>{{ t('common.nav.settings', 'Settings') }}</span>
+          <span>{{ t('nav.settings', 'Settings') }}</span>
         </RouterLink>
       </div>
 
       <div class="border-t border-border/60 pt-2 space-y-1.5">
         <!-- Appearance Row -->
         <div class="flex items-center justify-between px-3 py-1 text-xs">
-          <span class="font-medium text-muted">Appearance</span>
+          <span class="font-medium text-muted">{{ t('settings.tabs.appearance', 'Appearance') }}</span>
           <ThemeToggle />
         </div>
 
         <!-- Language Row -->
         <div class="flex items-center justify-between px-3 py-1 text-xs">
-          <span class="font-medium text-muted">Language</span>
+          <span class="font-medium text-muted">{{ t('settings.appearance.language', 'Language') }}</span>
           <LanguageToggle />
         </div>
 
@@ -146,7 +146,7 @@ onUnmounted(() => {
             @click="handleLogout"
           >
             <LogOut class="h-4 w-4" />
-            <span>{{ t('common.nav.logout', 'Log out') }}</span>
+            <span>{{ t('nav.logout', 'Log out') }}</span>
           </button>
         </div>
       </div>

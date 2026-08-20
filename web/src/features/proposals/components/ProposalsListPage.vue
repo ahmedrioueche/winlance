@@ -19,6 +19,8 @@ import {
   ErrorState,
   LoadingState,
 } from '@/shared/components/base'
+import { Pagination } from '@/shared/components/composite'
+import { usePagination } from '@/shared/composables/usePagination'
 import { useToast } from '@/shared/toast/useToast'
 
 import {
@@ -41,7 +43,8 @@ const insertPayload = ref<OutreachInsertPayload | null>(null)
 const selectedProposalId = ref('')
 const mode = ref<'replace' | 'append'>('append')
 
-const listParams = computed(() => ({ page: 1, page_size: 20 }))
+const { page, pageSize, setPage } = usePagination({ defaultPageSize: 5 })
+const listParams = computed(() => ({ page: page.value, page_size: pageSize.value }))
 const { data, isPending, isError, refetch } = useProposalsQuery(listParams)
 const leadsQuery = useLeadsQuery(computed(() => ({ page: 1, page_size: 50 })))
 const templatesQuery = useProposalTemplatesQuery()
@@ -50,6 +53,7 @@ const create = useCreateProposalMutation()
 const update = useUpdateProposalMutation()
 
 const proposals = computed(() => data.value?.results ?? [])
+const totalCount = computed(() => data.value?.count ?? proposals.value.length)
 const proposalOptions = computed(() =>
   proposals.value.map((item) => ({
     value: String(item.id),
@@ -191,28 +195,36 @@ async function applyInsert() {
         v-for="item in proposals"
         :key="item.id"
         :to="`/app/proposals/${item.id}`"
-        class="block rounded-lg border border-border bg-canvas-elevated p-4"
+        class="block rounded-lg border border-border bg-canvas-elevated p-4 cursor-pointer hover:border-accent/40 hover:bg-canvas-muted transition-all"
       >
         <p class="font-medium text-ink">{{ item.title }}</p>
         <p class="text-sm text-muted">{{ item.status }}</p>
       </RouterLink>
+
+      <Pagination
+        :page="page"
+        :page-size="pageSize"
+        :total="totalCount"
+        class="mt-6"
+        @update:page="setPage"
+      />
     </div>
 
-    <BaseModal :open="open" title="Create Proposal" @close="open = false">
+    <BaseModal :open="open" :title="t('proposals.createModalTitle', 'Create New Proposal')" @close="open = false">
       <div class="space-y-4">
         <!-- Proposal Name Input -->
         <BaseInput
           v-model="proposalTitle"
-          label="Proposal Name / Title"
-          placeholder="e.g. Proposal for Rookie Corp ERP v1"
+          :label="t('proposals.editor.titleLabel', 'Proposal Document Title')"
+          :placeholder="t('proposals.editor.titlePlaceholder', 'e.g. Rookie Corp ERP Implementation Proposal')"
           required
         />
 
         <!-- Target Project Name Input -->
         <BaseInput
           v-model="targetProjectName"
-          label="Target Project Name"
-          placeholder="e.g. Rookie Corp ERP v1"
+          :label="t('proposals.editor.targetProjectNameLabel', 'Workspace Project Name')"
+          :placeholder="t('proposals.editor.targetProjectNamePlaceholder', 'e.g. Rookie Corp ERP')"
           @input="userEditedProjectName = true"
         />
 
@@ -220,8 +232,8 @@ async function applyInsert() {
         <div class="flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent-soft p-3.5 text-xs leading-relaxed text-ink">
           <FolderKanban class="h-4 w-4 text-accent shrink-0 mt-0.5" />
           <div>
-            <span class="font-bold text-accent">Workspace Project Naming:</span>
-            When the client accepts this proposal, WinLance will automatically create a workspace project named using the <strong class="underline">Target Project Name</strong> specified above.
+            <span class="font-bold text-accent">{{ t('proposals.createModal.namingTitle', 'Workspace Project Naming:') }}</span>
+            {{ t('proposals.createModal.namingHelp', 'When the client accepts this proposal, WinLance will automatically create a workspace project named using the Target Project Name specified above.') }}
           </div>
         </div>
 

@@ -36,16 +36,7 @@ function handleProjectCreated(newProjectId: string) {
 </script>
 
 <template>
-  <ProjectsSkeleton v-if="isPending" />
-
-  <ErrorState
-    v-else-if="isError"
-    title="Failed to load projects"
-    retry-label="Try again"
-    @retry="refetch()"
-  />
-
-  <section v-else class="space-y-6">
+  <section class="space-y-6">
     <ProjectsListHeader @create-project="handleOpenCreateModal" />
 
     <ProjectsListFilterBar
@@ -62,7 +53,17 @@ function handleProjectCreated(newProjectId: string) {
       @clear-filters="clearFilters"
     />
 
+    <ProjectsSkeleton v-if="isPending" />
+
+    <ErrorState
+      v-else-if="isError"
+      title="Failed to load projects"
+      retry-label="Try again"
+      @retry="refetch()"
+    />
+
     <ProjectsListGrid
+      v-else
       :projects="filteredProjects"
       :has-active-filters="hasActiveFilters"
       @clear-filters="clearFilters"

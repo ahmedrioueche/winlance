@@ -150,10 +150,7 @@
       "projects": "Projets",
       "proposals": "Propositions",
       "contracts": "Contrats",
-      "invoices": "Factures",
-      "notes": "Notes",
-      "files": "Fichiers",
-      "activity": "Activité"
+      "settings": "Paramètres"
     },
     "title": "Clients",
     "subtitle": "Gérez vos relations clients, contacts et missions",
@@ -264,11 +261,33 @@
       "companyLabel": "Entreprise / Organisation",
       "companyPlaceholder": "ex. Tech Solutions",
       "emailLabel": "Adresse e-mail",
-      "emailPlaceholder": "ex. sophie@techsolutions.com",
+      "emailPlaceholder": "ex. sophie{'@'}techsolutions.com",
       "phoneLabel": "Numéro de téléphone (optionnel)",
       "phonePlaceholder": "ex. +33 6 12 34 56 78",
+      "statusLabel": "Statut de la relation client",
+      "industryLabel": "Secteur d'activité",
+      "industryPlaceholder": "ex. Technologies & Logiciels",
+      "locationLabel": "Localisation",
+      "locationPlaceholder": "ex. Paris, France",
+      "websiteLabel": "Site web",
+      "websitePlaceholder": "https://exemple.fr",
       "notesLabel": "Notes internes client",
       "notesPlaceholder": "Préférences de contrat, consignes de facturation, fuseau horaire..."
+    },
+    "settings": {
+      "title": "Paramètres du client",
+      "subtitle": "Gérez les coordonnées, l'entreprise et le portail pour {name}",
+      "thisClient": "ce client",
+      "contactDetails": "Coordonnées du client",
+      "statusAndProfile": "Statut & Profil",
+      "portalLink": "Lien du portail client",
+      "portalHelp": "Partagez ce lien unique avec votre client pour lui permettre de consulter ses propositions, contrats et l'avancement.",
+      "internalNotes": "Notes internes",
+      "dangerZone": "Zone dangereuse",
+      "deleteHelp": "La suppression de ce client retirera toutes ses informations de votre espace de travail.",
+      "deleteClient": "Supprimer le client",
+      "deleteModalTitle": "Supprimer la fiche client",
+      "deleteModalMessage": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible."
     }
   },
   "settings": {
@@ -349,6 +368,7 @@
     "subtitle": "Créez, publiez et gérez vos cahiers des charges et devis clients",
     "newProposal": "Nouvelle proposition",
     "createProposal": "Créer une proposition",
+    "createModalTitle": "Créer une nouvelle proposition",
     "editProposal": "Modifier la proposition",
     "searchPlaceholder": "Rechercher des propositions par titre ou client...",
     "allStatuses": "Tous les statuts",
@@ -356,6 +376,21 @@
     "savedToast": "Proposition enregistrée avec succès.",
     "publishedToast": "Proposition publiée avec succès !",
     "deletedToast": "Proposition \"{title}\" supprimée.",
+    "table": {
+      "title": "Titre de la proposition",
+      "status": "Statut",
+      "amount": "Montant",
+      "actions": "Actions"
+    },
+    "actions": {
+      "open": "Ouvrir les détails de la proposition",
+      "edit": "Modifier la proposition",
+      "delete": "Supprimer la proposition"
+    },
+    "createModal": {
+      "namingTitle": "Nommage du projet d'espace de travail :",
+      "namingHelp": "Lorsque le client acceptera cette proposition, WinLance créera automatiquement un espace de projet portant le Nom du projet d'espace de travail spécifié ci-dessus."
+    },
     "editor": {
       "title": "Éditeur de proposition",
       "publishBtn": "Publier la proposition",
@@ -395,7 +430,7 @@
       "nameLabel": "Nom complet du signataire",
       "namePlaceholder": "ex. Sophie Martin",
       "emailLabel": "E-mail du signataire",
-      "emailPlaceholder": "ex. sophie@rookiecorp.com",
+      "emailPlaceholder": "ex. sophie{'@'}rookiecorp.com",
       "drawSignature": "Dessinez votre signature ci-dessous",
       "clearSignature": "Effacer la signature",
       "submitBtn": "Confirmer & Signer la proposition"

@@ -150,10 +150,7 @@
       "projects": "Projects",
       "proposals": "Proposals",
       "contracts": "Contracts",
-      "invoices": "Invoices",
-      "notes": "Notes",
-      "files": "Files",
-      "activity": "Activity"
+      "settings": "Settings"
     },
     "title": "Clients",
     "subtitle": "Manage all client relationships, contacts, and engagements",
@@ -352,11 +349,31 @@
       "companyLabel": "Company / Organization",
       "companyPlaceholder": "e.g. Rookie Corp",
       "emailLabel": "Email Address",
-      "emailPlaceholder": "e.g. sarah@rookiecorp.com",
-      "phoneLabel": "Phone Number (Optional)",
-      "phonePlaceholder": "e.g. +1 (555) 019-2834",
+      "emailPlaceholder": "e.g. sarah{'@'}rookiecorp.com",
+      "statusLabel": "Client Relationship Status",
+      "industryLabel": "Industry",
+      "industryPlaceholder": "e.g. Software & Technology",
+      "locationLabel": "Location",
+      "locationPlaceholder": "e.g. San Francisco, CA",
+      "websiteLabel": "Website URL",
+      "websitePlaceholder": "https://example.com",
       "notesLabel": "Internal Client Notes",
       "notesPlaceholder": "Contract preferences, invoicing instructions, timezone details..."
+    },
+    "settings": {
+      "title": "Client Settings",
+      "subtitle": "Manage contact info, organization details, and portal settings for {name}",
+      "thisClient": "this client",
+      "contactDetails": "Contact Details",
+      "statusAndProfile": "Status & Profile Info",
+      "portalLink": "Client Portal Link",
+      "portalHelp": "Share this unique portal URL with your client to let them view active project proposals, contracts, and progress updates.",
+      "internalNotes": "Internal Notes",
+      "dangerZone": "Danger Zone",
+      "deleteHelp": "Deleting this client will remove their record from your workspace.",
+      "deleteClient": "Delete Client",
+      "deleteModalTitle": "Delete Client Record",
+      "deleteModalMessage": "Are you sure you want to delete {name}? This action cannot be undone."
     }
   },
   "proposals": {
@@ -364,6 +381,7 @@
     "subtitle": "Create, publish, and manage client statements of work and project estimates",
     "newProposal": "New Proposal",
     "createProposal": "Create Proposal",
+    "createModalTitle": "Create New Proposal",
     "editProposal": "Edit Proposal",
     "searchPlaceholder": "Search proposals by title or client...",
     "allStatuses": "All Statuses",
@@ -371,6 +389,21 @@
     "savedToast": "Proposal saved successfully.",
     "publishedToast": "Proposal published successfully!",
     "deletedToast": "Proposal \"{title}\" deleted.",
+    "table": {
+      "title": "Proposal Title",
+      "status": "Status",
+      "amount": "Investment Amount",
+      "actions": "Actions"
+    },
+    "actions": {
+      "open": "Open Proposal Details",
+      "edit": "Edit Proposal",
+      "delete": "Delete Proposal"
+    },
+    "createModal": {
+      "namingTitle": "Workspace Project Naming:",
+      "namingHelp": "When the client accepts this proposal, WinLance will automatically create a workspace project named using the Target Project Name specified above."
+    },
     "editor": {
       "title": "Proposal Editor",
       "publishBtn": "Publish Proposal",
@@ -410,7 +443,7 @@
       "nameLabel": "Signer Full Name",
       "namePlaceholder": "e.g. Sarah Jenkins",
       "emailLabel": "Signer Email",
-      "emailPlaceholder": "e.g. sarah@rookiecorp.com",
+      "emailPlaceholder": "e.g. sarah{'@'}rookiecorp.com",
       "drawSignature": "Draw Signature Below",
       "clearSignature": "Clear Signature",
       "submitBtn": "Confirm & Sign Proposal"

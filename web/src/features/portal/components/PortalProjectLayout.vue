@@ -62,14 +62,7 @@ function closeMobileMenu() {
   mobileMenuOpen.value = false
 }
 
-const projectInitials = computed(() => {
-  if (!project.value?.title) return 'PR'
-  const parts = project.value.title.trim().split(' ')
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-  }
-  return project.value.title.substring(0, 2).toUpperCase()
-})
+
 
 const navItems = computed(() => {
   const tkn = token.value

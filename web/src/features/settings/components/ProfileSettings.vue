@@ -52,8 +52,12 @@ async function handleSave() {
         JD
       </div>
       <div>
-        <h4 class="text-sm font-semibold text-ink">Profile Avatar</h4>
-        <p class="text-xs text-muted">JPG, PNG or GIF. 2MB max.</p>
+        <h4 class="text-sm font-semibold text-ink">
+          {{ t('settings.profile.avatarTitle', 'Profile Avatar') }}
+        </h4>
+        <p class="text-xs text-muted">
+          {{ t('settings.profile.avatarHelp', 'JPG, PNG or GIF. 2MB max.') }}
+        </p>
         <BaseButton variant="secondary" size="sm" class="mt-2">
           {{ t('settings.profile.changePhoto', 'Change Photo') }}
         </BaseButton>
@@ -71,7 +75,7 @@ async function handleSave() {
         <BaseInput
           v-model="email"
           type="email"
-          label="Email Address"
+          :label="t('clients.form.emailLabel', 'Email Address')"
           required
         />
       </div>
@@ -101,7 +105,7 @@ async function handleSave() {
 
       <div class="flex justify-end pt-2">
         <BaseButton :loading="isSaving" type="submit">
-          Save Profile
+          {{ t('common.actions.save', 'Save Changes') }}
         </BaseButton>
       </div>
     </form>

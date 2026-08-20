@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import {
-  Activity,
   ArrowLeft,
-  CreditCard,
   FileSignature,
-  Files,
   FileText,
   Folder,
   LayoutDashboard,
   Menu,
-  StickyNote,
+  Settings,
   X,
 } from '@lucide/vue'
 import { computed, ref } from 'vue'
@@ -18,24 +15,10 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 
 import { AppLogo } from '@/shared/components/base'
 import UserDropdown from '@/shared/components/navigation/UserDropdown.vue'
-
-import { useClientQuery } from '../queries'
-
 const { t } = useI18n()
 const route = useRoute()
 const mobileMenuOpen = ref(false)
-
 const clientId = computed(() => String(route.params.id || ''))
-const { data: client } = useClientQuery(clientId)
-
-const clientInitials = computed(() => {
-  if (!client.value?.name) return 'CL'
-  const parts = client.value.name.trim().split(' ')
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-  }
-  return client.value.name.substring(0, 2).toUpperCase()
-})
 
 const navItems = computed(() => {
   const id = clientId.value
@@ -45,10 +28,7 @@ const navItems = computed(() => {
     { path: `${base}/projects`, labelKey: 'clients.nav.projects', defaultLabel: 'Projects', icon: Folder },
     { path: `${base}/proposals`, labelKey: 'clients.nav.proposals', defaultLabel: 'Proposals', icon: FileText },
     { path: `${base}/contracts`, labelKey: 'clients.nav.contracts', defaultLabel: 'Contracts', icon: FileSignature },
-    { path: `${base}/invoices`, labelKey: 'clients.nav.invoices', defaultLabel: 'Invoices', icon: CreditCard },
-    { path: `${base}/notes`, labelKey: 'clients.nav.notes', defaultLabel: 'Notes', icon: StickyNote },
-    { path: `${base}/files`, labelKey: 'clients.nav.files', defaultLabel: 'Files', icon: Files },
-    { path: `${base}/activity`, labelKey: 'clients.nav.activity', defaultLabel: 'Activity', icon: Activity },
+    { path: `${base}/settings`, labelKey: 'clients.nav.settings', defaultLabel: 'Settings', icon: Settings },
   ]
 })
 

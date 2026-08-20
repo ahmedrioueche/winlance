@@ -54,7 +54,10 @@ class ProposalViewSet(viewsets.ModelViewSet):
         project_id = self.request.query_params.get("project_id")
         if project_id:
             queryset = queryset.filter(project_id=project_id)
-        return queryset
+        q = self.request.query_params.get("q") or self.request.query_params.get("search")
+        if q:
+            queryset = queryset.filter(title__icontains=q.strip())
+        return queryset.order_by("-updated_at", "-created_at")
 
     def perform_create(self, serializer):
         ensure_default_template(self.request.user)

@@ -56,16 +56,7 @@ const emptyDescription = computed(() => {
 </script>
 
 <template>
-  <ClientsSkeleton v-if="isPending" />
-
-  <ErrorState
-    v-else-if="isError"
-    title="Failed to load clients"
-    retry-label="Try again"
-    @retry="refetch()"
-  />
-
-  <section v-else class="space-y-6">
+  <section class="space-y-6">
     <ClientsListHeader @create-client="handleOpenCreateModal" />
 
     <ClientsListFilterBar
@@ -80,41 +71,52 @@ const emptyDescription = computed(() => {
       @clear-filters="clearFilters"
     />
 
-    <!-- Empty State -->
-    <EmptyState
-      v-if="filteredClients.length === 0"
-      :title="emptyTitle"
-      :description="emptyDescription"
-    >
-      <template #action>
-        <BaseButton
-          v-if="hasActiveFilters"
-          variant="secondary"
-          size="sm"
-          @click="clearFilters"
-        >
-          <FilterX class="h-4 w-4" />
-          <span>{{ t('clients.clearFilters', 'Clear Filters') }}</span>
-        </BaseButton>
+    <ClientsSkeleton v-if="isPending" />
 
-        <BaseButton
-          v-else
-          size="sm"
-          @click="handleOpenCreateModal"
-        >
-          <Plus class="h-4 w-4" />
-          <span>{{ t('clients.create', 'New Client') }}</span>
-        </BaseButton>
-      </template>
-    </EmptyState>
+    <ErrorState
+      v-else-if="isError"
+      :title="t('common.errors.generic', 'Failed to load clients')"
+      :retry-label="t('common.actions.retry', 'Try again')"
+      @retry="refetch()"
+    />
 
-    <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-      <ClientCard
-        v-for="client in filteredClients"
-        :key="client.id"
-        :client="client"
-      />
-    </div>
+    <template v-else>
+      <!-- Empty State -->
+      <EmptyState
+        v-if="filteredClients.length === 0"
+        :title="emptyTitle"
+        :description="emptyDescription"
+      >
+        <template #action>
+          <BaseButton
+            v-if="hasActiveFilters"
+            variant="secondary"
+            size="sm"
+            @click="clearFilters"
+          >
+            <FilterX class="h-4 w-4" />
+            <span>{{ t('clients.clearFilters', 'Clear Filters') }}</span>
+          </BaseButton>
+
+          <BaseButton
+            v-else
+            size="sm"
+            @click="handleOpenCreateModal"
+          >
+            <Plus class="h-4 w-4" />
+            <span>{{ t('clients.create', 'New Client') }}</span>
+          </BaseButton>
+        </template>
+      </EmptyState>
+
+      <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+        <ClientCard
+          v-for="client in filteredClients"
+          :key="client.id"
+          :client="client"
+        />
+      </div>
+    </template>
 
     <!-- Create Client Modal -->
     <CreateClientModal

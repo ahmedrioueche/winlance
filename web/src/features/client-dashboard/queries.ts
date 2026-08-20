@@ -49,3 +49,13 @@ export const useUpdateClientMutation = () => {
     },
   })
 }
+
+export const useDeleteClientMutation = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteClient,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: clientKeys.all })
+    },
+  })
+}
