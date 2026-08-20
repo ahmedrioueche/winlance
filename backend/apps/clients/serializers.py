@@ -5,6 +5,7 @@ from .models import Client
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False, allow_blank=True, default="")
     projects = serializers.SerializerMethodField()
     proposals = serializers.SerializerMethodField()
 

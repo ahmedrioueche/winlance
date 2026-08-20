@@ -40,6 +40,16 @@
     "analytics": "Analyses",
     "profile": "Profil"
   },
+  "common": {
+    "actions": {
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "retry": "Réessayer",
+      "create": "Créer",
+      "confirm": "Confirmer"
+    }
+  },
   "actions": {
     "reload": "Recharger",
     "retry": "Réessayer",
@@ -436,7 +446,8 @@
       "emailLabel": "E-mail du signataire",
       "emailPlaceholder": "ex. sophie{'@'}rookiecorp.com",
       "drawSignature": "Dessinez votre signature ci-dessous",
-      "clearSignature": "Effacer la signature"
+      "clearSignature": "Effacer la signature",
+      "submitBtn": "Confirmer & Signer la proposition"
     }
   },
   "contracts": {

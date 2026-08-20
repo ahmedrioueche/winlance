@@ -40,6 +40,16 @@
     "analytics": "Analytics",
     "profile": "Profile"
   },
+  "common": {
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "delete": "Delete",
+      "retry": "Try again",
+      "create": "Create",
+      "confirm": "Confirm"
+    }
+  },
   "actions": {
     "reload": "Reload",
     "retry": "Try again",

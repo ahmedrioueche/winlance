@@ -24,26 +24,26 @@ const { t } = useI18n()
 <template>
   <BaseModal
     :open="open"
-    :title="t('portal.acceptanceModal.title')"
+    :title="t('portal.acceptanceModal.title', 'Sign & Accept Proposal Document')"
     @close="emit('close')"
   >
     <div class="space-y-4 text-xs">
       <p class="text-muted leading-relaxed">
-        {{ t('portal.acceptanceModal.subtitle') }}
+        {{ t('portal.acceptanceModal.subtitle', 'By typing your full name and signing below, you agree to the statement of work and milestone pricing.') }}
       </p>
 
       <div class="space-y-3">
         <BaseInput
           v-model="signerName"
-          :label="t('portal.acceptanceModal.nameLabel')"
-          :placeholder="t('portal.acceptanceModal.namePlaceholder')"
+          :label="t('portal.acceptanceModal.nameLabel', 'Signer Full Name')"
+          :placeholder="t('portal.acceptanceModal.namePlaceholder', 'e.g. Sarah Jenkins')"
           required
         />
 
         <BaseInput
           v-model="signerEmail"
           type="email"
-          :label="t('portal.acceptanceModal.emailLabel')"
+          :label="t('portal.acceptanceModal.emailLabel', 'Signer Email')"
           :placeholder="t('portal.acceptanceModal.emailPlaceholder')"
           required
         />
@@ -52,7 +52,7 @@ const { t } = useI18n()
 
     <template #footer>
       <BaseButton variant="secondary" size="sm" @click="emit('close')">
-        {{ t('actions.cancel') }}
+        {{ t('common.actions.cancel', 'Cancel') }}
       </BaseButton>
       <BaseButton
         size="sm"
@@ -61,7 +61,7 @@ const { t } = useI18n()
         @click="emit('accept')"
       >
         <FileCheck class="h-4 w-4" />
-        <span>{{ t('portal.acceptanceModal.submitBtn') }}</span>
+        <span>{{ t('portal.acceptanceModal.submitBtn', 'Confirm & Sign Proposal') }}</span>
       </BaseButton>
     </template>
   </BaseModal>

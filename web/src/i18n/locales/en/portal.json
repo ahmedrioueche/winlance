@@ -136,5 +136,16 @@
   "messages": {
     "requirementAdded": "Requirement added",
     "accepted": "Accepted"
+  },
+  "acceptanceModal": {
+    "title": "Sign & Accept Proposal Document",
+    "subtitle": "By typing your full name and signing below, you agree to the statement of work and milestone pricing.",
+    "nameLabel": "Signer Full Name",
+    "namePlaceholder": "e.g. Sarah Jenkins",
+    "emailLabel": "Signer Email",
+    "emailPlaceholder": "e.g. sarah{'@'}rookiecorp.com",
+    "drawSignature": "Draw Signature Below",
+    "clearSignature": "Clear Signature",
+    "submitBtn": "Confirm & Sign Proposal"
   }
 }

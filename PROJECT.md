@@ -4,7 +4,7 @@
 
 ## What it is
 
-Winlance is a Client Acquisition OS for freelancers — not a general freelancer guide (taxes, accounting, freelancing 101), but a focused tool that supports one pipeline end to end: finding leads, turning them into clients, and delivering work that turns into referrals.
+Winlance is a focused tool that supports one pipeline end to end: finding leads, turning them into clients, and delivering work that turns into referrals.
 
 Everything in the app exists to support this single journey:
 

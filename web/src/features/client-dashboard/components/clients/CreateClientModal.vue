@@ -49,7 +49,6 @@ const { t } = useI18n()
           type="email"
           :label="t('clients.form.emailLabel')"
           :placeholder="t('clients.form.emailPlaceholder')"
-          required
         />
 
         <BaseInput

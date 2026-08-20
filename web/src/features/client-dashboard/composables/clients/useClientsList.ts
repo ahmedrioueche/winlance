@@ -183,13 +183,13 @@ export function useClientsList() {
   }
 
   async function handleSaveClient() {
-    if (!name.value.trim() || !email.value.trim()) return
+    if (!name.value.trim()) return
 
     try {
       await createClientMutation.mutateAsync({
         name: name.value.trim(),
         company_name: companyName.value.trim(),
-        email: email.value.trim(),
+        email: email.value.trim() || undefined,
         phone: phone.value.trim(),
         notes: notes.value.trim(),
       })
