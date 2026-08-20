@@ -288,6 +288,10 @@
       "deleteClient": "Supprimer le client",
       "deleteModalTitle": "Supprimer la fiche client",
       "deleteModalMessage": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible."
+    },
+    "contracts": {
+      "title": "Contrats du client",
+      "subtitle": "Contrats juridiques, cahiers des charges et signatures pour {name}"
     }
   },
   "settings": {
@@ -432,8 +436,34 @@
       "emailLabel": "E-mail du signataire",
       "emailPlaceholder": "ex. sophie{'@'}rookiecorp.com",
       "drawSignature": "Dessinez votre signature ci-dessous",
-      "clearSignature": "Effacer la signature",
-      "submitBtn": "Confirmer & Signer la proposition"
+      "clearSignature": "Effacer la signature"
+    }
+  },
+  "contracts": {
+    "title": "Contrats & Accords juridiques",
+    "subtitle": "Créez et gérez vos contrats, engagements et signatures électroniques",
+    "newContract": "Nouveau contrat",
+    "searchPlaceholder": "Rechercher des contrats par titre...",
+    "allStatuses": "Tous les statuts",
+    "noMatchingTitle": "Aucun contrat trouvé",
+    "emptyTitle": "Aucun contrat pour ce client pour l'instant",
+    "emptyDescription": "Créez des contrats juridiques et cahiers des charges pour ce client.",
+    "status": {
+      "draft": "Brouillon",
+      "ready": "Prêt",
+      "sent": "Envoyé",
+      "signed": "Signé",
+      "void": "Annulé"
+    },
+    "table": {
+      "title": "Titre du contrat",
+      "status": "Statut",
+      "amount": "Montant",
+      "updated": "Dernière mise à jour",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "Voir les détails du contrat"
     }
   }
 }

@@ -53,10 +53,13 @@ class ContractViewSet(viewsets.ModelViewSet):
         status_filter = self.request.query_params.get("status")
         if status_filter:
             queryset = queryset.filter(status=status_filter)
-        project_id = self.request.query_params.get("project_id")
-        if project_id:
-            queryset = queryset.filter(project_id=project_id)
-        return queryset
+        client_id = self.request.query_params.get("client") or self.request.query_params.get("client_id")
+        if client_id:
+            queryset = queryset.filter(proposal__client_id=client_id)
+        q = self.request.query_params.get("q") or self.request.query_params.get("search")
+        if q:
+            queryset = queryset.filter(title__icontains=q.strip())
+        return queryset.order_by("-updated_at", "-created_at")
 
     def perform_create(self, serializer):
         ensure_default_contract_template(self.request.user)

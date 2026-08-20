@@ -8,7 +8,13 @@ import type {
   ContractUpdate,
 } from './types'
 
-export type ContractListParams = { page?: number; page_size?: number }
+export type ContractListParams = {
+  page?: number
+  page_size?: number
+  client_id?: string
+  q?: string
+  status?: string
+}
 
 function asList<T>(data: T[] | PaginatedResponse<T>): T[] {
   return Array.isArray(data) ? data : data.results

@@ -374,6 +374,10 @@
       "deleteClient": "Delete Client",
       "deleteModalTitle": "Delete Client Record",
       "deleteModalMessage": "Are you sure you want to delete {name}? This action cannot be undone."
+    },
+    "contracts": {
+      "title": "Client Contracts",
+      "subtitle": "Legal agreements, statements of work, and e-signature statuses for {name}"
     }
   },
   "proposals": {
@@ -447,6 +451,33 @@
       "drawSignature": "Draw Signature Below",
       "clearSignature": "Clear Signature",
       "submitBtn": "Confirm & Sign Proposal"
+    }
+  },
+  "contracts": {
+    "title": "Contracts & Legal Agreements",
+    "subtitle": "Create, track, and manage client legal agreements, statements of work, and e-signatures",
+    "newContract": "New Contract",
+    "searchPlaceholder": "Search contracts by title...",
+    "allStatuses": "All Statuses",
+    "noMatchingTitle": "No Contracts Found",
+    "emptyTitle": "No contracts for this client yet",
+    "emptyDescription": "Create legal agreements and statements of work for this client.",
+    "status": {
+      "draft": "Draft",
+      "ready": "Ready",
+      "sent": "Sent",
+      "signed": "Signed",
+      "void": "Void"
+    },
+    "table": {
+      "title": "Contract Title",
+      "status": "Status",
+      "amount": "Amount",
+      "updated": "Last Updated",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "View Contract Details"
     }
   }
 }
