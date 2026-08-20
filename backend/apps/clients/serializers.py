@@ -44,16 +44,13 @@ class ClientSerializer(serializers.ModelSerializer):
         from apps.projects.models import Project
 
         qs = Project.objects.filter(freelancer=obj.freelancer)
-        filters = Q()
+        filters = Q(proposal__client=obj)
         if obj.email:
             filters |= Q(client_email__iexact=obj.email)
         if obj.name:
             filters |= Q(client_name__iexact=obj.name)
         if obj.company_name:
             filters |= Q(client_name__iexact=obj.company_name)
-
-        if not filters:
-            return []
 
         projects = qs.filter(filters).distinct()
         return [

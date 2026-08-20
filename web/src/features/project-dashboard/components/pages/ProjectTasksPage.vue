@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from '@/shared/toast/useToast'
-import { ErrorState, Skeleton } from '@/shared/components/base'
+import { ErrorState } from '@/shared/components/base'
 import { useProjectQuery } from '../../queries'
 import { useTaskDeletion } from '../../composables/tasks/useTaskDeletion'
 import { useTaskFilters } from '../../composables/tasks/useTaskFilters'
@@ -16,6 +16,7 @@ import ProjectTasksFilterBar from '../tasks/ProjectTasksFilterBar.vue'
 import ProjectTasksHeader from '../tasks/ProjectTasksHeader.vue'
 import ProjectTasksListTable from '../tasks/ProjectTasksListTable.vue'
 import ProjectTasksBoardView from '../tasks/ProjectTasksBoardView.vue'
+import ProjectTasksSkeleton from '../tasks/ProjectTasksSkeleton.vue'
 
 const route = useRoute()
 const toast = useToast()
@@ -95,7 +96,7 @@ const {
 
 <template>
   <section class="space-y-6">
-    <Skeleton v-if="isPending" class="h-48 w-full rounded-2xl" />
+    <ProjectTasksSkeleton v-if="isPending" />
 
     <ErrorState
       v-else-if="isError"

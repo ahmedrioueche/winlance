@@ -68,11 +68,16 @@ def ensure_project_and_tasks_for_proposal(proposal, user=None):
         freelancer = user or proposal.user
         client_name = ""
         client_email = ""
-        if proposal.lead:
+
+        if proposal.client:
+            client_name = proposal.client.name or proposal.client.company_name or ""
+            client_email = proposal.client.email or ""
+
+        if proposal.lead and (not client_name or not client_email):
             contact = proposal.lead.contacts.first()
             if contact:
-                client_name = f"{contact.first_name} {contact.last_name}".strip()
-                client_email = contact.email or ""
+                client_name = client_name or f"{contact.first_name} {contact.last_name}".strip()
+                client_email = client_email or contact.email or ""
             if not client_name:
                 company = getattr(proposal.lead, "company", None)
                 if company and getattr(company, "name", None):
@@ -254,14 +259,35 @@ def create_project_from_proposal(user, proposal, *, title=None, client_email="",
     if proposal.user_id != user.id:
         raise ValidationError({"proposal": "Proposal not found or not owned by you."})
 
+    c_name = client_name
+    c_email = client_email
+
+    if proposal.client:
+        if not c_name:
+            c_name = proposal.client.name or proposal.client.company_name or ""
+        if not c_email:
+            c_email = proposal.client.email or ""
+
+    if proposal.lead and (not c_name or not c_email):
+        contact = proposal.lead.contacts.first()
+        if contact:
+            c_name = c_name or f"{contact.first_name} {contact.last_name}".strip()
+            c_email = c_email or contact.email or ""
+        if not c_name:
+            company = getattr(proposal.lead, "company", None)
+            if company and getattr(company, "name", None):
+                c_name = company.name
+
     project = Project.objects.create(
         freelancer=user,
         lead=proposal.lead,
         proposal=proposal,
-        title=title or proposal.title,
+        title=title or proposal.target_project_name or proposal.title,
         summary=proposal.summary or "",
-        client_email=client_email or "",
-        client_name=client_name or "",
+        budget=proposal.amount,
+        currency=proposal.currency,
+        client_email=c_email or "",
+        client_name=c_name or "",
         status=Project.Status.ACTIVE,
     )
     proposal.project_id = project.id

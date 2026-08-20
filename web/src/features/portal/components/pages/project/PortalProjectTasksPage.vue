@@ -20,13 +20,13 @@ import {
   BaseSelect,
   EmptyState,
   ErrorState,
-  Skeleton,
 } from '@/shared/components/base'
 import type { SelectOption } from '@/shared/components/base/BaseSelect.vue'
 
 import type { PortalTask } from '../../../types'
 import { useApprovePortalTaskMutation, usePortalProjectQuery } from '../../../queries'
 import { useToast } from '@/shared/toast/useToast'
+import ProjectTasksSkeleton from '@/features/project-dashboard/components/tasks/ProjectTasksSkeleton.vue'
 
 const { t, d } = useI18n()
 const route = useRoute()
@@ -209,10 +209,7 @@ async function handleApproveTask(task: PortalTask) {
 </script>
 
 <template>
-  <div v-if="isPending" class="space-y-6">
-    <Skeleton class="h-32 w-full rounded-2xl" />
-    <Skeleton class="h-96 w-full rounded-2xl" />
-  </div>
+  <ProjectTasksSkeleton v-if="isPending" is-portal />
 
   <ErrorState
     v-else-if="isError || !project"

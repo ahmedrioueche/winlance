@@ -231,12 +231,32 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         proposal = validated_data.get("proposal")
+        if proposal:
+            if not validated_data.get("client_name"):
+                if proposal.client:
+                    validated_data["client_name"] = proposal.client.name or proposal.client.company_name or ""
+                elif proposal.lead:
+                    contact = proposal.lead.contacts.first()
+                    if contact:
+                        validated_data["client_name"] = f"{contact.first_name} {contact.last_name}".strip()
+                    elif getattr(proposal.lead, "company", None) and getattr(proposal.lead.company, "name", None):
+                        validated_data["client_name"] = proposal.lead.company.name
+
+            if not validated_data.get("client_email"):
+                if proposal.client:
+                    validated_data["client_email"] = proposal.client.email or ""
+                elif proposal.lead:
+                    contact = proposal.lead.contacts.first()
+                    if contact:
+                        validated_data["client_email"] = contact.email or ""
+
         project = super().create(validated_data)
         if proposal:
             proposal.project_id = project.id
             proposal.save(update_fields=["project_id", "updated_at"])
             if not project.tasks.exists():
-                extract_tasks_for_proposal(proposal, project)
+                from .services import populate_milestones_and_tasks_for_project
+                populate_milestones_and_tasks_for_project(proposal, project)
         return project
 
 

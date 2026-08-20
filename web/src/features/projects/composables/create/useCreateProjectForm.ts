@@ -54,6 +54,12 @@ export function useCreateProjectForm(
       if (p.currency) {
         currency.value = p.currency
       }
+      if (!clientName.value && (p as any).client_name) {
+        clientName.value = (p as any).client_name
+      }
+      if (!clientEmail.value && (p as any).client_email) {
+        clientEmail.value = (p as any).client_email
+      }
     }
   })
 
